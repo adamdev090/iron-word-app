@@ -4,44 +4,23 @@
 <meta charset="UTF-8">
 <title>Iron & Word</title>
 
-<!-- =========================
-  SUPABASE IMPORT (modern way)
-========================= -->
 <script type="module">
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-/*
-=========================================
-🔐 CONFIGURATION (your backend connection)
-=========================================
-*/
+/* =========================
+   🔐 SUPABASE CONFIG
+========================= */
 const supabase = createClient(
   "https://hkaligxxiojdgttnfyxp.supabase.co",
   "sb_publishable_c-u4pzu0HaUvKh6Wgwa5iw_0IKCNOKR"
 );
 
-/*
-=========================================
-👥 ALLOWED USERS (SECURITY LAYER)
-=========================================
-We will re-enable this later after debugging
-*/
-const ALLOWED_USERS = [
-  "adamhlavka@gmail.com",
-  "zmudariel@gmail.com"
-].map(e => e.toLowerCase());
-
 let currentUser = null;
 
-/*
-=========================================
-🔑 LOGIN FUNCTION
-=========================================
-Redirects user to Google login
-*/
+/* =========================
+   🔑 AUTH FUNCTIONS
+========================= */
 window.login = async () => {
-  console.log("Login clicked");
-
   await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
@@ -50,27 +29,16 @@ window.login = async () => {
   });
 };
 
-/*
-=========================================
-🚪 LOGOUT FUNCTION
-=========================================
-Clears session and reloads app
-*/
 window.logout = async () => {
   await supabase.auth.signOut();
   location.reload();
 };
 
-/*
-=========================================
-🚀 INIT FUNCTION (runs on page load)
-=========================================
-This is the MOST IMPORTANT part of the app
-*/
+/* =========================
+   🚀 INIT (ON LOAD)
+========================= */
 async function init() {
   const { data: { session } } = await supabase.auth.getSession();
-
-  console.log("SESSION:", session);
 
   if (!session) {
     document.getElementById("auth").style.display = "block";
@@ -79,9 +47,6 @@ async function init() {
   }
 
   const user = session.user;
-
-  console.log("USER:", user);
-
   currentUser = user;
 
   const name =
@@ -89,48 +54,60 @@ async function init() {
 
   document.getElementById("auth").style.display = "none";
   document.getElementById("app").style.display = "block";
-
   document.getElementById("welcome").innerText = "Welcome " + name;
 
   renderForm();
   loadHistory();
 }
 
-/*
-=========================================
-🧾 FORM RENDERING (dynamic inputs)
-=========================================
-Changes inputs based on selected type
-*/
+/* =========================
+   🧾 FORM RENDERING
+========================= */
 function renderForm() {
   const type = document.getElementById("type").value;
-  let html = "";
+
+  let html = `
+    <input id="date" type="datetime-local">
+  `;
 
   if (type === "workout") {
-    html = `
+    html += `
       <select id="category">
         <option>Kettlebell</option>
         <option>Dumbbell + Barbell</option>
         <option>Running</option>
+        <option>Swimming</option>
+        <option>Hiking</option>
       </select>
 
-      <input id="duration" placeholder="Duration (min)">
+      <select id="location">
+        <option>Home</option>
+        <option>Gym</option>
+        <option>Hotel</option>
+        <option>Work</option>
+      </select>
+
+      <input id="duration" placeholder="Duration (minutes)">
       <input id="intensity" placeholder="Intensity (1-10)">
     `;
   }
 
   if (type === "bible") {
-    html = `
+    html += `
       <input id="duration" placeholder="Minutes">
-      <input id="notes" placeholder="Notes">
+      <input id="notes" placeholder="What did you read?">
     `;
   }
 
   if (type === "practice") {
-    html = `
+    html += `
       <select id="category">
         <option>Cold Exposure</option>
         <option>Sauna</option>
+        <option>Reading</option>
+        <option>Friendship</option>
+        <option>Marriage</option>
+        <option>Kids</option>
       </select>
 
       <input id="notes" placeholder="Details">
@@ -138,22 +115,27 @@ function renderForm() {
   }
 
   document.getElementById("dynamic").innerHTML = html;
+
+  // default = now
+  const now = new Date().toISOString().slice(0,16);
+  document.getElementById("date").value = now;
 }
 
 window.renderForm = renderForm;
 
-/*
-=========================================
-💾 SAVE DATA TO DATABASE
-=========================================
-*/
+/* =========================
+   💾 SAVE SESSION
+========================= */
 window.save = async () => {
   const type = document.getElementById("type").value;
+  const selectedDate = document.getElementById("date").value;
 
   let data = {};
 
   if (type === "workout") {
     data = {
+      category: document.getElementById("category").value,
+      location: document.getElementById("location").value,
       duration: document.getElementById("duration").value,
       intensity: document.getElementById("intensity").value
     };
@@ -161,19 +143,18 @@ window.save = async () => {
 
   if (type === "bible" || type === "practice") {
     data = {
+      category: document.getElementById("category")?.value,
       notes: document.getElementById("notes").value
     };
   }
-
-  console.log("Saving data:", data);
 
   await supabase.from("logs").insert([{
     user_id: currentUser.id,
     user_email: currentUser.email,
     type,
-    category: type,
+    category: data.category || type,
     data,
-    created_at: new Date(),
+    created_at: selectedDate,
     deleted: false
   }]);
 
@@ -181,11 +162,9 @@ window.save = async () => {
   loadHistory();
 };
 
-/*
-=========================================
-📜 LOAD HISTORY FROM DATABASE
-=========================================
-*/
+/* =========================
+   📜 LOAD HISTORY
+========================= */
 async function loadHistory() {
   const { data } = await supabase
     .from("logs")
@@ -193,14 +172,15 @@ async function loadHistory() {
     .eq("deleted", false)
     .order("created_at", { ascending: false });
 
-  console.log("Loaded logs:", data);
-
   let html = "";
 
   data.forEach(row => {
+    const date = new Date(row.created_at).toLocaleDateString();
+
     html += `
-      <div style="margin:8px;">
-        ${row.user_email} · ${row.type}
+      <div class="history-item">
+        <strong>${row.type}</strong> · ${date}<br>
+        ${JSON.stringify(row.data)}
       </div>
     `;
   });
@@ -211,9 +191,6 @@ async function loadHistory() {
 window.onload = init;
 </script>
 
-<!-- =========================
-  STYLING (UI look)
-========================= -->
 <style>
 body {
   font-family: Arial;
@@ -238,12 +215,20 @@ button {
   margin: 10px;
   width: 90%;
   border-radius: 10px;
+  font-size: 16px;
 }
 
 input, select {
   padding: 10px;
   margin: 6px;
   width: 90%;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.history-item {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
 }
 </style>
 </head>
@@ -252,12 +237,12 @@ input, select {
 
 <h1>Iron & Word</h1>
 
-<!-- LOGIN SECTION -->
+<!-- LOGIN -->
 <div id="auth">
   <button onclick="login()">Continue with Google</button>
 </div>
 
-<!-- MAIN APP -->
+<!-- APP -->
 <div id="app" style="display:none;">
 
   <div class="card">
