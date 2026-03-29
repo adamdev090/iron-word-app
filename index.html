@@ -43,7 +43,7 @@ window.logout = async () => {
 };
 
 /* =========================
-   🚀 INIT (APP START)
+   🚀 INIT
 ========================= */
 async function init() {
   const { data: { session } } = await supabase.auth.getSession();
@@ -57,19 +57,33 @@ async function init() {
   const user = session.user;
   const email = user.email?.toLowerCase();
 
-  console.log("Logged in as:", email);
-
   /* =========================
      🔐 ACCESS CONTROL
   ========================= */
   if (!ALLOWED_USERS.includes(email)) {
     document.body.innerHTML = `
-      <h2 style="text-align:center; margin-top:50px;">
-        Access denied 🚫
-      </h2>
-      <p style="text-align:center;">
-        This is a private Iron & Word app
-      </p>
+      <div style="
+        text-align:center;
+        margin-top:80px;
+        font-family:-apple-system,sans-serif;
+      ">
+        <h2>Private App 🔒</h2>
+        <p style="color:#666;">
+          This app is only accessible to invited users.
+        </p>
+
+        <button onclick="logout()" style="
+          margin-top:30px;
+          padding:14px 20px;
+          background:#7a7f5a;
+          color:white;
+          border:none;
+          border-radius:10px;
+          font-size:16px;
+        ">
+          Try another account
+        </button>
+      </div>
     `;
     return;
   }
@@ -88,14 +102,12 @@ async function init() {
 }
 
 /* =========================
-   🧾 FORM RENDERING
+   🧾 FORM
 ========================= */
 function renderForm() {
   const type = document.getElementById("type").value;
 
-  let html = `
-    <input id="date" type="datetime-local">
-  `;
+  let html = `<input id="date" type="datetime-local">`;
 
   if (type === "workout") {
     html += `
@@ -143,7 +155,6 @@ function renderForm() {
 
   document.getElementById("dynamic").innerHTML = html;
 
-  // default = now
   const now = new Date().toISOString().slice(0,16);
   document.getElementById("date").value = now;
 }
@@ -151,7 +162,7 @@ function renderForm() {
 window.renderForm = renderForm;
 
 /* =========================
-   💾 SAVE SESSION
+   💾 SAVE
 ========================= */
 window.save = async () => {
   const type = document.getElementById("type").value;
@@ -190,7 +201,7 @@ window.save = async () => {
 };
 
 /* =========================
-   📜 LOAD HISTORY
+   📜 HISTORY (CLEAN UI)
 ========================= */
 async function loadHistory() {
   const { data } = await supabase
@@ -202,12 +213,41 @@ async function loadHistory() {
   let html = "";
 
   data.forEach(row => {
-    const date = new Date(row.created_at).toLocaleDateString();
+    const d = new Date(row.created_at);
+    const date = d.toLocaleDateString();
+    const time = d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+
+    let details = "";
+
+    if (row.type === "workout") {
+      details = `
+        ${row.data.category || ""} · ${row.data.location || ""}<br>
+        ${row.data.duration || "-"} min · intensity ${row.data.intensity || "-"}
+      `;
+    }
+
+    if (row.type === "bible") {
+      details = `
+        ${row.data.duration || "-"} min<br>
+        ${row.data.notes || ""}
+      `;
+    }
+
+    if (row.type === "practice") {
+      details = `
+        ${row.data.category || ""}<br>
+        ${row.data.notes || ""}
+      `;
+    }
 
     html += `
       <div class="history-item">
-        <strong>${row.type}</strong> · ${date}<br>
-        ${JSON.stringify(row.data)}
+        <div class="history-header">
+          ${row.type} · ${date} ${time}
+        </div>
+        <div class="history-details">
+          ${details}
+        </div>
       </div>
     `;
   });
@@ -220,18 +260,24 @@ window.onload = init;
 
 <style>
 body {
-  font-family: Arial;
-  background: #f6f6f2;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #f4f4ef;
   text-align: center;
   padding: 20px;
+  color: #2c2c2c;
 }
 
 .card {
-  background: white;
-  padding: 20px;
-  margin: 15px auto;
-  border-radius: 14px;
+  background: #ffffff;
+  padding: 22px;
+  margin: 16px auto;
+  border-radius: 18px;
   max-width: 420px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+h1 {
+  font-weight: 600;
 }
 
 button {
@@ -239,23 +285,35 @@ button {
   color: white;
   border: none;
   padding: 14px;
-  margin: 10px;
-  width: 90%;
-  border-radius: 10px;
+  margin-top: 12px;
+  width: 100%;
+  border-radius: 12px;
   font-size: 16px;
 }
 
 input, select {
-  padding: 10px;
-  margin: 6px;
-  width: 90%;
-  border-radius: 8px;
-  border: 1px solid #ddd;
+  padding: 12px;
+  margin: 8px 0;
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid #e0e0dc;
+  background: #fafaf7;
 }
 
 .history-item {
-  padding: 10px;
+  text-align: left;
+  padding: 14px 0;
   border-bottom: 1px solid #eee;
+}
+
+.history-header {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.history-details {
+  color: #666;
+  font-size: 14px;
 }
 </style>
 </head>
@@ -264,12 +322,10 @@ input, select {
 
 <h1>Iron & Word</h1>
 
-<!-- LOGIN -->
 <div id="auth">
   <button onclick="login()">Continue with Google</button>
 </div>
 
-<!-- APP -->
 <div id="app" style="display:none;">
 
   <div class="card">
