@@ -4,7 +4,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Iron & Word</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <!-- Supabase v2 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     body {
@@ -35,14 +36,16 @@
 <p id="status"></p>
 
 <h3>History</h3>
-<div id="history"></div>
+<div id="history">Loading...</div>
 
 <script>
 const SUPABASE_URL = "https://hkaligxxiojdgttnfyxp.supabase.co";
-const SUPABASE_KEY = "sb_publishable_c-u4pzu0HaUvKh6Wgwa5iw_0IKCNOKRs";
+const SUPABASE_KEY = "sb_publishable_c-u4pzu0HaUvKh6Wgwa5iw_0IKCNOKR";
 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const { createClient } = supabase;
+const client = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// 👤 USER
 let user = localStorage.getItem("user");
 
 if (!user) {
@@ -52,10 +55,11 @@ if (!user) {
 
 document.getElementById("welcome").innerText = "Welcome " + user;
 
+// 💾 SAVE
 async function save(type) {
   document.getElementById("status").innerText = "Saving...";
 
-  const { error } = await supabase
+  const { error } = await client
     .from("logs")
     .insert([{ name: user.toLowerCase(), type: type }]);
 
@@ -68,14 +72,21 @@ async function save(type) {
   }
 }
 
+// 📜 LOAD HISTORY
 async function load() {
-  const { data, error } = await supabase
+  const { data, error } = await client
     .from("logs")
     .select("*")
     .order("created_at", { ascending: false });
 
   if (error) {
-    document.getElementById("history").innerText = "Error loading";
+    document.getElementById("history").innerText = "Error loading data";
+    console.error(error);
+    return;
+  }
+
+  if (!data.length) {
+    document.getElementById("history").innerText = "No logs yet";
     return;
   }
 
@@ -88,6 +99,7 @@ async function load() {
   document.getElementById("history").innerHTML = html;
 }
 
+// 🚀 INIT
 load();
 </script>
 
