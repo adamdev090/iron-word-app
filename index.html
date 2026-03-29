@@ -7,89 +7,54 @@
 <script type="module">
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-/* =========================
-   🔐 SUPABASE CONFIG
-========================= */
 const supabase = createClient(
   "https://hkaligxxiojdgttnfyxp.supabase.co",
   "sb_publishable_c-u4pzu0HaUvKh6Wgwa5iw_0IKCNOKR"
 );
 
-/* =========================
-   👥 ALLOWED USERS
-========================= */
 const ALLOWED_USERS = [
   "adamhlavka@gmail.com",
   "zmudariel@gmail.com"
 ].map(e => e.toLowerCase());
 
 let currentUser = null;
+let historyExpanded = false;
 
-/* =========================
-   🔑 LOGIN (FIXED LOOP)
-========================= */
+/* LOGIN */
 window.login = async () => {
   await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
       redirectTo: window.location.origin + "/iron-word-app/",
-      queryParams: {
-        prompt: "select_account" // 🔥 KEY FIX
-      }
+      queryParams: { prompt: "select_account" }
     }
   });
 };
 
-/* =========================
-   🚪 LOGOUT
-========================= */
+/* LOGOUT */
 window.logout = async () => {
   await supabase.auth.signOut();
   location.reload();
 };
 
-/* =========================
-   🚀 INIT
-========================= */
+/* INIT */
 async function init() {
   const { data: { session } } = await supabase.auth.getSession();
 
   if (!session) {
     document.getElementById("auth").style.display = "block";
-    document.getElementById("app").style.display = "none";
     return;
   }
 
   const user = session.user;
-  const email = user.email?.toLowerCase();
+  const email = user.email.toLowerCase();
 
-  /* =========================
-     🔐 ACCESS CONTROL
-  ========================= */
   if (!ALLOWED_USERS.includes(email)) {
     document.body.innerHTML = `
-      <div style="
-        text-align:center;
-        margin-top:80px;
-        font-family:-apple-system,sans-serif;
-      ">
+      <div style="text-align:center;margin-top:80px;">
         <h2>Private App 🔒</h2>
-
-        <p style="color:#666;">
-          You are signed in as:<br><strong>${email}</strong>
-        </p>
-
-        <button onclick="logout()" style="
-          margin-top:30px;
-          padding:14px 20px;
-          background:#7a7f5a;
-          color:white;
-          border:none;
-          border-radius:10px;
-          font-size:16px;
-        ">
-          Try another account
-        </button>
+        <p>${email}</p>
+        <button onclick="logout()">Try another account</button>
       </div>
     `;
     return;
@@ -97,20 +62,53 @@ async function init() {
 
   currentUser = user;
 
-  const name =
-    user.user_metadata.full_name?.split(" ")[0] || "User";
+  const name = user.user_metadata.full_name?.split(" ")[0] || "User";
 
   document.getElementById("auth").style.display = "none";
   document.getElementById("app").style.display = "block";
   document.getElementById("welcome").innerText = "Welcome " + name;
 
   renderForm();
+  loadDashboard();
   loadHistory();
 }
 
-/* =========================
-   🧾 FORM
-========================= */
+/* DASHBOARD */
+async function loadDashboard() {
+  const { data } = await supabase
+    .from("logs")
+    .select("*")
+    .eq("deleted", false);
+
+  const users = {};
+
+  data.forEach(row => {
+    if (!users[row.user_email]) {
+      users[row.user_email] = { workout: 0, bible: 0 };
+    }
+
+    if (row.type === "workout") users[row.user_email].workout++;
+    if (row.type === "bible") users[row.user_email].bible++;
+  });
+
+  let html = "";
+
+  Object.keys(users).forEach(email => {
+    const name = email.includes("adam") ? "Adam" : "Ariel";
+
+    html += `
+      <div class="dashboard-user">
+        <strong>${name}</strong><br>
+        🏋️ ${users[email].workout} workouts<br>
+        📖 ${users[email].bible} readings
+      </div>
+    `;
+  });
+
+  document.getElementById("dashboard").innerHTML = html;
+}
+
+/* FORM */
 function renderForm() {
   const type = document.getElementById("type").value;
 
@@ -118,77 +116,42 @@ function renderForm() {
 
   if (type === "workout") {
     html += `
-      <select id="category">
-        <option>Kettlebell</option>
-        <option>Dumbbell + Barbell</option>
-        <option>Running</option>
-        <option>Swimming</option>
-        <option>Hiking</option>
-      </select>
-
-      <select id="location">
-        <option>Home</option>
-        <option>Gym</option>
-        <option>Hotel</option>
-        <option>Work</option>
-      </select>
-
-      <input id="duration" placeholder="Duration (minutes)">
-      <input id="intensity" placeholder="Intensity (1-10)">
+      <input id="duration" placeholder="Minutes">
+      <input id="intensity" placeholder="Intensity">
     `;
   }
 
   if (type === "bible") {
     html += `
       <input id="duration" placeholder="Minutes">
-      <input id="notes" placeholder="What did you read?">
-    `;
-  }
-
-  if (type === "practice") {
-    html += `
-      <select id="category">
-        <option>Cold Exposure</option>
-        <option>Sauna</option>
-        <option>Reading</option>
-        <option>Friendship</option>
-        <option>Marriage</option>
-        <option>Kids</option>
-      </select>
-
-      <input id="notes" placeholder="Details">
+      <input id="notes" placeholder="Reading">
     `;
   }
 
   document.getElementById("dynamic").innerHTML = html;
 
-  const now = new Date().toISOString().slice(0,16);
-  document.getElementById("date").value = now;
+  document.getElementById("date").value =
+    new Date().toISOString().slice(0,16);
 }
 
 window.renderForm = renderForm;
 
-/* =========================
-   💾 SAVE
-========================= */
+/* SAVE */
 window.save = async () => {
   const type = document.getElementById("type").value;
-  const selectedDate = document.getElementById("date").value;
 
   let data = {};
 
   if (type === "workout") {
     data = {
-      category: document.getElementById("category").value,
-      location: document.getElementById("location").value,
       duration: document.getElementById("duration").value,
       intensity: document.getElementById("intensity").value
     };
   }
 
-  if (type === "bible" || type === "practice") {
+  if (type === "bible") {
     data = {
-      category: document.getElementById("category")?.value,
+      duration: document.getElementById("duration").value,
       notes: document.getElementById("notes").value
     };
   }
@@ -197,19 +160,22 @@ window.save = async () => {
     user_id: currentUser.id,
     user_email: currentUser.email,
     type,
-    category: data.category || type,
     data,
-    created_at: selectedDate,
+    created_at: document.getElementById("date").value,
     deleted: false
   }]);
 
-  alert("Saved ✅");
+  loadHistory();
+  loadDashboard();
+};
+
+/* TOGGLE HISTORY */
+window.toggleHistory = () => {
+  historyExpanded = !historyExpanded;
   loadHistory();
 };
 
-/* =========================
-   📜 HISTORY
-========================= */
+/* HISTORY */
 async function loadHistory() {
   const { data } = await supabase
     .from("logs")
@@ -217,49 +183,36 @@ async function loadHistory() {
     .eq("deleted", false)
     .order("created_at", { ascending: false });
 
+  const list = historyExpanded ? data : data.slice(0, 3);
+
   let html = "";
 
-  data.forEach(row => {
+  list.forEach(row => {
     const d = new Date(row.created_at);
-    const date = d.toLocaleDateString();
-    const time = d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
 
     let details = "";
 
     if (row.type === "workout") {
-      details = `
-        ${row.data.category || ""} · ${row.data.location || ""}<br>
-        ${row.data.duration || "-"} min · intensity ${row.data.intensity || "-"}
-      `;
+      details = `${row.data.duration || "-"} min · intensity ${row.data.intensity || "-"}`;
     }
 
     if (row.type === "bible") {
-      details = `
-        ${row.data.duration || "-"} min<br>
-        ${row.data.notes || ""}
-      `;
-    }
-
-    if (row.type === "practice") {
-      details = `
-        ${row.data.category || ""}<br>
-        ${row.data.notes || ""}
-      `;
+      details = `${row.data.duration || "-"} min · ${row.data.notes || ""}`;
     }
 
     html += `
       <div class="history-item">
-        <div class="history-header">
-          ${row.type} · ${date} ${time}
-        </div>
-        <div class="history-details">
-          ${details}
-        </div>
+        <strong>${row.type}</strong>
+        <div>${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
+        <div class="muted">${details}</div>
       </div>
     `;
   });
 
-  document.getElementById("history").innerHTML = html;
+  document.getElementById("historyList").innerHTML = html;
+
+  document.getElementById("toggleText").innerText =
+    historyExpanded ? "Hide ▲" : "Show more ▼";
 }
 
 window.onload = init;
@@ -267,53 +220,48 @@ window.onload = init;
 
 <style>
 body {
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: -apple-system;
   background: #f4f4ef;
   text-align: center;
-  padding: 20px;
-  color: #2c2c2c;
 }
 
 .card {
-  background: #ffffff;
-  padding: 22px;
-  margin: 16px auto;
-  border-radius: 18px;
+  background: white;
+  padding: 20px;
+  margin: 15px auto;
   max-width: 420px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  border-radius: 15px;
 }
 
 button {
   background: #7a7f5a;
   color: white;
-  border: none;
-  padding: 14px;
-  margin-top: 12px;
+  padding: 12px;
   width: 100%;
-  border-radius: 12px;
-  font-size: 16px;
+  border-radius: 10px;
+  border: none;
 }
 
 input, select {
-  padding: 12px;
-  margin: 8px 0;
   width: 100%;
-  border-radius: 10px;
-  border: 1px solid #e0e0dc;
+  padding: 10px;
+  margin: 6px 0;
+}
+
+.dashboard-user {
+  margin-top: 10px;
+  padding: 10px;
   background: #fafaf7;
+  border-radius: 10px;
 }
 
 .history-item {
   text-align: left;
-  padding: 14px 0;
+  padding: 10px 0;
   border-bottom: 1px solid #eee;
 }
 
-.history-header {
-  font-weight: 600;
-}
-
-.history-details {
+.muted {
   color: #666;
   font-size: 14px;
 }
@@ -328,11 +276,16 @@ input, select {
   <button onclick="login()">Continue with Google</button>
 </div>
 
-<div id="app" style="display:none;">
+<div id="app" style="display:none">
 
   <div class="card">
     <h2 id="welcome"></h2>
     <button onclick="logout()">Logout</button>
+  </div>
+
+  <div class="card">
+    <h3>Dashboard</h3>
+    <div id="dashboard"></div>
   </div>
 
   <div class="card">
@@ -341,7 +294,6 @@ input, select {
     <select id="type" onchange="renderForm()">
       <option value="workout">Workout</option>
       <option value="bible">Bible</option>
-      <option value="practice">Personal Practices</option>
     </select>
 
     <div id="dynamic"></div>
@@ -350,8 +302,11 @@ input, select {
   </div>
 
   <div class="card">
-    <h3>History</h3>
-    <div id="history"></div>
+    <h3 onclick="toggleHistory()" style="cursor:pointer">
+      History <span id="toggleText">Show more ▼</span>
+    </h3>
+
+    <div id="historyList"></div>
   </div>
 
 </div>
