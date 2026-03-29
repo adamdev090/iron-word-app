@@ -4,22 +4,44 @@
 <meta charset="UTF-8">
 <title>Iron & Word</title>
 
+<!-- =========================
+  SUPABASE IMPORT (modern way)
+========================= -->
 <script type="module">
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+/*
+=========================================
+🔐 CONFIGURATION (your backend connection)
+=========================================
+*/
 const supabase = createClient(
   "https://hkaligxxiojdgttnfyxp.supabase.co",
   "sb_publishable_c-u4pzu0HaUvKh6Wgwa5iw_0IKCNOKR"
 );
 
+/*
+=========================================
+👥 ALLOWED USERS (SECURITY LAYER)
+=========================================
+We will re-enable this later after debugging
+*/
 const ALLOWED_USERS = [
   "adamhlavka@gmail.com",
   "zmudariel@gmail.com"
-];
+].map(e => e.toLowerCase());
 
 let currentUser = null;
 
+/*
+=========================================
+🔑 LOGIN FUNCTION
+=========================================
+Redirects user to Google login
+*/
 window.login = async () => {
+  console.log("Login clicked");
+
   await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
@@ -28,21 +50,56 @@ window.login = async () => {
   });
 };
 
+/*
+=========================================
+🚪 LOGOUT FUNCTION
+=========================================
+Clears session and reloads app
+*/
 window.logout = async () => {
   await supabase.auth.signOut();
   location.reload();
 };
 
+/*
+=========================================
+🚀 INIT FUNCTION (runs on page load)
+=========================================
+This is the MOST IMPORTANT part of the app
+*/
 async function init() {
   const { data } = await supabase.auth.getUser();
 
-  if (!data.user || !ALLOWED_USERS.includes(data.user.email)) {
-    document.body.innerHTML = "<h2>Access denied</h2>";
+  console.log("USER OBJECT:", data.user);
+
+  // ❗ TEMPORARY: allow access for debugging
+  if (!data.user) {
+    document.body.innerHTML = "<h2>Not logged in</h2>";
     return;
   }
 
+  /*
+  =========================================
+  🧠 IMPORTANT DEBUG INFO
+  =========================================
+  Check what email is actually returned
+  */
+  const email = data.user.email?.toLowerCase();
+  console.log("USER EMAIL:", email);
+
+  // 👉 We will re-enable this later
+  // if (!ALLOWED_USERS.includes(email)) {
+  //   document.body.innerHTML = "<h2>Access denied</h2>";
+  //   return;
+  // }
+
   currentUser = data.user;
 
+  /*
+  =========================================
+  👤 USER NAME (from Google)
+  =========================================
+  */
   const name =
     data.user.user_metadata.full_name?.split(" ")[0] || "User";
 
@@ -55,6 +112,12 @@ async function init() {
   loadHistory();
 }
 
+/*
+=========================================
+🧾 FORM RENDERING (dynamic inputs)
+=========================================
+Changes inputs based on selected type
+*/
 function renderForm() {
   const type = document.getElementById("type").value;
   let html = "";
@@ -65,16 +128,6 @@ function renderForm() {
         <option>Kettlebell</option>
         <option>Dumbbell + Barbell</option>
         <option>Running</option>
-        <option>Swimming</option>
-        <option>Biking</option>
-        <option>Hiking</option>
-      </select>
-
-      <select id="location">
-        <option>Home</option>
-        <option>Gym</option>
-        <option>Hotel</option>
-        <option>Work</option>
       </select>
 
       <input id="duration" placeholder="Duration (min)">
@@ -94,21 +147,9 @@ function renderForm() {
       <select id="category">
         <option>Cold Exposure</option>
         <option>Sauna</option>
-        <option>Reading</option>
-        <option>Friendship</option>
-        <option>Marriage</option>
-        <option>Kids</option>
       </select>
 
       <input id="notes" placeholder="Details">
-    `;
-  }
-
-  if (type === "test") {
-    html = `
-      <input id="test_name" placeholder="Test name">
-      <input id="result" placeholder="Result">
-      <input id="equipment" placeholder="Equipment">
     `;
   }
 
@@ -117,64 +158,50 @@ function renderForm() {
 
 window.renderForm = renderForm;
 
+/*
+=========================================
+💾 SAVE DATA TO DATABASE
+=========================================
+*/
 window.save = async () => {
   const type = document.getElementById("type").value;
-  const date = document.getElementById("date").value;
-
-  const IS_ADAM = currentUser.email === "adamhlavka@gmail.com";
-
-  if (!IS_ADAM && type === "practice") {
-    alert("Not allowed");
-    return;
-  }
 
   let data = {};
-  let category = type;
 
   if (type === "workout") {
-    category = document.getElementById("category").value;
     data = {
-      location: document.getElementById("location").value,
       duration: document.getElementById("duration").value,
       intensity: document.getElementById("intensity").value
     };
   }
 
-  if (type === "bible") {
-    data = {
-      duration: document.getElementById("duration").value,
-      notes: document.getElementById("notes").value
-    };
-  }
-
-  if (type === "practice") {
-    category = document.getElementById("category").value;
+  if (type === "bible" || type === "practice") {
     data = {
       notes: document.getElementById("notes").value
     };
   }
 
-  if (type === "test") {
-    data = {
-      name: document.getElementById("test_name").value,
-      result: document.getElementById("result").value,
-      equipment: document.getElementById("equipment").value
-    };
-  }
+  console.log("Saving data:", data);
 
   await supabase.from("logs").insert([{
     user_id: currentUser.id,
     user_email: currentUser.email,
     type,
-    category,
+    category: type,
     data,
-    created_at: date || new Date(),
+    created_at: new Date(),
     deleted: false
   }]);
 
+  alert("Saved ✅");
   loadHistory();
 };
 
+/*
+=========================================
+📜 LOAD HISTORY FROM DATABASE
+=========================================
+*/
 async function loadHistory() {
   const { data } = await supabase
     .from("logs")
@@ -182,54 +209,27 @@ async function loadHistory() {
     .eq("deleted", false)
     .order("created_at", { ascending: false });
 
-  const IS_ADAM = currentUser.email === "adamhlavka@gmail.com";
-
-  const filter = document.getElementById("filter")?.value || "year";
-
-  const now = new Date();
-
-  let workouts = 0;
-  let bible = 0;
+  console.log("Loaded logs:", data);
 
   let html = "";
 
   data.forEach(row => {
-    const date = new Date(row.created_at);
-
-    if (filter === "month" &&
-        date.getMonth() !== now.getMonth()) return;
-
-    if (!IS_ADAM && row.type === "practice") return;
-
-    if (row.type === "workout") workouts++;
-    if (row.type === "bible") bible++;
-
     html += `
-      <div style="margin:8px;font-size:14px;">
-        ${row.user_email.split("@")[0]} · ${row.type} · ${date.toLocaleDateString()}
-        ${IS_ADAM ? `<button onclick="deleteLog(${row.id})">✕</button>` : ""}
+      <div style="margin:8px;">
+        ${row.user_email} · ${row.type}
       </div>
     `;
   });
 
   document.getElementById("history").innerHTML = html;
-
-  document.getElementById("stats").innerText =
-    `Workouts: ${workouts} | Bible: ${bible}`;
 }
-
-window.deleteLog = async (id) => {
-  await supabase
-    .from("logs")
-    .update({ deleted: true })
-    .eq("id", id);
-
-  loadHistory();
-};
 
 window.onload = init;
 </script>
 
+<!-- =========================
+  STYLING (UI look)
+========================= -->
 <style>
 body {
   font-family: Arial;
@@ -260,8 +260,6 @@ input, select {
   padding: 10px;
   margin: 6px;
   width: 90%;
-  border-radius: 8px;
-  border: 1px solid #ddd;
 }
 </style>
 </head>
@@ -270,49 +268,37 @@ input, select {
 
 <h1>Iron & Word</h1>
 
+<!-- LOGIN SECTION -->
 <div id="auth">
   <button onclick="login()">Continue with Google</button>
 </div>
 
+<!-- MAIN APP -->
 <div id="app" style="display:none;">
 
-<div class="card">
-  <h2 id="welcome"></h2>
-  <button onclick="logout()">Logout</button>
-</div>
+  <div class="card">
+    <h2 id="welcome"></h2>
+    <button onclick="logout()">Logout</button>
+  </div>
 
-<div class="card">
-  <h3>Dashboard</h3>
+  <div class="card">
+    <h3>Record Session</h3>
 
-  <select id="filter" onchange="loadHistory()">
-    <option value="year">This Year</option>
-    <option value="month">This Month</option>
-  </select>
+    <select id="type" onchange="renderForm()">
+      <option value="workout">Workout</option>
+      <option value="bible">Bible</option>
+      <option value="practice">Personal Practices</option>
+    </select>
 
-  <p id="stats"></p>
-</div>
+    <div id="dynamic"></div>
 
-<div class="card">
-  <h3>Record Session</h3>
+    <button onclick="save()">Save</button>
+  </div>
 
-  <select id="type" onchange="renderForm()">
-    <option value="workout">Workout</option>
-    <option value="bible">Bible</option>
-    <option value="practice">Personal Practices</option>
-    <option value="test">Workout Test</option>
-  </select>
-
-  <input id="date" type="datetime-local">
-
-  <div id="dynamic"></div>
-
-  <button onclick="save()">Save</button>
-</div>
-
-<div class="card">
-  <h3>History</h3>
-  <div id="history"></div>
-</div>
+  <div class="card">
+    <h3>History</h3>
+    <div id="history"></div>
+  </div>
 
 </div>
 
