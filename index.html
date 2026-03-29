@@ -26,17 +26,23 @@ const ALLOWED_USERS = [
 let currentUser = null;
 
 /* =========================
-   🔑 AUTH FUNCTIONS
+   🔑 LOGIN (FIXED LOOP)
 ========================= */
 window.login = async () => {
   await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: window.location.origin + "/iron-word-app/"
+      redirectTo: window.location.origin + "/iron-word-app/",
+      queryParams: {
+        prompt: "select_account" // 🔥 KEY FIX
+      }
     }
   });
 };
 
+/* =========================
+   🚪 LOGOUT
+========================= */
 window.logout = async () => {
   await supabase.auth.signOut();
   location.reload();
@@ -68,8 +74,9 @@ async function init() {
         font-family:-apple-system,sans-serif;
       ">
         <h2>Private App 🔒</h2>
+
         <p style="color:#666;">
-          This app is only accessible to invited users.
+          You are signed in as:<br><strong>${email}</strong>
         </p>
 
         <button onclick="logout()" style="
@@ -201,7 +208,7 @@ window.save = async () => {
 };
 
 /* =========================
-   📜 HISTORY (CLEAN UI)
+   📜 HISTORY
 ========================= */
 async function loadHistory() {
   const { data } = await supabase
@@ -276,10 +283,6 @@ body {
   box-shadow: 0 4px 20px rgba(0,0,0,0.05);
 }
 
-h1 {
-  font-weight: 600;
-}
-
 button {
   background: #7a7f5a;
   color: white;
@@ -308,7 +311,6 @@ input, select {
 
 .history-header {
   font-weight: 600;
-  margin-bottom: 6px;
 }
 
 .history-details {
