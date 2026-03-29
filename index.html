@@ -4,22 +4,246 @@
   <meta charset="UTF-8">
   <title>Iron & Word</title>
 
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+    const SUPABASE_URL = "https://hkaligxxiojdgttnfyxp.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_c-u4pzu0HaUvKh6Wgwa5iw_0IKCNOKR";
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const ALLOWED_USERS = [
+      "adamhlavka@gmail.com",
+      "zmudariel@gmail.com"
+    ];
+
+    let currentUser = null;
+
+    window.login = async () => {
+      await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: window.location.origin + "/iron-word-app/"
+        }
+      });
+    };
+
+    window.logout = async () => {
+      await supabase.auth.signOut();
+      location.reload();
+    };
+
+    async function init() {
+      const { data } = await supabase.auth.getUser();
+
+      if (!data.user || !ALLOWED_USERS.includes(data.user.email)) {
+        document.body.innerHTML = "<h2>Access denied</h2>";
+        return;
+      }
+
+      currentUser = data.user;
+
+      const name =
+        data.user.user_metadata.full_name?.split(" ")[0] || "User";
+
+      document.getElementById("auth").style.display = "none";
+      document.getElementById("app").style.display = "block";
+
+      document.getElementById("welcome").innerText = "Welcome " + name;
+
+      renderForm();
+      loadHistory();
+    }
+
+    function renderForm() {
+      const type = document.getElementById("type").value;
+      const container = document.getElementById("dynamic");
+
+      let html = "";
+
+      if (type === "workout") {
+        html = `
+          <select id="category">
+            <option>Kettlebell</option>
+            <option>Dumbbell + Barbell</option>
+            <option>Running</option>
+            <option>Swimming</option>
+            <option>Biking</option>
+            <option>Hiking</option>
+          </select>
+
+          <select id="location">
+            <option>Home</option>
+            <option>Gym</option>
+            <option>Hotel</option>
+            <option>Work</option>
+          </select>
+
+          <input id="duration" placeholder="Duration (min)">
+          <input id="intensity" placeholder="Intensity (1-10)">
+        `;
+      }
+
+      if (type === "bible") {
+        html = `
+          <input id="duration" placeholder="Minutes">
+          <input id="notes" placeholder="Notes">
+        `;
+      }
+
+      if (type === "practice") {
+        html = `
+          <select id="category">
+            <option>Cold Exposure</option>
+            <option>Sauna</option>
+            <option>Reading</option>
+            <option>Friendship</option>
+            <option>Marriage</option>
+            <option>Kids</option>
+          </select>
+
+          <input id="notes" placeholder="Details">
+        `;
+      }
+
+      if (type === "test") {
+        html = `
+          <input id="test_name" placeholder="Test name">
+          <input id="result" placeholder="Result">
+          <input id="equipment" placeholder="Equipment">
+        `;
+      }
+
+      container.innerHTML = html;
+    }
+
+    window.renderForm = renderForm;
+
+    window.save = async () => {
+      const type = document.getElementById("type").value;
+      const date = document.getElementById("date").value;
+
+      const IS_ADAM = currentUser.email === "adamhlavka@gmail.com";
+
+      if (!IS_ADAM && type === "practice") {
+        alert("Not allowed");
+        return;
+      }
+
+      let data = {};
+      let category = type;
+
+      if (type === "workout") {
+        category = document.getElementById("category").value;
+
+        data = {
+          location: document.getElementById("location").value,
+          duration: document.getElementById("duration").value,
+          intensity: document.getElementById("intensity").value
+        };
+      }
+
+      if (type === "bible") {
+        data = {
+          duration: document.getElementById("duration").value,
+          notes: document.getElementById("notes").value
+        };
+      }
+
+      if (type === "practice") {
+        category = document.getElementById("category").value;
+
+        data = {
+          notes: document.getElementById("notes").value
+        };
+      }
+
+      if (type === "test") {
+        data = {
+          name: document.getElementById("test_name").value,
+          result: document.getElementById("result").value,
+          equipment: document.getElementById("equipment").value
+        };
+      }
+
+      await supabase.from("logs").insert([{
+        user_id: currentUser.id,
+        user_email: currentUser.email,
+        type,
+        category,
+        data,
+        created_at: date || new Date(),
+        deleted: false
+      }]);
+
+      alert("Saved ✅");
+      loadHistory();
+    };
+
+    async function loadHistory() {
+      const { data } = await supabase
+        .from("logs")
+        .select("*")
+        .eq("deleted", false)
+        .order("created_at", { ascending: false });
+
+      const IS_ADAM = currentUser.email === "adamhlavka@gmail.com";
+
+      let html = "";
+
+      data.forEach(row => {
+        if (!IS_ADAM && row.type === "practice") return;
+
+        html += `
+          <div style="margin:8px;font-size:14px;">
+            ${row.user_email.split("@")[0]} · ${row.type} · ${new Date(row.created_at).toLocaleDateString()}
+          </div>
+        `;
+      });
+
+      document.getElementById("history").innerHTML = html;
+    }
+
+    window.onload = init;
+  </script>
+
   <style>
     body {
       font-family: Arial;
+      background: #f6f6f2;
       text-align: center;
-      padding: 40px;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      margin: 15px auto;
+      border-radius: 14px;
+      max-width: 420px;
     }
 
     button {
-      padding: 15px;
-      margin: 10px;
-      width: 250px;
-      border-radius: 10px;
-      border: none;
       background: #6b705c;
       color: white;
+      border: none;
+      padding: 14px;
+      margin: 10px;
+      width: 90%;
+      border-radius: 10px;
       font-size: 16px;
+    }
+
+    input, select {
+      padding: 10px;
+      margin: 6px;
+      width: 90%;
+      border-radius: 8px;
+      border: 1px solid #ddd;
     }
   </style>
 </head>
@@ -28,47 +252,40 @@
 
 <h1>Iron & Word</h1>
 
-<button id="loginBtn">Continue with Google</button>
+<div id="auth">
+  <button onclick="login()">Continue with Google</button>
+</div>
 
-<p id="status">Loading...</p>
+<div id="app" style="display:none;">
 
-<script type="module">
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+  <div class="card">
+    <h2 id="welcome"></h2>
+    <button onclick="logout()">Logout</button>
+  </div>
 
-console.log("JS LOADED ✅");
+  <div class="card">
+    <h3>Record Session</h3>
 
-const supabase = createClient(
-  "https://hkaligxxiojdgttnfyxp.supabase.co",
-  "sb_publishable_c-u4pzu0HaUvKh6Wgwa5iw_0IKCNOKR"
-);
+    <select id="type" onchange="renderForm()">
+      <option value="workout">Workout</option>
+      <option value="bible">Bible</option>
+      <option value="practice">Personal Practices</option>
+      <option value="test">Workout Test</option>
+    </select>
 
-const btn = document.getElementById("loginBtn");
+    <input id="date" type="datetime-local">
 
-btn.addEventListener("click", async () => {
-  console.log("CLICK WORKS ✅");
+    <div id="dynamic"></div>
 
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: "https://adamdev090.github.io/iron-word-app/"
-    }
-  });
+    <button onclick="save()">Save</button>
+  </div>
 
-  if (error) {
-    alert(error.message);
-    console.error(error);
-  }
-});
+  <div class="card">
+    <h3>History</h3>
+    <div id="history"></div>
+  </div>
 
-const { data } = await supabase.auth.getUser();
-
-if (data.user) {
-  document.getElementById("status").innerText =
-    "Logged in as: " + data.user.email;
-} else {
-  document.getElementById("status").innerText = "Not logged in";
-}
-</script>
+</div>
 
 </body>
 </html>
