@@ -15,6 +15,14 @@ const supabase = createClient(
   "sb_publishable_c-u4pzu0HaUvKh6Wgwa5iw_0IKCNOKR"
 );
 
+/* =========================
+   👥 ALLOWED USERS
+========================= */
+const ALLOWED_USERS = [
+  "adamhlavka@gmail.com",
+  "zmudariel@gmail.com"
+].map(e => e.toLowerCase());
+
 let currentUser = null;
 
 /* =========================
@@ -35,7 +43,7 @@ window.logout = async () => {
 };
 
 /* =========================
-   🚀 INIT (ON LOAD)
+   🚀 INIT (APP START)
 ========================= */
 async function init() {
   const { data: { session } } = await supabase.auth.getSession();
@@ -47,6 +55,25 @@ async function init() {
   }
 
   const user = session.user;
+  const email = user.email?.toLowerCase();
+
+  console.log("Logged in as:", email);
+
+  /* =========================
+     🔐 ACCESS CONTROL
+  ========================= */
+  if (!ALLOWED_USERS.includes(email)) {
+    document.body.innerHTML = `
+      <h2 style="text-align:center; margin-top:50px;">
+        Access denied 🚫
+      </h2>
+      <p style="text-align:center;">
+        This is a private Iron & Word app
+      </p>
+    `;
+    return;
+  }
+
   currentUser = user;
 
   const name =
