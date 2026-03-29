@@ -2,8 +2,10 @@
 <html>
 <head>
   <title>Iron & Word</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
+
 <body style="font-family: Arial; text-align: center; margin-top: 50px;">
 
   <h1>Iron & Word</h1>
@@ -14,26 +16,31 @@
   <p id="status">Not logged in</p>
 
   <script>
-    const supabase = supabase.createClient(
+    const { createClient } = supabase;
+
+    const client = createClient(
       "https://hkaligxxiojdgttnfyxp.supabase.co",
       "sb_publishable_c-u4pzu0HaUvKh6Wgwa5iw_0IKCNOKR"
     );
 
     async function login() {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google"
+      const { error } = await client.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: window.location.href
+        }
       });
 
       if (error) alert(error.message);
     }
 
     async function logout() {
-      await supabase.auth.signOut();
+      await client.auth.signOut();
       location.reload();
     }
 
     async function checkUser() {
-      const { data } = await supabase.auth.getUser();
+      const { data } = await client.auth.getUser();
 
       if (data.user) {
         document.getElementById("status").innerText =
