@@ -68,40 +68,24 @@ window.logout = async () => {
 This is the MOST IMPORTANT part of the app
 */
 async function init() {
-  const { data } = await supabase.auth.getUser();
+  const { data: { session } } = await supabase.auth.getSession();
 
-  console.log("USER OBJECT:", data.user);
+  console.log("SESSION:", session);
 
-  // ❗ TEMPORARY: allow access for debugging
-  if (!data.user) {
-    document.body.innerHTML = "<h2>Not logged in</h2>";
+  if (!session) {
+    document.getElementById("auth").style.display = "block";
+    document.getElementById("app").style.display = "none";
     return;
   }
 
-  /*
-  =========================================
-  🧠 IMPORTANT DEBUG INFO
-  =========================================
-  Check what email is actually returned
-  */
-  const email = data.user.email?.toLowerCase();
-  console.log("USER EMAIL:", email);
+  const user = session.user;
 
-  // 👉 We will re-enable this later
-  // if (!ALLOWED_USERS.includes(email)) {
-  //   document.body.innerHTML = "<h2>Access denied</h2>";
-  //   return;
-  // }
+  console.log("USER:", user);
 
-  currentUser = data.user;
+  currentUser = user;
 
-  /*
-  =========================================
-  👤 USER NAME (from Google)
-  =========================================
-  */
   const name =
-    data.user.user_metadata.full_name?.split(" ")[0] || "User";
+    user.user_metadata.full_name?.split(" ")[0] || "User";
 
   document.getElementById("auth").style.display = "none";
   document.getElementById("app").style.display = "block";
