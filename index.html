@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <title>Iron & Word</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <style>
     body {
       font-family: Arial;
@@ -31,58 +29,45 @@
 <h1>Iron & Word</h1>
 
 <button id="loginBtn">Continue with Google</button>
-<button id="logoutBtn">Logout</button>
 
 <p id="status">Loading...</p>
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-  console.log("Page loaded");
+console.log("JS LOADED ✅");
 
-  const supabaseClient = supabase.createClient(
-    "https://hkaligxxiojdgttnfyxp.supabase.co",
-    "sb_publishable_c-u4pzu0HaUvKh6Wgwa5iw_0IKCNOKR"
-  );
+const supabase = createClient(
+  "https://hkaligxxiojdgttnfyxp.supabase.co",
+  "sb_publishable_c-u4pzu0HaUvKh6Wgwa5iw_0IKCNOKR"
+);
 
-  const loginBtn = document.getElementById("loginBtn");
-  const logoutBtn = document.getElementById("logoutBtn");
-  const status = document.getElementById("status");
+const btn = document.getElementById("loginBtn");
 
-  loginBtn.onclick = async () => {
-    console.log("Login clicked");
+btn.addEventListener("click", async () => {
+  console.log("CLICK WORKS ✅");
 
-    const { error } = await supabaseClient.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: window.location.href
-      }
-    });
-
-    if (error) {
-      console.error(error);
-      alert("Login error: " + error.message);
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: "https://adamdev090.github.io/iron-word-app/"
     }
-  };
+  });
 
-  logoutBtn.onclick = async () => {
-    await supabaseClient.auth.signOut();
-    location.reload();
-  };
-
-  async function checkUser() {
-    const { data } = await supabaseClient.auth.getUser();
-
-    if (data.user) {
-      status.innerText = "Logged in as: " + data.user.email;
-    } else {
-      status.innerText = "Not logged in";
-    }
+  if (error) {
+    alert(error.message);
+    console.error(error);
   }
-
-  checkUser();
-
 });
+
+const { data } = await supabase.auth.getUser();
+
+if (data.user) {
+  document.getElementById("status").innerText =
+    "Logged in as: " + data.user.email;
+} else {
+  document.getElementById("status").innerText = "Not logged in";
+}
 </script>
 
 </body>
