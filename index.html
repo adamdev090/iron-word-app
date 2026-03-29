@@ -8,29 +8,20 @@
 
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
+      font-family: Arial;
       text-align: center;
       padding: 40px;
     }
 
     button {
-      background: #6b705c;
-      color: white;
-      border: none;
       padding: 15px;
       margin: 10px;
-      width: 300px;
+      width: 250px;
       border-radius: 10px;
+      border: none;
+      background: #6b705c;
+      color: white;
       font-size: 16px;
-    }
-
-    .card {
-      background: white;
-      padding: 20px;
-      margin: 20px auto;
-      border-radius: 10px;
-      max-width: 400px;
     }
   </style>
 </head>
@@ -39,98 +30,59 @@
 
 <h1>Iron & Word</h1>
 
-<div id="auth">
-  <button onclick="login()">Continue with Google</button>
-</div>
+<button id="loginBtn">Continue with Google</button>
+<button id="logoutBtn">Logout</button>
 
-<div id="app" style="display:none;">
-  <p id="user"></p>
-  <button onclick="logout()">Logout</button>
-
-  <div class="card">
-    <h3>Quick Test</h3>
-    <button onclick="save()">Save Test Log</button>
-  </div>
-
-  <div class="card">
-    <h3>History</h3>
-    <div id="history"></div>
-  </div>
-</div>
+<p id="status">Loading...</p>
 
 <script>
-const supabase = window.supabase.createClient(
-  "https://hkaligxxiojdgttnfyxp.supabase.co",
-  "sb_publishable_c-u4pzu0HaUvKh6Wgwa5iw_0IKCNOKR"
-);
+document.addEventListener("DOMContentLoaded", () => {
 
-// LOGIN (FIXED)
-async function login() {
-  await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: "https://adamdev090.github.io/iron-word-app/"
+  console.log("Page loaded");
+
+  const supabaseClient = supabase.createClient(
+    "https://hkaligxxiojdgttnfyxp.supabase.co",
+    "sb_publishable_c-u4pzu0HaUvKh6Wgwa5iw_0IKCNOKR"
+  );
+
+  const loginBtn = document.getElementById("loginBtn");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const status = document.getElementById("status");
+
+  loginBtn.onclick = async () => {
+    console.log("Login clicked");
+
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.href
+      }
+    });
+
+    if (error) {
+      console.error(error);
+      alert("Login error: " + error.message);
     }
-  });
-}
+  };
 
-// LOGOUT
-async function logout() {
-  await supabase.auth.signOut();
-  location.reload();
-}
+  logoutBtn.onclick = async () => {
+    await supabaseClient.auth.signOut();
+    location.reload();
+  };
 
-// CHECK SESSION
-async function init() {
-  const { data } = await supabase.auth.getUser();
+  async function checkUser() {
+    const { data } = await supabaseClient.auth.getUser();
 
-  if (!data.user) return;
-
-  document.getElementById("auth").style.display = "none";
-  document.getElementById("app").style.display = "block";
-
-  document.getElementById("user").innerText =
-    "Logged in as: " + data.user.email;
-
-  loadHistory();
-}
-
-// SAVE TEST DATA
-async function save() {
-  const { data } = await supabase.auth.getUser();
-
-  await supabase.from("logs").insert([
-    {
-      user_id: data.user.id,
-      user_email: data.user.email,
-      type: "test",
-      category: "test",
-      data: { test: "working" },
-      created_at: new Date()
+    if (data.user) {
+      status.innerText = "Logged in as: " + data.user.email;
+    } else {
+      status.innerText = "Not logged in";
     }
-  ]);
+  }
 
-  alert("Saved ✅");
-  loadHistory();
-}
+  checkUser();
 
-// LOAD HISTORY
-async function loadHistory() {
-  const { data } = await supabase
-    .from("logs")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  let html = "";
-
-  data.forEach(row => {
-    html += `<div>${row.user_email} - ${row.type}</div>`;
-  });
-
-  document.getElementById("history").innerHTML = html;
-}
-
-init();
+});
 </script>
 
 </body>
