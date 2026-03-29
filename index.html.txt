@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iron & Word</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+  <style>
+    body {
+      font-family: Arial;
+      max-width: 500px;
+      margin: auto;
+      padding: 20px;
+    }
+    button {
+      width: 100%;
+      padding: 15px;
+      margin: 10px 0;
+      background: #3f6b52;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<h2 id="welcome"></h2>
+
+<button onclick="save('Workout')">💪 Workout done</button>
+<button onclick="save('Bible')">📖 Bible done</button>
+
+<p id="status"></p>
+
+<h3>History</h3>
+<div id="history"></div>
+
+<script>
+const SUPABASE_URL = "https://hkaligxxiojdgttnfyxp.supabase.co";
+const SUPABASE_KEY = "sb_publishable_c-u4pzu0HaUvKh6Wgwa5iw_0IKCNOKRs";
+
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let user = localStorage.getItem("user");
+
+if (!user) {
+  user = prompt("Enter your name:");
+  localStorage.setItem("user", user);
+}
+
+document.getElementById("welcome").innerText = "Welcome " + user;
+
+async function save(type) {
+  document.getElementById("status").innerText = "Saving...";
+
+  const { error } = await supabase
+    .from("logs")
+    .insert([{ name: user.toLowerCase(), type: type }]);
+
+  if (error) {
+    document.getElementById("status").innerText = "Error!";
+    console.error(error);
+  } else {
+    document.getElementById("status").innerText = "Saved ✅";
+    load();
+  }
+}
+
+async function load() {
+  const { data, error } = await supabase
+    .from("logs")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    document.getElementById("history").innerText = "Error loading";
+    return;
+  }
+
+  let html = "";
+
+  data.forEach(row => {
+    html += `<div>${row.name} - ${row.type} - ${new Date(row.created_at).toLocaleString()}</div>`;
+  });
+
+  document.getElementById("history").innerHTML = html;
+}
+
+load();
+</script>
+
+</body>
+</html>
