@@ -1,107 +1,48 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Iron & Word</title>
-
-  <!-- Supabase v2 -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <style>
-    body {
-      font-family: Arial;
-      max-width: 500px;
-      margin: auto;
-      padding: 20px;
-    }
-    button {
-      width: 100%;
-      padding: 15px;
-      margin: 10px 0;
-      background: #3f6b52;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
-<body>
+<body style="font-family: Arial; text-align: center; margin-top: 50px;">
 
-<h2 id="welcome"></h2>
+  <h1>Iron & Word</h1>
 
-<button onclick="save('Workout')">💪 Workout done</button>
-<button onclick="save('Bible')">📖 Bible done</button>
+  <button onclick="login()">Continue with Google</button>
+  <button onclick="logout()">Logout</button>
 
-<p id="status"></p>
+  <p id="status">Not logged in</p>
 
-<h3>History</h3>
-<div id="history">Loading...</div>
+  <script>
+    const supabase = supabase.createClient(
+      "https://hkaligxxiojdgttnfyxp.supabase.co",
+      "sb_publishable_c-u4pzu0HaUvKh6Wgwa5iw_0IKCNOKR"
+    );
 
-<script>
-const SUPABASE_URL = "https://hkaligxxiojdgttnfyxp.supabase.co";
-const SUPABASE_KEY = "sb_publishable_c-u4pzu0HaUvKh6Wgwa5iw_0IKCNOKR";
+    async function login() {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google"
+      });
 
-const { createClient } = supabase;
-const client = createClient(SUPABASE_URL, SUPABASE_KEY);
+      if (error) alert(error.message);
+    }
 
-// 👤 USER
-let user = localStorage.getItem("user");
+    async function logout() {
+      await supabase.auth.signOut();
+      location.reload();
+    }
 
-if (!user) {
-  user = prompt("Enter your name:");
-  localStorage.setItem("user", user);
-}
+    async function checkUser() {
+      const { data } = await supabase.auth.getUser();
 
-document.getElementById("welcome").innerText = "Welcome " + user;
+      if (data.user) {
+        document.getElementById("status").innerText =
+          "Logged in as: " + data.user.email;
+      }
+    }
 
-// 💾 SAVE
-async function save(type) {
-  document.getElementById("status").innerText = "Saving...";
-
-  const { error } = await client
-    .from("logs")
-    .insert([{ name: user.toLowerCase(), type: type }]);
-
-  if (error) {
-    document.getElementById("status").innerText = "Error!";
-    console.error(error);
-  } else {
-    document.getElementById("status").innerText = "Saved ✅";
-    load();
-  }
-}
-
-// 📜 LOAD HISTORY
-async function load() {
-  const { data, error } = await client
-    .from("logs")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    document.getElementById("history").innerText = "Error loading data";
-    console.error(error);
-    return;
-  }
-
-  if (!data.length) {
-    document.getElementById("history").innerText = "No logs yet";
-    return;
-  }
-
-  let html = "";
-
-  data.forEach(row => {
-    html += `<div>${row.name} - ${row.type} - ${new Date(row.created_at).toLocaleString()}</div>`;
-  });
-
-  document.getElementById("history").innerHTML = html;
-}
-
-// 🚀 INIT
-load();
-</script>
+    checkUser();
+  </script>
 
 </body>
 </html>
