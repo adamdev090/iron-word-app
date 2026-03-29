@@ -1,251 +1,269 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Iron & Word</title>
+<meta charset="UTF-8">
+<title>Iron & Word</title>
 
-  <script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-    const SUPABASE_URL = "https://hkaligxxiojdgttnfyxp.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_c-u4pzu0HaUvKh6Wgwa5iw_0IKCNOKR";
+const supabase = createClient(
+  "https://hkaligxxiojdgttnfyxp.supabase.co",
+  "sb_publishable_c-u4pzu0HaUvKh6Wgwa5iw_0IKCNOKR"
+);
 
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const ALLOWED_USERS = [
+  "adamhlavka@gmail.com",
+  "zmudariel@gmail.com"
+];
 
-    const ALLOWED_USERS = [
-      "adamhlavka@gmail.com",
-      "zmudariel@gmail.com"
-    ];
+let currentUser = null;
 
-    let currentUser = null;
+window.login = async () => {
+  await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: window.location.origin + "/iron-word-app/"
+    }
+  });
+};
 
-    window.login = async () => {
-      await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: window.location.origin + "/iron-word-app/"
-        }
-      });
+window.logout = async () => {
+  await supabase.auth.signOut();
+  location.reload();
+};
+
+async function init() {
+  const { data } = await supabase.auth.getUser();
+
+  if (!data.user || !ALLOWED_USERS.includes(data.user.email)) {
+    document.body.innerHTML = "<h2>Access denied</h2>";
+    return;
+  }
+
+  currentUser = data.user;
+
+  const name =
+    data.user.user_metadata.full_name?.split(" ")[0] || "User";
+
+  document.getElementById("auth").style.display = "none";
+  document.getElementById("app").style.display = "block";
+
+  document.getElementById("welcome").innerText = "Welcome " + name;
+
+  renderForm();
+  loadHistory();
+}
+
+function renderForm() {
+  const type = document.getElementById("type").value;
+  let html = "";
+
+  if (type === "workout") {
+    html = `
+      <select id="category">
+        <option>Kettlebell</option>
+        <option>Dumbbell + Barbell</option>
+        <option>Running</option>
+        <option>Swimming</option>
+        <option>Biking</option>
+        <option>Hiking</option>
+      </select>
+
+      <select id="location">
+        <option>Home</option>
+        <option>Gym</option>
+        <option>Hotel</option>
+        <option>Work</option>
+      </select>
+
+      <input id="duration" placeholder="Duration (min)">
+      <input id="intensity" placeholder="Intensity (1-10)">
+    `;
+  }
+
+  if (type === "bible") {
+    html = `
+      <input id="duration" placeholder="Minutes">
+      <input id="notes" placeholder="Notes">
+    `;
+  }
+
+  if (type === "practice") {
+    html = `
+      <select id="category">
+        <option>Cold Exposure</option>
+        <option>Sauna</option>
+        <option>Reading</option>
+        <option>Friendship</option>
+        <option>Marriage</option>
+        <option>Kids</option>
+      </select>
+
+      <input id="notes" placeholder="Details">
+    `;
+  }
+
+  if (type === "test") {
+    html = `
+      <input id="test_name" placeholder="Test name">
+      <input id="result" placeholder="Result">
+      <input id="equipment" placeholder="Equipment">
+    `;
+  }
+
+  document.getElementById("dynamic").innerHTML = html;
+}
+
+window.renderForm = renderForm;
+
+window.save = async () => {
+  const type = document.getElementById("type").value;
+  const date = document.getElementById("date").value;
+
+  const IS_ADAM = currentUser.email === "adamhlavka@gmail.com";
+
+  if (!IS_ADAM && type === "practice") {
+    alert("Not allowed");
+    return;
+  }
+
+  let data = {};
+  let category = type;
+
+  if (type === "workout") {
+    category = document.getElementById("category").value;
+    data = {
+      location: document.getElementById("location").value,
+      duration: document.getElementById("duration").value,
+      intensity: document.getElementById("intensity").value
     };
+  }
 
-    window.logout = async () => {
-      await supabase.auth.signOut();
-      location.reload();
+  if (type === "bible") {
+    data = {
+      duration: document.getElementById("duration").value,
+      notes: document.getElementById("notes").value
     };
+  }
 
-    async function init() {
-      const { data } = await supabase.auth.getUser();
-
-      if (!data.user || !ALLOWED_USERS.includes(data.user.email)) {
-        document.body.innerHTML = "<h2>Access denied</h2>";
-        return;
-      }
-
-      currentUser = data.user;
-
-      const name =
-        data.user.user_metadata.full_name?.split(" ")[0] || "User";
-
-      document.getElementById("auth").style.display = "none";
-      document.getElementById("app").style.display = "block";
-
-      document.getElementById("welcome").innerText = "Welcome " + name;
-
-      renderForm();
-      loadHistory();
-    }
-
-    function renderForm() {
-      const type = document.getElementById("type").value;
-      const container = document.getElementById("dynamic");
-
-      let html = "";
-
-      if (type === "workout") {
-        html = `
-          <select id="category">
-            <option>Kettlebell</option>
-            <option>Dumbbell + Barbell</option>
-            <option>Running</option>
-            <option>Swimming</option>
-            <option>Biking</option>
-            <option>Hiking</option>
-          </select>
-
-          <select id="location">
-            <option>Home</option>
-            <option>Gym</option>
-            <option>Hotel</option>
-            <option>Work</option>
-          </select>
-
-          <input id="duration" placeholder="Duration (min)">
-          <input id="intensity" placeholder="Intensity (1-10)">
-        `;
-      }
-
-      if (type === "bible") {
-        html = `
-          <input id="duration" placeholder="Minutes">
-          <input id="notes" placeholder="Notes">
-        `;
-      }
-
-      if (type === "practice") {
-        html = `
-          <select id="category">
-            <option>Cold Exposure</option>
-            <option>Sauna</option>
-            <option>Reading</option>
-            <option>Friendship</option>
-            <option>Marriage</option>
-            <option>Kids</option>
-          </select>
-
-          <input id="notes" placeholder="Details">
-        `;
-      }
-
-      if (type === "test") {
-        html = `
-          <input id="test_name" placeholder="Test name">
-          <input id="result" placeholder="Result">
-          <input id="equipment" placeholder="Equipment">
-        `;
-      }
-
-      container.innerHTML = html;
-    }
-
-    window.renderForm = renderForm;
-
-    window.save = async () => {
-      const type = document.getElementById("type").value;
-      const date = document.getElementById("date").value;
-
-      const IS_ADAM = currentUser.email === "adamhlavka@gmail.com";
-
-      if (!IS_ADAM && type === "practice") {
-        alert("Not allowed");
-        return;
-      }
-
-      let data = {};
-      let category = type;
-
-      if (type === "workout") {
-        category = document.getElementById("category").value;
-
-        data = {
-          location: document.getElementById("location").value,
-          duration: document.getElementById("duration").value,
-          intensity: document.getElementById("intensity").value
-        };
-      }
-
-      if (type === "bible") {
-        data = {
-          duration: document.getElementById("duration").value,
-          notes: document.getElementById("notes").value
-        };
-      }
-
-      if (type === "practice") {
-        category = document.getElementById("category").value;
-
-        data = {
-          notes: document.getElementById("notes").value
-        };
-      }
-
-      if (type === "test") {
-        data = {
-          name: document.getElementById("test_name").value,
-          result: document.getElementById("result").value,
-          equipment: document.getElementById("equipment").value
-        };
-      }
-
-      await supabase.from("logs").insert([{
-        user_id: currentUser.id,
-        user_email: currentUser.email,
-        type,
-        category,
-        data,
-        created_at: date || new Date(),
-        deleted: false
-      }]);
-
-      alert("Saved ✅");
-      loadHistory();
+  if (type === "practice") {
+    category = document.getElementById("category").value;
+    data = {
+      notes: document.getElementById("notes").value
     };
+  }
 
-    async function loadHistory() {
-      const { data } = await supabase
-        .from("logs")
-        .select("*")
-        .eq("deleted", false)
-        .order("created_at", { ascending: false });
+  if (type === "test") {
+    data = {
+      name: document.getElementById("test_name").value,
+      result: document.getElementById("result").value,
+      equipment: document.getElementById("equipment").value
+    };
+  }
 
-      const IS_ADAM = currentUser.email === "adamhlavka@gmail.com";
+  await supabase.from("logs").insert([{
+    user_id: currentUser.id,
+    user_email: currentUser.email,
+    type,
+    category,
+    data,
+    created_at: date || new Date(),
+    deleted: false
+  }]);
 
-      let html = "";
+  loadHistory();
+};
 
-      data.forEach(row => {
-        if (!IS_ADAM && row.type === "practice") return;
+async function loadHistory() {
+  const { data } = await supabase
+    .from("logs")
+    .select("*")
+    .eq("deleted", false)
+    .order("created_at", { ascending: false });
 
-        html += `
-          <div style="margin:8px;font-size:14px;">
-            ${row.user_email.split("@")[0]} · ${row.type} · ${new Date(row.created_at).toLocaleDateString()}
-          </div>
-        `;
-      });
+  const IS_ADAM = currentUser.email === "adamhlavka@gmail.com";
 
-      document.getElementById("history").innerHTML = html;
-    }
+  const filter = document.getElementById("filter")?.value || "year";
 
-    window.onload = init;
-  </script>
+  const now = new Date();
 
-  <style>
-    body {
-      font-family: Arial;
-      background: #f6f6f2;
-      text-align: center;
-      padding: 20px;
-    }
+  let workouts = 0;
+  let bible = 0;
 
-    h1 {
-      margin-bottom: 10px;
-    }
+  let html = "";
 
-    .card {
-      background: white;
-      padding: 20px;
-      margin: 15px auto;
-      border-radius: 14px;
-      max-width: 420px;
-    }
+  data.forEach(row => {
+    const date = new Date(row.created_at);
 
-    button {
-      background: #6b705c;
-      color: white;
-      border: none;
-      padding: 14px;
-      margin: 10px;
-      width: 90%;
-      border-radius: 10px;
-      font-size: 16px;
-    }
+    if (filter === "month" &&
+        date.getMonth() !== now.getMonth()) return;
 
-    input, select {
-      padding: 10px;
-      margin: 6px;
-      width: 90%;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-    }
-  </style>
+    if (!IS_ADAM && row.type === "practice") return;
+
+    if (row.type === "workout") workouts++;
+    if (row.type === "bible") bible++;
+
+    html += `
+      <div style="margin:8px;font-size:14px;">
+        ${row.user_email.split("@")[0]} · ${row.type} · ${date.toLocaleDateString()}
+        ${IS_ADAM ? `<button onclick="deleteLog(${row.id})">✕</button>` : ""}
+      </div>
+    `;
+  });
+
+  document.getElementById("history").innerHTML = html;
+
+  document.getElementById("stats").innerText =
+    `Workouts: ${workouts} | Bible: ${bible}`;
+}
+
+window.deleteLog = async (id) => {
+  await supabase
+    .from("logs")
+    .update({ deleted: true })
+    .eq("id", id);
+
+  loadHistory();
+};
+
+window.onload = init;
+</script>
+
+<style>
+body {
+  font-family: Arial;
+  background: #f6f6f2;
+  text-align: center;
+  padding: 20px;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  margin: 15px auto;
+  border-radius: 14px;
+  max-width: 420px;
+}
+
+button {
+  background: #7a7f5a;
+  color: white;
+  border: none;
+  padding: 14px;
+  margin: 10px;
+  width: 90%;
+  border-radius: 10px;
+}
+
+input, select {
+  padding: 10px;
+  margin: 6px;
+  width: 90%;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+</style>
 </head>
 
 <body>
@@ -258,32 +276,43 @@
 
 <div id="app" style="display:none;">
 
-  <div class="card">
-    <h2 id="welcome"></h2>
-    <button onclick="logout()">Logout</button>
-  </div>
+<div class="card">
+  <h2 id="welcome"></h2>
+  <button onclick="logout()">Logout</button>
+</div>
 
-  <div class="card">
-    <h3>Record Session</h3>
+<div class="card">
+  <h3>Dashboard</h3>
 
-    <select id="type" onchange="renderForm()">
-      <option value="workout">Workout</option>
-      <option value="bible">Bible</option>
-      <option value="practice">Personal Practices</option>
-      <option value="test">Workout Test</option>
-    </select>
+  <select id="filter" onchange="loadHistory()">
+    <option value="year">This Year</option>
+    <option value="month">This Month</option>
+  </select>
 
-    <input id="date" type="datetime-local">
+  <p id="stats"></p>
+</div>
 
-    <div id="dynamic"></div>
+<div class="card">
+  <h3>Record Session</h3>
 
-    <button onclick="save()">Save</button>
-  </div>
+  <select id="type" onchange="renderForm()">
+    <option value="workout">Workout</option>
+    <option value="bible">Bible</option>
+    <option value="practice">Personal Practices</option>
+    <option value="test">Workout Test</option>
+  </select>
 
-  <div class="card">
-    <h3>History</h3>
-    <div id="history"></div>
-  </div>
+  <input id="date" type="datetime-local">
+
+  <div id="dynamic"></div>
+
+  <button onclick="save()">Save</button>
+</div>
+
+<div class="card">
+  <h3>History</h3>
+  <div id="history"></div>
+</div>
 
 </div>
 
