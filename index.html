@@ -56,17 +56,14 @@ async function init() {
   }
 
   currentUser = session.user;
-
-  // identify user
   currentUserName = email.includes("adam") ? "adam" : "ariel";
   currentView = currentUserName;
 
   document.getElementById("auth").style.display = "none";
   document.getElementById("app").style.display = "block";
 
-  updateUI();
-
   renderForm();
+  updateUI();
   loadDashboard();
   loadHistory();
 }
@@ -79,14 +76,16 @@ function updateUI() {
   // toggle only for Adam
   if (currentUserName === "adam") {
     document.getElementById("toggle").style.display = "block";
+  } else {
+    document.getElementById("toggle").style.display = "none";
   }
 
-  // owner select logic
+  // owner permissions
   const ownerSelect = document.getElementById("owner");
 
   if (!ownerSelect) return;
 
-  if (currentUserName === "ariel") {
+  if (currentUserName === "ariel" || currentView === "ariel") {
     ownerSelect.value = "ariel";
     ownerSelect.disabled = true;
   } else {
@@ -94,13 +93,14 @@ function updateUI() {
   }
 }
 
-/* TOGGLE VIEW (ONLY ADAM) */
+/* TOGGLE VIEW */
 window.toggleView = () => {
   if (currentUserName !== "adam") return;
 
   currentView = currentView === "adam" ? "ariel" : "adam";
 
   updateUI();
+  renderForm(); // 🔥 important
   loadDashboard();
   loadHistory();
 };
@@ -121,7 +121,8 @@ window.save = async () => {
     user_id: currentUser.id,
     user_email: currentUser.email,
     type: "workout",
-    data: { owner, duration, intensity },
+    owner: owner, // ✅ NEW COLUMN USED
+    data: { duration, intensity },
     created_at: new Date().toISOString(),
     deleted: false
   }]);
@@ -148,7 +149,7 @@ function renderForm() {
       <option value="ariel">Ariel</option>
     </select>
 
-    <input id="duration" placeholder="Duration (min)">
+    <input id="duration" placeholder="Duration (minutes)">
     <input id="intensity" placeholder="Intensity (1-10)">
   `;
 
@@ -160,17 +161,13 @@ async function loadDashboard() {
   const { data } = await supabase
     .from("logs")
     .select("*")
-    .eq("deleted", false);
+    .eq("deleted", false)
+    .eq("owner", currentView); // ✅ FIXED
 
   let workouts = 0;
 
   data.forEach(row => {
-    if (
-      row.type === "workout" &&
-      row.data?.owner === currentView
-    ) {
-      workouts++;
-    }
+    if (row.type === "workout") workouts++;
   });
 
   document.getElementById("dashboard").innerHTML =
@@ -183,25 +180,24 @@ async function loadHistory() {
     .from("logs")
     .select("*")
     .eq("deleted", false)
+    .eq("owner", currentView) // ✅ FIXED
     .order("created_at", { ascending: false });
 
   let html = "";
 
   data.forEach(row => {
-    if (row.data?.owner !== currentView) return;
-
     const d = new Date(row.created_at);
 
     html += `
       <div class="history-item">
         <div class="row">
-          <strong>${row.data.owner}</strong>
+          <strong>${row.owner}</strong>
           <button class="delete" onclick="deleteEntry(${row.id})">✕</button>
         </div>
 
-        <div>${d.toLocaleDateString()}</div>
+        <div>${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
         <div class="muted">
-          ${row.data.duration || "-"} min · intensity ${row.data.intensity || "-"}
+          ${row.data?.duration || "-"} min · intensity ${row.data?.intensity || "-"}
         </div>
       </div>
     `;
@@ -231,6 +227,7 @@ h1 {
   margin: 15px auto;
   max-width: 420px;
   border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 button {
@@ -247,6 +244,8 @@ select, input {
   width: 100%;
   padding: 10px;
   margin-top: 8px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
 }
 
 .history-item {
