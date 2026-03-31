@@ -9,13 +9,13 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const supabase = createClient(
   "https://hkaligxxiojdgttnfyxp.supabase.co",
-  "sb_publishable_c-u4pzu0HaUvKh6Wgwa5iw_0IKCNOKR"
+  "YOUR_ANON_KEY"
 );
 
 const ALLOWED_USERS = [
   "adamhlavka@gmail.com",
   "zmudariel@gmail.com"
-].map(e => e.toLowerCase());
+];
 
 let currentUser = null;
 let historyExpanded = false;
@@ -62,98 +62,37 @@ async function init() {
 
   currentUser = user;
 
-  const name = user.user_metadata.full_name?.split(" ")[0] || "User";
-
   document.getElementById("auth").style.display = "none";
   document.getElementById("app").style.display = "block";
-  document.getElementById("welcome").innerText = "Welcome " + name;
+  document.getElementById("welcome").innerText =
+    "Welcome " + (email.includes("adam") ? "Adam" : "Ariel");
 
   renderForm();
   loadDashboard();
   loadHistory();
 }
 
-/* DASHBOARD */
-async function loadDashboard() {
-  const { data } = await supabase
-    .from("logs")
-    .select("*")
-    .eq("deleted", false);
-
-  const users = {};
-
-  data.forEach(row => {
-    if (!users[row.user_email]) {
-      users[row.user_email] = { workout: 0, bible: 0 };
-    }
-
-    if (row.type === "workout") users[row.user_email].workout++;
-    if (row.type === "bible") users[row.user_email].bible++;
-  });
-
-  let html = "";
-
-  Object.keys(users).forEach(email => {
-    const name = email.includes("adam") ? "Adam" : "Ariel";
-
-    html += `
-      <div class="dashboard-user">
-        <strong>${name}</strong><br>
-        🏋️ ${users[email].workout} workouts<br>
-        📖 ${users[email].bible} readings
-      </div>
-    `;
-  });
-
-  document.getElementById("dashboard").innerHTML = html;
-}
-
-/* FORM */
-function renderForm() {
-  const type = document.getElementById("type").value;
-
-  let html = `<input id="date" type="datetime-local">`;
-
-  if (type === "workout") {
-    html += `
-      <input id="duration" placeholder="Minutes">
-      <input id="intensity" placeholder="Intensity">
-    `;
-  }
-
-  if (type === "bible") {
-    html += `
-      <input id="duration" placeholder="Minutes">
-      <input id="notes" placeholder="Reading">
-    `;
-  }
-
-  document.getElementById("dynamic").innerHTML = html;
-
-  document.getElementById("date").value =
-    new Date().toISOString().slice(0,16);
-}
-
-window.renderForm = renderForm;
-
 /* SAVE */
 window.save = async () => {
   const type = document.getElementById("type").value;
+  const owner = document.getElementById("owner").value;
 
-  let data = {};
+  let data = {
+    owner
+  };
 
   if (type === "workout") {
-    data = {
-      duration: document.getElementById("duration").value,
-      intensity: document.getElementById("intensity").value
-    };
+    data.duration = document.getElementById("duration").value;
+    data.intensity = document.getElementById("intensity").value;
   }
 
   if (type === "bible") {
-    data = {
-      duration: document.getElementById("duration").value,
-      notes: document.getElementById("notes").value
-    };
+    data.duration = document.getElementById("duration").value;
+    data.notes = document.getElementById("notes").value;
+  }
+
+  if (type === "practice") {
+    data.notes = document.getElementById("notes").value;
   }
 
   await supabase.from("logs").insert([{
@@ -169,11 +108,71 @@ window.save = async () => {
   loadDashboard();
 };
 
-/* TOGGLE HISTORY */
-window.toggleHistory = () => {
-  historyExpanded = !historyExpanded;
+/* DELETE */
+window.deleteEntry = async (id) => {
+  await supabase.from("logs")
+    .update({ deleted: true })
+    .eq("id", id);
+
   loadHistory();
+  loadDashboard();
 };
+
+/* FORM */
+function renderForm() {
+  const type = document.getElementById("type").value;
+
+  let html = `
+    <input id="date" type="datetime-local">
+
+    <select id="owner">
+      <option value="adam">Adam</option>
+      <option value="ariel">Ariel</option>
+    </select>
+  `;
+
+  if (type === "workout") {
+    html += `
+      <input id="duration" placeholder="Minutes">
+      <input id="intensity" placeholder="Intensity">
+    `;
+  }
+
+  if (type === "bible" || type === "practice") {
+    html += `
+      <input id="duration" placeholder="Minutes">
+      <input id="notes" placeholder="Notes">
+    `;
+  }
+
+  document.getElementById("dynamic").innerHTML = html;
+  document.getElementById("date").value =
+    new Date().toISOString().slice(0,16);
+}
+
+window.renderForm = renderForm;
+
+/* DASHBOARD */
+async function loadDashboard() {
+  const { data } = await supabase
+    .from("logs")
+    .select("*")
+    .eq("deleted", false);
+
+  const users = { adam: {workout:0,bible:0}, ariel: {workout:0,bible:0} };
+
+  data.forEach(row => {
+    const owner = row.data.owner;
+
+    if (row.type === "workout") users[owner].workout++;
+    if (row.type === "bible") users[owner].bible++;
+  });
+
+  document.getElementById("dashboard").innerHTML = `
+    <div>Adam: 🏋️ ${users.adam.workout} 📖 ${users.adam.bible}</div>
+    <div>Ariel: 🏋️ ${users.ariel.workout} 📖 ${users.ariel.bible}</div>
+  `;
+}
 
 /* HISTORY */
 async function loadHistory() {
@@ -183,36 +182,32 @@ async function loadHistory() {
     .eq("deleted", false)
     .order("created_at", { ascending: false });
 
-  const list = historyExpanded ? data : data.slice(0, 3);
-
   let html = "";
 
-  list.forEach(row => {
+  data.forEach(row => {
+
+    // 🔐 privacy
+    if (
+      row.type === "practice" &&
+      currentUser.email.includes("zmudariel")
+    ) return;
+
     const d = new Date(row.created_at);
-
-    let details = "";
-
-    if (row.type === "workout") {
-      details = `${row.data.duration || "-"} min · intensity ${row.data.intensity || "-"}`;
-    }
-
-    if (row.type === "bible") {
-      details = `${row.data.duration || "-"} min · ${row.data.notes || ""}`;
-    }
 
     html += `
       <div class="history-item">
-        <strong>${row.type}</strong>
-        <div>${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
-        <div class="muted">${details}</div>
+        <div style="display:flex;justify-content:space-between;">
+          <strong>${row.type} (${row.data.owner})</strong>
+          <button onclick="deleteEntry(${row.id})">✕</button>
+        </div>
+
+        <div>${d.toLocaleDateString()}</div>
+        <div class="muted">${JSON.stringify(row.data)}</div>
       </div>
     `;
   });
 
-  document.getElementById("historyList").innerHTML = html;
-
-  document.getElementById("toggleText").innerText =
-    historyExpanded ? "Hide ▲" : "Show more ▼";
+  document.getElementById("history").innerHTML = html;
 }
 
 window.onload = init;
@@ -248,22 +243,14 @@ input, select {
   margin: 6px 0;
 }
 
-.dashboard-user {
-  margin-top: 10px;
-  padding: 10px;
-  background: #fafaf7;
-  border-radius: 10px;
-}
-
 .history-item {
   text-align: left;
-  padding: 10px 0;
+  padding: 10px;
   border-bottom: 1px solid #eee;
 }
 
 .muted {
   color: #666;
-  font-size: 14px;
 }
 </style>
 </head>
@@ -294,6 +281,7 @@ input, select {
     <select id="type" onchange="renderForm()">
       <option value="workout">Workout</option>
       <option value="bible">Bible</option>
+      <option value="practice">Personal Practices</option>
     </select>
 
     <div id="dynamic"></div>
@@ -302,11 +290,8 @@ input, select {
   </div>
 
   <div class="card">
-    <h3 onclick="toggleHistory()" style="cursor:pointer">
-      History <span id="toggleText">Show more ▼</span>
-    </h3>
-
-    <div id="historyList"></div>
+    <h3>History</h3>
+    <div id="history"></div>
   </div>
 
 </div>
