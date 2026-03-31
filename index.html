@@ -18,7 +18,8 @@ const ALLOWED_USERS = [
 ];
 
 let currentUser = null;
-let currentView = "adam"; // toggle view
+let currentUserName = "";
+let currentView = "";
 
 /* LOGIN */
 window.login = async () => {
@@ -50,45 +51,69 @@ async function init() {
 
   if (!ALLOWED_USERS.includes(email)) {
     await supabase.auth.signOut();
-    document.body.innerHTML = `<h2>Private App 🔒</h2>`;
+    document.body.innerHTML = "<h2>Private App 🔒</h2>";
     return;
   }
 
   currentUser = session.user;
 
-  // default view
-  currentView = email.includes("adam") ? "adam" : "ariel";
+  // identify user
+  currentUserName = email.includes("adam") ? "adam" : "ariel";
+  currentView = currentUserName;
 
   document.getElementById("auth").style.display = "none";
   document.getElementById("app").style.display = "block";
 
-  document.getElementById("welcome").innerText =
-    "Welcome " + (currentView === "adam" ? "Adam" : "Ariel");
-
-  // show toggle only for Adam
-  if (email.includes("adam")) {
-    document.getElementById("toggle").style.display = "block";
-  }
+  updateUI();
 
   renderForm();
   loadDashboard();
   loadHistory();
 }
 
-/* TOGGLE VIEW */
-window.toggleView = () => {
-  currentView = currentView === "adam" ? "ariel" : "adam";
-
+/* UPDATE UI */
+function updateUI() {
   document.getElementById("welcome").innerText =
     "Viewing " + (currentView === "adam" ? "Adam" : "Ariel");
 
+  // toggle only for Adam
+  if (currentUserName === "adam") {
+    document.getElementById("toggle").style.display = "block";
+  }
+
+  // owner select logic
+  const ownerSelect = document.getElementById("owner");
+
+  if (!ownerSelect) return;
+
+  if (currentUserName === "ariel") {
+    ownerSelect.value = "ariel";
+    ownerSelect.disabled = true;
+  } else {
+    ownerSelect.disabled = false;
+  }
+}
+
+/* TOGGLE VIEW (ONLY ADAM) */
+window.toggleView = () => {
+  if (currentUserName !== "adam") return;
+
+  currentView = currentView === "adam" ? "ariel" : "adam";
+
+  updateUI();
   loadDashboard();
   loadHistory();
 };
 
 /* SAVE */
 window.save = async () => {
-  const owner = document.getElementById("owner").value;
+  let owner = document.getElementById("owner").value;
+
+  // enforce rule
+  if (currentUserName === "ariel") {
+    owner = "ariel";
+  }
+
   const duration = document.getElementById("duration").value;
   const intensity = document.getElementById("intensity").value;
 
@@ -126,6 +151,8 @@ function renderForm() {
     <input id="duration" placeholder="Duration (min)">
     <input id="intensity" placeholder="Intensity (1-10)">
   `;
+
+  updateUI();
 }
 
 /* DASHBOARD */
@@ -138,7 +165,10 @@ async function loadDashboard() {
   let workouts = 0;
 
   data.forEach(row => {
-    if (row.type === "workout" && row.data.owner === currentView) {
+    if (
+      row.type === "workout" &&
+      row.data?.owner === currentView
+    ) {
       workouts++;
     }
   });
@@ -158,7 +188,7 @@ async function loadHistory() {
   let html = "";
 
   data.forEach(row => {
-    if (row.data.owner !== currentView) return;
+    if (row.data?.owner !== currentView) return;
 
     const d = new Date(row.created_at);
 
@@ -171,7 +201,7 @@ async function loadHistory() {
 
         <div>${d.toLocaleDateString()}</div>
         <div class="muted">
-          ${row.data.duration} min · intensity ${row.data.intensity}
+          ${row.data.duration || "-"} min · intensity ${row.data.intensity || "-"}
         </div>
       </div>
     `;
@@ -201,7 +231,6 @@ h1 {
   margin: 15px auto;
   max-width: 420px;
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 button {
@@ -218,8 +247,6 @@ select, input {
   width: 100%;
   padding: 10px;
   margin-top: 8px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
 }
 
 .history-item {
