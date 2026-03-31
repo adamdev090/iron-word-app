@@ -7,23 +7,14 @@
 <script type="module">
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-/* =========================
-   🔐 SUPABASE CONFIG
-========================= */
 const supabase = createClient(
   "https://hkaligxxiojdgttnfyxp.supabase.co",
   "sb_publishable_c-u4pzu0HaUvKh6Wgwa5iw_0IKCNOKR"
 );
 
-/* =========================
-   📦 GITHUB CONFIG
-========================= */
 const GITHUB_USER = "adamdev090";
 const GITHUB_REPO = "iron-word-app";
 
-/* =========================
-   👥 USERS
-========================= */
 const ALLOWED_USERS = [
   "adamhlavka@gmail.com",
   "zmudariel@gmail.com"
@@ -31,37 +22,25 @@ const ALLOWED_USERS = [
 
 let currentUser = null;
 
-/* =========================
-   🔑 LOGIN
-========================= */
+/* LOGIN */
 window.login = async () => {
   await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: window.location.origin + "/iron-word-app/",
+      redirectTo: window.location.href,
       queryParams: { prompt: "select_account" }
     }
   });
 };
 
-/* =========================
-   🚪 LOGOUT
-========================= */
+/* LOGOUT */
 window.logout = async () => {
   await supabase.auth.signOut();
   location.reload();
 };
 
-/* =========================
-   🚀 INIT
-========================= */
+/* INIT */
 async function init() {
-
-  // 🔁 Fix login loop
-  supabase.auth.onAuthStateChange((_event, session) => {
-    if (session) location.reload();
-  });
-
   const { data: { session } } = await supabase.auth.getSession();
 
   if (!session) {
@@ -73,6 +52,7 @@ async function init() {
   const user = session.user;
   const email = user.email.toLowerCase();
 
+  // ACCESS CONTROL
   if (!ALLOWED_USERS.includes(email)) {
     await supabase.auth.signOut();
 
@@ -99,9 +79,7 @@ async function init() {
   loadVersion();
 }
 
-/* =========================
-   🧠 VERSION FROM GITHUB
-========================= */
+/* VERSION */
 async function loadVersion() {
   try {
     const res = await fetch(
@@ -111,21 +89,18 @@ async function loadVersion() {
 
     if (!data || !data[0]) return;
 
-    const commit = data[0];
-    const date = new Date(commit.commit.author.date);
+    const date = new Date(data[0].commit.author.date);
 
     document.getElementById("version").innerText =
       `Updated: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
 
-  } catch (err) {
+  } catch {
     document.getElementById("version").innerText =
       "Version unavailable";
   }
 }
 
-/* =========================
-   💾 SAVE
-========================= */
+/* SAVE */
 window.save = async () => {
   const type = document.getElementById("type").value;
 
@@ -142,12 +117,9 @@ window.save = async () => {
   loadDashboard();
 };
 
-/* =========================
-   🗑️ DELETE
-========================= */
+/* DELETE */
 window.deleteEntry = async (id) => {
-  await supabase
-    .from("logs")
+  await supabase.from("logs")
     .update({ deleted: true })
     .eq("id", id);
 
@@ -155,9 +127,7 @@ window.deleteEntry = async (id) => {
   loadDashboard();
 };
 
-/* =========================
-   📊 DASHBOARD
-========================= */
+/* DASHBOARD */
 async function loadDashboard() {
   const { data } = await supabase
     .from("logs")
@@ -176,9 +146,7 @@ async function loadDashboard() {
     `🏋️ ${workouts} workouts • 📖 ${bible}`;
 }
 
-/* =========================
-   📜 HISTORY
-========================= */
+/* HISTORY */
 async function loadHistory() {
   const { data } = await supabase
     .from("logs")
