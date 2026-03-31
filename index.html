@@ -7,20 +7,33 @@
 <script type="module">
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+/* =========================
+   🔐 SUPABASE CONFIG
+========================= */
 const supabase = createClient(
   "https://hkaligxxiojdgttnfyxp.supabase.co",
-  "YOUR_ANON_KEY"
+  "sb_publishable_c-u4pzu0HaUvKh6Wgwa5iw_0IKCNOKR"
 );
 
+/* =========================
+   📦 GITHUB CONFIG
+========================= */
+const GITHUB_USER = "adamdev090";
+const GITHUB_REPO = "iron-word-app";
+
+/* =========================
+   👥 USERS
+========================= */
 const ALLOWED_USERS = [
   "adamhlavka@gmail.com",
   "zmudariel@gmail.com"
 ];
 
 let currentUser = null;
-let historyExpanded = false;
 
-/* LOGIN */
+/* =========================
+   🔑 LOGIN
+========================= */
 window.login = async () => {
   await supabase.auth.signInWithOAuth({
     provider: "google",
@@ -31,18 +44,29 @@ window.login = async () => {
   });
 };
 
-/* LOGOUT */
+/* =========================
+   🚪 LOGOUT
+========================= */
 window.logout = async () => {
   await supabase.auth.signOut();
   location.reload();
 };
 
-/* INIT */
+/* =========================
+   🚀 INIT
+========================= */
 async function init() {
+
+  // 🔁 Fix login loop
+  supabase.auth.onAuthStateChange((_event, session) => {
+    if (session) location.reload();
+  });
+
   const { data: { session } } = await supabase.auth.getSession();
 
   if (!session) {
     document.getElementById("auth").style.display = "block";
+    loadVersion();
     return;
   }
 
@@ -50,11 +74,13 @@ async function init() {
   const email = user.email.toLowerCase();
 
   if (!ALLOWED_USERS.includes(email)) {
+    await supabase.auth.signOut();
+
     document.body.innerHTML = `
       <div style="text-align:center;margin-top:80px;">
         <h2>Private App 🔒</h2>
         <p>${email}</p>
-        <button onclick="logout()">Try another account</button>
+        <button onclick="location.reload()">Try again</button>
       </div>
     `;
     return;
@@ -64,43 +90,51 @@ async function init() {
 
   document.getElementById("auth").style.display = "none";
   document.getElementById("app").style.display = "block";
+
   document.getElementById("welcome").innerText =
     "Welcome " + (email.includes("adam") ? "Adam" : "Ariel");
 
-  renderForm();
   loadDashboard();
   loadHistory();
+  loadVersion();
 }
 
-/* SAVE */
+/* =========================
+   🧠 VERSION FROM GITHUB
+========================= */
+async function loadVersion() {
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/commits`
+    );
+    const data = await res.json();
+
+    if (!data || !data[0]) return;
+
+    const commit = data[0];
+    const date = new Date(commit.commit.author.date);
+
+    document.getElementById("version").innerText =
+      `Updated: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+
+  } catch (err) {
+    document.getElementById("version").innerText =
+      "Version unavailable";
+  }
+}
+
+/* =========================
+   💾 SAVE
+========================= */
 window.save = async () => {
   const type = document.getElementById("type").value;
-  const owner = document.getElementById("owner").value;
-
-  let data = {
-    owner
-  };
-
-  if (type === "workout") {
-    data.duration = document.getElementById("duration").value;
-    data.intensity = document.getElementById("intensity").value;
-  }
-
-  if (type === "bible") {
-    data.duration = document.getElementById("duration").value;
-    data.notes = document.getElementById("notes").value;
-  }
-
-  if (type === "practice") {
-    data.notes = document.getElementById("notes").value;
-  }
 
   await supabase.from("logs").insert([{
     user_id: currentUser.id,
     user_email: currentUser.email,
     type,
-    data,
-    created_at: document.getElementById("date").value,
+    data: {},
+    created_at: new Date().toISOString(),
     deleted: false
   }]);
 
@@ -108,9 +142,12 @@ window.save = async () => {
   loadDashboard();
 };
 
-/* DELETE */
+/* =========================
+   🗑️ DELETE
+========================= */
 window.deleteEntry = async (id) => {
-  await supabase.from("logs")
+  await supabase
+    .from("logs")
     .update({ deleted: true })
     .eq("id", id);
 
@@ -118,63 +155,30 @@ window.deleteEntry = async (id) => {
   loadDashboard();
 };
 
-/* FORM */
-function renderForm() {
-  const type = document.getElementById("type").value;
-
-  let html = `
-    <input id="date" type="datetime-local">
-
-    <select id="owner">
-      <option value="adam">Adam</option>
-      <option value="ariel">Ariel</option>
-    </select>
-  `;
-
-  if (type === "workout") {
-    html += `
-      <input id="duration" placeholder="Minutes">
-      <input id="intensity" placeholder="Intensity">
-    `;
-  }
-
-  if (type === "bible" || type === "practice") {
-    html += `
-      <input id="duration" placeholder="Minutes">
-      <input id="notes" placeholder="Notes">
-    `;
-  }
-
-  document.getElementById("dynamic").innerHTML = html;
-  document.getElementById("date").value =
-    new Date().toISOString().slice(0,16);
-}
-
-window.renderForm = renderForm;
-
-/* DASHBOARD */
+/* =========================
+   📊 DASHBOARD
+========================= */
 async function loadDashboard() {
   const { data } = await supabase
     .from("logs")
     .select("*")
     .eq("deleted", false);
 
-  const users = { adam: {workout:0,bible:0}, ariel: {workout:0,bible:0} };
+  let workouts = 0;
+  let bible = 0;
 
   data.forEach(row => {
-    const owner = row.data.owner;
-
-    if (row.type === "workout") users[owner].workout++;
-    if (row.type === "bible") users[owner].bible++;
+    if (row.type === "workout") workouts++;
+    if (row.type === "bible") bible++;
   });
 
-  document.getElementById("dashboard").innerHTML = `
-    <div>Adam: 🏋️ ${users.adam.workout} 📖 ${users.adam.bible}</div>
-    <div>Ariel: 🏋️ ${users.ariel.workout} 📖 ${users.ariel.bible}</div>
-  `;
+  document.getElementById("dashboard").innerHTML =
+    `🏋️ ${workouts} workouts • 📖 ${bible}`;
 }
 
-/* HISTORY */
+/* =========================
+   📜 HISTORY
+========================= */
 async function loadHistory() {
   const { data } = await supabase
     .from("logs")
@@ -184,25 +188,16 @@ async function loadHistory() {
 
   let html = "";
 
-  data.forEach(row => {
-
-    // 🔐 privacy
-    if (
-      row.type === "practice" &&
-      currentUser.email.includes("zmudariel")
-    ) return;
-
+  data.slice(0,5).forEach(row => {
     const d = new Date(row.created_at);
 
     html += `
       <div class="history-item">
         <div style="display:flex;justify-content:space-between;">
-          <strong>${row.type} (${row.data.owner})</strong>
+          <strong>${row.type}</strong>
           <button onclick="deleteEntry(${row.id})">✕</button>
         </div>
-
-        <div>${d.toLocaleDateString()}</div>
-        <div class="muted">${JSON.stringify(row.data)}</div>
+        <div>${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
       </div>
     `;
   });
@@ -237,20 +232,16 @@ button {
   border: none;
 }
 
-input, select {
-  width: 100%;
-  padding: 10px;
-  margin: 6px 0;
-}
-
 .history-item {
   text-align: left;
   padding: 10px;
   border-bottom: 1px solid #eee;
 }
 
-.muted {
-  color: #666;
+#version {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 10px;
 }
 </style>
 </head>
@@ -258,6 +249,7 @@ input, select {
 <body>
 
 <h1>Iron & Word</h1>
+<div id="version"></div>
 
 <div id="auth">
   <button onclick="login()">Continue with Google</button>
@@ -276,15 +268,12 @@ input, select {
   </div>
 
   <div class="card">
-    <h3>Record Session</h3>
+    <h3>Quick Log</h3>
 
-    <select id="type" onchange="renderForm()">
+    <select id="type">
       <option value="workout">Workout</option>
       <option value="bible">Bible</option>
-      <option value="practice">Personal Practices</option>
     </select>
-
-    <div id="dynamic"></div>
 
     <button onclick="save()">Save</button>
   </div>
