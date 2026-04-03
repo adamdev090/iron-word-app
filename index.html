@@ -40,9 +40,6 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  /* ── LOGO ── */
-  .logo-mark { display: block; }
-
   /* ── AUTH ── */
   #auth-screen {
     display: none;
@@ -56,20 +53,14 @@
       radial-gradient(ellipse at 20% 20%, rgba(74,90,56,0.05) 0%, transparent 60%),
       radial-gradient(ellipse at 80% 80%, rgba(201,168,76,0.05) 0%, transparent 60%);
   }
-
   .auth-title {
-    font-family: 'Lora', serif;
-    font-size: 38px; font-weight: 500;
-    color: var(--olive); letter-spacing: -0.5px;
-    margin: 16px 0 6px; text-align: center;
+    font-family: 'Lora', serif; font-size: 38px; font-weight: 500;
+    color: var(--olive); letter-spacing: -0.5px; margin: 16px 0 6px; text-align: center;
   }
-
   .auth-tagline {
     font-size: 12px; font-weight: 300; color: var(--text3);
-    letter-spacing: 2.5px; text-transform: uppercase;
-    margin-bottom: 52px; text-align: center;
+    letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 52px; text-align: center;
   }
-
   .btn-google {
     display: flex; align-items: center; gap: 12px;
     background: var(--surface); border: 1.5px solid var(--border);
@@ -94,30 +85,53 @@
   }
   .topbar-inner {
     max-width: var(--max-w); margin: 0 auto;
-    display: flex; align-items: center; justify-content: space-between;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
   }
-  .topbar-logo { display: flex; align-items: center; gap: 10px; }
+  .topbar-logo { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
   .topbar-title {
     font-family: 'Lora', serif; font-size: 20px; font-weight: 500;
     color: var(--olive); letter-spacing: -0.2px;
   }
   .topbar-right { display: flex; align-items: center; gap: 8px; }
+
+  /* ── PREVIEW TOGGLE (adam only) ── */
+  .preview-toggle {
+    display: none;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 3px;
+    gap: 2px;
+    align-items: center;
+  }
+  .preview-toggle.show { display: flex; }
+
+  .preview-pill {
+    padding: 5px 14px; border-radius: 16px; border: none;
+    background: transparent; font-family: 'Inter', sans-serif;
+    font-size: 12px; font-weight: 500; color: var(--text3);
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+  }
+  .preview-pill.active {
+    background: var(--olive); color: white;
+    box-shadow: 0 1px 4px rgba(74,90,56,0.3);
+  }
+
+  /* log-as badge */
+  .log-badge {
+    display: none; font-size: 11px; font-weight: 500;
+    color: var(--olive); background: var(--olive-light);
+    padding: 4px 10px; border-radius: 20px; letter-spacing: 0.3px;
+  }
+  .log-badge.show { display: block; }
+
   .icon-btn {
     width: 34px; height: 34px; border-radius: 50%;
     border: 1.5px solid var(--border); background: var(--surface);
     color: var(--text2); display: flex; align-items: center; justify-content: center;
-    cursor: pointer; font-size: 14px; transition: all 0.15s;
+    cursor: pointer; font-size: 14px; transition: all 0.15s; flex-shrink: 0;
   }
   .icon-btn:active { transform: scale(0.92); background: var(--surface2); }
-
-  /* viewing badge in topbar */
-  .viewing-badge {
-    font-size: 11px; font-weight: 500; color: var(--olive);
-    background: var(--olive-light); padding: 4px 10px;
-    border-radius: 20px; letter-spacing: 0.3px;
-    display: none;
-  }
-  .viewing-badge.show { display: block; }
 
   /* ── PAGES ── */
   .page { display: none; padding: 20px; }
@@ -127,8 +141,7 @@
   /* ── SECTION LABEL ── */
   .section-label {
     font-size: 10px; font-weight: 500; letter-spacing: 2px;
-    text-transform: uppercase; color: var(--text3);
-    margin-bottom: 10px; margin-top: 24px;
+    text-transform: uppercase; color: var(--text3); margin-bottom: 10px; margin-top: 24px;
   }
   .section-label:first-child { margin-top: 0; }
 
@@ -140,61 +153,13 @@
     margin-bottom: 12px;
   }
 
-  /* ── COMPARISON DASHBOARD ── */
-  .compare-header {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 10px; margin-bottom: 10px;
-  }
-
-  .compare-col {
-    background: var(--surface); border-radius: var(--r);
-    border: 1px solid var(--border);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-    overflow: hidden;
-  }
-
-  .compare-col-head {
-    background: var(--olive); color: white;
-    padding: 10px 16px;
-    font-family: 'Lora', serif; font-size: 15px; font-weight: 500;
-    text-align: center; letter-spacing: 0.2px;
-  }
-
-  .compare-col-body { padding: 14px 16px; }
-
-  .compare-stat {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 8px 0; border-bottom: 1px solid var(--border);
-  }
-  .compare-stat:last-child { border-bottom: none; padding-bottom: 0; }
-
-  .compare-stat-label {
-    font-size: 12px; color: var(--text2); font-weight: 400;
-    display: flex; align-items: center; gap: 6px;
-  }
-
-  .compare-stat-num {
-    font-family: 'Lora', serif; font-size: 22px; font-weight: 500;
-    color: var(--text); letter-spacing: -0.5px;
-  }
-
-  .compare-stat-num.leading { color: var(--olive); }
-  .compare-stat-num.trailing { color: var(--text3); }
-
-  /* period row above comparison */
-  .period-row {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 12px; gap: 8px;
-  }
-
   /* ── PERIOD PICKER ── */
   .period-picker {
-    display: flex; gap: 6px;
+    display: flex; gap: 6px; margin-bottom: 14px;
     overflow-x: auto; -webkit-overflow-scrolling: touch;
-    scrollbar-width: none; padding-bottom: 1px; flex: 1;
+    scrollbar-width: none; padding-bottom: 1px;
   }
   .period-picker::-webkit-scrollbar { display: none; }
-
   .period-btn {
     flex-shrink: 0; padding: 6px 14px; border-radius: 20px;
     border: 1.5px solid var(--border); background: transparent;
@@ -203,50 +168,75 @@
   }
   .period-btn.active { background: var(--olive); border-color: var(--olive); color: white; }
 
-  /* ── YTD STRIP ── */
-  .ytd-strip {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 10px; margin-bottom: 10px;
-  }
+  /* ── COMPARISON GRID ── */
+  .compare-header { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
 
-  .ytd-card {
+  .compare-col {
     background: var(--surface); border-radius: var(--r);
-    padding: 14px 16px; border: 1px solid var(--border);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-    display: flex; align-items: center; justify-content: space-between;
+    border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(0,0,0,0.04); overflow: hidden;
   }
-
-  .ytd-left { }
-  .ytd-icon { font-size: 16px; margin-bottom: 4px; }
-  .ytd-label { font-size: 11px; color: var(--text3); font-weight: 300; }
-
-  .ytd-nums { display: flex; align-items: baseline; gap: 12px; }
-  .ytd-num {
+  .compare-col-head {
+    background: var(--olive); color: white; padding: 10px 16px;
+    font-family: 'Lora', serif; font-size: 15px; font-weight: 500;
     text-align: center;
   }
-  .ytd-num-val {
-    font-family: 'Lora', serif; font-size: 28px; font-weight: 500;
-    letter-spacing: -1px; line-height: 1;
+  .compare-col-head.muted { background: var(--surface2); color: var(--text2); }
+  .compare-col-body { padding: 14px 16px; }
+  .compare-stat {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 0; border-bottom: 1px solid var(--border);
   }
+  .compare-stat:last-child { border-bottom: none; padding-bottom: 0; }
+  .compare-stat-label { font-size: 12px; color: var(--text2); font-weight: 400; display: flex; align-items: center; gap: 6px; }
+  .compare-stat-num { font-family: 'Lora', serif; font-size: 22px; font-weight: 500; color: var(--text); letter-spacing: -0.5px; }
+  .compare-stat-num.leading { color: var(--olive); }
+  .compare-stat-num.trailing { color: var(--text3); }
+
+  /* ── YTD STRIP ── */
+  .ytd-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .ytd-card {
+    background: var(--surface); border-radius: var(--r); padding: 14px 16px;
+    border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .ytd-icon { font-size: 16px; margin-bottom: 4px; }
+  .ytd-label { font-size: 11px; color: var(--text3); font-weight: 300; }
+  .ytd-nums { display: flex; align-items: baseline; gap: 12px; }
+  .ytd-num { text-align: center; }
+  .ytd-num-val { font-family: 'Lora', serif; font-size: 28px; font-weight: 500; letter-spacing: -1px; line-height: 1; }
   .ytd-num-name { font-size: 10px; color: var(--text3); font-weight: 300; margin-top: 2px; }
   .ytd-divider { width: 1px; height: 28px; background: var(--border); }
 
-  /* private stats row */
-  .private-strip {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 10px; margin-bottom: 10px;
-  }
+  /* ── PRIVATE STRIP ── */
+  .private-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
   .private-card {
-    background: var(--surface); border-radius: var(--r);
-    padding: 16px; border: 1px solid var(--border);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    background: var(--surface); border-radius: var(--r); padding: 16px;
+    border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(0,0,0,0.04);
   }
   .private-icon { font-size: 18px; margin-bottom: 6px; display: block; }
-  .private-num {
-    font-family: 'Lora', serif; font-size: 32px; font-weight: 500;
-    letter-spacing: -1px; line-height: 1;
-  }
+  .private-num { font-family: 'Lora', serif; font-size: 32px; font-weight: 500; letter-spacing: -1px; line-height: 1; }
   .private-label { font-size: 11px; color: var(--text3); margin-top: 3px; }
+
+  /* ── SOLO STATS (Ariel view) ── */
+  .solo-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .solo-card {
+    background: var(--surface); border-radius: var(--r); padding: 18px 16px;
+    border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    position: relative; overflow: hidden;
+  }
+  .solo-card::after {
+    content: ''; position: absolute; bottom: -16px; right: -16px;
+    width: 64px; height: 64px; border-radius: 50%; opacity: 0.06;
+  }
+  .solo-card.workout::after { background: var(--olive); }
+  .solo-card.bible::after { background: var(--gold); }
+  .solo-icon { font-size: 18px; margin-bottom: 8px; display: block; }
+  .solo-num {
+    font-family: 'Lora', serif; font-size: 40px; font-weight: 500;
+    letter-spacing: -1px; line-height: 1; color: var(--text);
+  }
+  .solo-label { font-size: 11px; color: var(--text3); margin-top: 4px; font-weight: 300; }
+  .solo-ytd { font-size: 11px; color: var(--text3); margin-top: 2px; }
 
   /* ── HISTORY ITEMS ── */
   .history-item {
@@ -255,7 +245,6 @@
   }
   .history-item:last-child { border-bottom: none; padding-bottom: 0; }
   .history-item:first-child { padding-top: 0; }
-
   .history-icon {
     width: 34px; height: 34px; border-radius: 9px;
     display: flex; align-items: center; justify-content: center;
@@ -265,19 +254,17 @@
   .history-icon.bible { background: rgba(201,168,76,0.12); }
   .history-icon.cold { background: rgba(61,95,117,0.1); }
   .history-icon.sauna { background: rgba(122,64,64,0.1); }
-
   .history-body { flex: 1; min-width: 0; }
-  .history-title { font-size: 14px; font-weight: 500; color: var(--text); }
   .history-owner { font-size: 11px; color: var(--olive); font-weight: 500; margin-bottom: 1px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .history-title { font-size: 14px; font-weight: 500; color: var(--text); }
   .history-meta { font-size: 12px; color: var(--text3); margin-top: 2px; font-weight: 300; }
   .history-notes { font-size: 12px; color: var(--text2); margin-top: 4px; font-style: italic; line-height: 1.4; }
-
   .history-right { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; }
   .history-time { font-size: 11px; color: var(--text3); font-weight: 300; }
   .delete-btn { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 13px; padding: 2px 4px; transition: color 0.15s; }
   .delete-btn:active { color: var(--red); }
 
-  /* ── HISTORY PAGE TABS ── */
+  /* ── HIST TABS ── */
   .hist-tabs {
     display: flex; gap: 0; margin-bottom: 16px;
     background: var(--surface2); border-radius: 10px; padding: 3px;
@@ -293,7 +280,6 @@
 
   /* ── LOG TYPE GRID ── */
   .log-type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 4px; }
-
   .log-type-btn {
     padding: 18px 12px; border-radius: var(--r);
     border: 1.5px solid var(--border); background: var(--surface);
@@ -308,10 +294,7 @@
 
   /* ── FORM ── */
   .form-group { margin-bottom: 16px; }
-  .form-label {
-    font-size: 10px; font-weight: 500; letter-spacing: 1.8px;
-    text-transform: uppercase; color: var(--text3); margin-bottom: 8px; display: block;
-  }
+  .form-label { font-size: 10px; font-weight: 500; letter-spacing: 1.8px; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; display: block; }
   .form-input {
     width: 100%; padding: 13px 14px; border-radius: var(--r-sm);
     border: 1.5px solid var(--border); background: var(--bg);
@@ -332,22 +315,10 @@
   .chip.selected { background: var(--olive); border-color: var(--olive); color: white; }
 
   /* ── SLIDER ── */
-  .slider-value {
-    font-family: 'Lora', serif; font-size: 36px; font-weight: 500;
-    color: var(--olive); text-align: center; margin-bottom: 8px; letter-spacing: -1px;
-  }
-  input[type=range] {
-    width: 100%; height: 3px; border-radius: 2px; background: var(--border);
-    outline: none; -webkit-appearance: none; cursor: pointer;
-  }
-  input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
-    background: var(--olive); box-shadow: 0 2px 8px rgba(74,90,56,0.3);
-  }
-  .slider-labels {
-    display: flex; justify-content: space-between; font-size: 10px;
-    color: var(--text3); margin-top: 8px; font-weight: 300; letter-spacing: 0.5px;
-  }
+  .slider-value { font-family: 'Lora', serif; font-size: 36px; font-weight: 500; color: var(--olive); text-align: center; margin-bottom: 8px; letter-spacing: -1px; }
+  input[type=range] { width: 100%; height: 3px; border-radius: 2px; background: var(--border); outline: none; -webkit-appearance: none; cursor: pointer; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: var(--olive); box-shadow: 0 2px 8px rgba(74,90,56,0.3); }
+  .slider-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--text3); margin-top: 8px; font-weight: 300; letter-spacing: 0.5px; }
 
   /* ── BUTTONS ── */
   .btn-primary {
@@ -360,12 +331,7 @@
   .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
 
   /* ── PROFILE ── */
-  .profile-avatar {
-    width: 72px; height: 72px; border-radius: 50%; background: var(--olive);
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Lora', serif; font-size: 28px; color: white;
-    margin-bottom: 14px; box-shadow: 0 4px 20px rgba(74,90,56,0.2);
-  }
+  .profile-avatar { width: 72px; height: 72px; border-radius: 50%; background: var(--olive); display: flex; align-items: center; justify-content: center; font-family: 'Lora', serif; font-size: 28px; color: white; margin-bottom: 14px; box-shadow: 0 4px 20px rgba(74,90,56,0.2); }
   .profile-name { font-family: 'Lora', serif; font-size: 26px; font-weight: 500; margin-bottom: 4px; }
   .profile-email { font-size: 13px; color: var(--text3); margin-bottom: 24px; font-weight: 300; }
 
@@ -378,32 +344,13 @@
     border-top: 1px solid var(--border);
     display: flex; align-items: flex-start; padding-top: 8px; z-index: 200;
   }
-
-  /* center nav items within max-width on iPad */
-  .nav-inner {
-    width: 100%; max-width: 480px; margin: 0 auto;
-    display: flex; align-items: flex-start;
-  }
-
-  .nav-item {
-    flex: 1; display: flex; flex-direction: column; align-items: center;
-    gap: 3px; padding: 4px 0; cursor: pointer; border: none; background: none;
-  }
+  .nav-inner { width: 100%; max-width: 480px; margin: 0 auto; display: flex; align-items: flex-start; }
+  .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 0; cursor: pointer; border: none; background: none; }
   .nav-icon { font-size: 20px; line-height: 1; }
   .nav-label { font-size: 9px; font-weight: 500; color: var(--text3); letter-spacing: 0.8px; text-transform: uppercase; }
   .nav-item.active .nav-label { color: var(--olive); }
-
-  .nav-fab {
-    flex: 1; display: flex; flex-direction: column; align-items: center;
-    gap: 3px; margin-top: -18px; cursor: pointer; border: none; background: none; padding: 0;
-  }
-  .fab-circle {
-    width: 52px; height: 52px; border-radius: 50%; background: var(--olive);
-    display: flex; align-items: center; justify-content: center;
-    color: white; font-size: 26px; font-weight: 300;
-    box-shadow: 0 4px 16px rgba(74,90,56,0.35); transition: transform 0.15s;
-    line-height: 1; padding-bottom: 2px;
-  }
+  .nav-fab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; margin-top: -18px; cursor: pointer; border: none; background: none; padding: 0; }
+  .fab-circle { width: 52px; height: 52px; border-radius: 50%; background: var(--olive); display: flex; align-items: center; justify-content: center; color: white; font-size: 26px; font-weight: 300; box-shadow: 0 4px 16px rgba(74,90,56,0.35); transition: transform 0.15s; line-height: 1; padding-bottom: 2px; }
   .nav-fab:active .fab-circle { transform: scale(0.92); }
   .nav-fab .nav-label { color: var(--text3); }
   .nav-fab.active .nav-label { color: var(--olive); }
@@ -413,17 +360,7 @@
   .empty-text { font-size: 13px; font-weight: 300; }
 
   /* ── TOAST ── */
-  .toast {
-    position: fixed;
-    bottom: calc(var(--tab-h) + var(--safe-bottom) + 16px);
-    left: 50%; transform: translateX(-50%) translateY(8px);
-    background: var(--text); color: white;
-    padding: 11px 20px; border-radius: 10px;
-    font-size: 13px; font-weight: 500; opacity: 0;
-    transition: all 0.25s; z-index: 400;
-    white-space: nowrap; pointer-events: none;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-  }
+  .toast { position: fixed; bottom: calc(var(--tab-h) + var(--safe-bottom) + 16px); left: 50%; transform: translateX(-50%) translateY(8px); background: var(--text); color: white; padding: 11px 20px; border-radius: 10px; font-size: 13px; font-weight: 500; opacity: 0; transition: all 0.25s; z-index: 400; white-space: nowrap; pointer-events: none; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
 </head>
@@ -431,7 +368,7 @@
 
 <!-- AUTH -->
 <div id="auth-screen">
-  <svg width="96" height="96" viewBox="0 0 90 90" fill="none" class="logo-mark">
+  <svg width="96" height="96" viewBox="0 0 90 90" fill="none">
     <path d="M10 64 Q10 76 45 76 Q80 76 80 64 L80 58 Q80 50 45 50 Q10 50 10 58 Z" fill="#4a5a38"/>
     <line x1="45" y1="50" x2="45" y2="76" stroke="#f0ece2" stroke-width="1.8" stroke-linecap="round"/>
     <line x1="16" y1="58" x2="41" y2="58" stroke="#f0ece2" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
@@ -478,8 +415,15 @@
         <div class="topbar-title" id="topbar-title">Iron & Word</div>
       </div>
       <div class="topbar-right">
-        <span class="viewing-badge" id="viewing-badge">Logging as Ariel</span>
-        <button class="icon-btn" id="switch-btn" onclick="toggleView()" style="display:none" title="Switch view">⇄</button>
+        <!-- Preview toggle — adam only -->
+        <div class="preview-toggle" id="preview-toggle">
+          <button class="preview-pill active" id="pill-adam" onclick="setPreview('adam')">Adam</button>
+          <button class="preview-pill" id="pill-ariel" onclick="setPreview('ariel')">Ariel</button>
+        </div>
+        <!-- Log-as badge — adam only, shows when logging for Ariel -->
+        <span class="log-badge" id="log-badge">Logging as Ariel</span>
+        <!-- Switch log target — adam only -->
+        <button class="icon-btn" id="switch-btn" onclick="toggleLogAs()" style="display:none" title="Switch who you're logging for">⇄</button>
         <button class="icon-btn" onclick="showPage('profile')">○</button>
       </div>
     </div>
@@ -488,26 +432,13 @@
   <!-- DASHBOARD -->
   <div class="page active" id="page-home">
     <div class="page-inner">
-
-      <div class="period-picker" id="period-picker" style="margin-bottom:14px">
+      <div class="period-picker" id="period-picker">
         <button class="period-btn active" onclick="setPeriod('month',this)">This Month</button>
         <button class="period-btn" onclick="setPeriod('week',this)">This Week</button>
         <button class="period-btn" onclick="setPeriod('year',this)">This Year</button>
         <button class="period-btn" onclick="setPeriod('all',this)">All Time</button>
       </div>
-
-      <!-- Side by side comparison -->
-      <div class="compare-header" id="compare-grid"></div>
-
-      <!-- YTD totals -->
-      <div class="ytd-strip" id="ytd-strip"></div>
-
-      <!-- Private stats (adam only) -->
-      <div id="private-strip" style="display:none"></div>
-
-      <div class="section-label">Recent Activity</div>
-      <div class="card"><div id="recent-list"></div></div>
-
+      <div id="dashboard-content"></div>
     </div>
   </div>
 
@@ -536,21 +467,18 @@
   <!-- HISTORY -->
   <div class="page" id="page-history">
     <div class="page-inner">
-      <div class="period-picker" id="hist-period-picker" style="margin-bottom:14px">
+      <div class="period-picker" id="hist-period-picker">
         <button class="period-btn active" onclick="setHistoryPeriod('month',this)">This Month</button>
         <button class="period-btn" onclick="setHistoryPeriod('week',this)">This Week</button>
         <button class="period-btn" onclick="setHistoryPeriod('year',this)">This Year</button>
         <button class="period-btn" onclick="setHistoryPeriod('all',this)">All Time</button>
       </div>
-
-      <!-- Type tabs -->
-      <div class="hist-tabs" id="hist-tabs">
+      <div class="hist-tabs">
         <button class="hist-tab active" onclick="setHistTab('all',this)">All</button>
         <button class="hist-tab" onclick="setHistTab('workout',this)">Workouts</button>
         <button class="hist-tab" onclick="setHistTab('bible',this)">Bible</button>
         <button class="hist-tab" id="hist-tab-private" onclick="setHistTab('private',this)" style="display:none">Private</button>
       </div>
-
       <div class="card"><div id="hist-list"></div></div>
     </div>
   </div>
@@ -571,7 +499,7 @@
             <span>App</span><span style="color:var(--text);font-weight:400">Iron & Word</span>
           </div>
           <div style="display:flex;justify-content:space-between;padding:9px 0">
-            <span>Version</span><span style="color:var(--text);font-weight:400">4.0</span>
+            <span>Version</span><span style="color:var(--text);font-weight:400">4.1</span>
           </div>
         </div>
       </div>
@@ -584,20 +512,17 @@
 <nav class="bottom-nav">
   <div class="nav-inner">
     <button class="nav-item active" onclick="showPage('home')" id="nav-home">
-      <span class="nav-icon">⬜</span>
-      <span class="nav-label">Home</span>
+      <span class="nav-icon">⬜</span><span class="nav-label">Home</span>
     </button>
     <button class="nav-item" onclick="showPage('history')" id="nav-history">
-      <span class="nav-icon">≡</span>
-      <span class="nav-label">History</span>
+      <span class="nav-icon">≡</span><span class="nav-label">History</span>
     </button>
     <button class="nav-fab" onclick="showPage('log')" id="nav-log">
       <div class="fab-circle">+</div>
       <span class="nav-label">Log</span>
     </button>
     <button class="nav-item" onclick="showPage('profile')" id="nav-profile">
-      <span class="nav-icon">○</span>
-      <span class="nav-label">Profile</span>
+      <span class="nav-icon">○</span><span class="nav-label">Profile</span>
     </button>
   </div>
 </nav>
@@ -616,7 +541,9 @@ const ALLOWED = ["adamhlavka@gmail.com", "zmudariel@gmail.com"];
 const ADAM = "adamhlavka@gmail.com";
 const NETLIFY_URL = "https://ironandword.netlify.app";
 
-let currentUser = null, currentUserName = "", viewingAs = "";
+let currentUser = null, currentUserName = "";
+let previewAs = "adam";   // what dashboard/history shows (adam can toggle to "ariel")
+let logAs = "adam";       // who we're logging for (adam can switch to "ariel")
 let currentPeriod = "month", historyPeriod = "month", histTab = "all";
 let selectedLogType = null, logFormData = {};
 
@@ -627,7 +554,6 @@ window.login = async () => {
     options: { redirectTo: NETLIFY_URL, queryParams: { prompt: "select_account" } }
   });
 };
-
 window.logout = async () => { await supabase.auth.signOut(); location.reload(); };
 
 async function init() {
@@ -649,12 +575,14 @@ async function init() {
 
   currentUser = session.user;
   currentUserName = email === ADAM ? "adam" : "ariel";
-  viewingAs = currentUserName;
+  previewAs = currentUserName;
+  logAs = currentUserName;
 
   document.getElementById("auth-screen").style.display = "none";
   document.getElementById("app").style.display = "block";
 
   if (currentUserName === "adam") {
+    document.getElementById("preview-toggle").classList.add("show");
     document.getElementById("switch-btn").style.display = "flex";
     document.getElementById("lt-cold").style.display = "flex";
     document.getElementById("lt-sauna").style.display = "flex";
@@ -665,22 +593,23 @@ async function init() {
   document.getElementById("profile-name").textContent = currentUserName === "adam" ? "Adam Hlávka" : "Ariel";
   document.getElementById("profile-email").textContent = email;
 
-  updateTopbar(); loadDashboard(); loadHistory();
+  loadDashboard(); loadHistory();
 }
 
-/* ── VIEW SWITCHING (for logging as Ariel) ── */
-window.toggleView = () => {
-  if (currentUserName !== "adam") return;
-  viewingAs = viewingAs === "adam" ? "ariel" : "adam";
-  updateTopbar();
+/* ── PREVIEW TOGGLE (dashboard view) ── */
+window.setPreview = (who) => {
+  previewAs = who;
+  document.getElementById("pill-adam").classList.toggle("active", who === "adam");
+  document.getElementById("pill-ariel").classList.toggle("active", who === "ariel");
+  document.getElementById("topbar-title").textContent = who === "ariel" ? "Ariel's View" : "Iron & Word";
+  loadDashboard(); loadHistory();
 };
 
-function updateTopbar() {
-  const isAriel = viewingAs === "ariel";
-  const badge = document.getElementById("viewing-badge");
-  badge.classList.toggle("show", isAriel);
-  document.getElementById("topbar-title").textContent = isAriel ? "Logging as Ariel" : "Iron & Word";
-}
+/* ── LOG AS TOGGLE (who you're logging for) ── */
+window.toggleLogAs = () => {
+  logAs = logAs === "adam" ? "ariel" : "adam";
+  document.getElementById("log-badge").classList.toggle("show", logAs === "ariel");
+};
 
 /* ── NAV ── */
 window.showPage = (page) => {
@@ -718,13 +647,47 @@ window.setPeriod = (p, btn) => {
 async function loadDashboard() {
   const isAdam = currentUserName === "adam";
   const lbl = { month:"This Month", week:"This Week", year:"This Year", all:"All Time" }[currentPeriod];
+  const el = document.getElementById("dashboard-content");
 
-  // fetch both users' data
+  // Ariel preview — show only Ariel's data, no private, no comparison
+  if (previewAs === "ariel") {
+    const { data: arielData } = await supabase.from("logs").select("*").eq("deleted", false).eq("owner", "ariel");
+    if (!arielData) return;
+    const filtered = filterByPeriod(arielData, currentPeriod);
+    const ytd = filterByPeriod(arielData, "year");
+    const w = filtered.filter(r => r.type === "workout").length;
+    const b = filtered.filter(r => r.type === "bible").length;
+    const wY = ytd.filter(r => r.type === "workout").length;
+    const bY = ytd.filter(r => r.type === "bible").length;
+
+    el.innerHTML = `
+      <div class="solo-strip">
+        <div class="solo-card workout">
+          <span class="solo-icon">🏋️</span>
+          <div class="solo-num">${w}</div>
+          <div class="solo-label">Workouts · ${lbl}</div>
+          <div class="solo-ytd">${wY} this year</div>
+        </div>
+        <div class="solo-card bible">
+          <span class="solo-icon">📖</span>
+          <div class="solo-num">${b}</div>
+          <div class="solo-label">Bible Readings · ${lbl}</div>
+          <div class="solo-ytd">${bY} this year</div>
+        </div>
+      </div>
+      <div class="section-label">Recent Activity</div>
+      <div class="card"><div id="recent-list"></div></div>`;
+
+    const recent = [...arielData].sort((a,b) => new Date(b.created_at)-new Date(a.created_at)).slice(0,5);
+    document.getElementById("recent-list").innerHTML = recent.length
+      ? recent.map(r => itemHTML(r, false)).join("")
+      : `<div class="empty"><div class="empty-text">No activity yet</div></div>`;
+    return;
+  }
+
+  // Adam's default view — full comparison
   const { data: allData } = await supabase.from("logs").select("*").eq("deleted", false).in("owner", ["adam","ariel"]);
   if (!allData) return;
-
-  // also fetch private (cold/sauna — adam only)
-  const adamPrivate = allData.filter(r => r.owner === "adam" && (r.type === "cold" || r.type === "sauna"));
 
   const filtered = filterByPeriod(allData, currentPeriod);
   const ytd = filterByPeriod(allData, "year");
@@ -745,105 +708,73 @@ async function loadDashboard() {
   const wLead = adamW > arielW ? "adam" : adamW < arielW ? "ariel" : "tie";
   const bLead = adamB > arielB ? "adam" : adamB < arielB ? "ariel" : "tie";
 
-  // comparison grid
-  document.getElementById("compare-grid").innerHTML = `
-    <div class="compare-col">
-      <div class="compare-col-head">Adam</div>
-      <div class="compare-col-body">
-        <div class="compare-stat">
-          <div class="compare-stat-label">🏋️ Workouts</div>
-          <div class="compare-stat-num ${wLead==="adam"?"leading":wLead==="ariel"?"trailing":""}">${adamW}</div>
+  // private
+  const filtPrivate = filterByPeriod(allData.filter(r => r.owner === "adam"), currentPeriod);
+  const colds = filtPrivate.filter(r => r.type === "cold").length;
+  const saunas = filtPrivate.filter(r => r.type === "sauna").length;
+
+  el.innerHTML = `
+    <div class="compare-header">
+      <div class="compare-col">
+        <div class="compare-col-head">Adam</div>
+        <div class="compare-col-body">
+          <div class="compare-stat">
+            <div class="compare-stat-label">🏋️ Workouts</div>
+            <div class="compare-stat-num ${wLead==="adam"?"leading":wLead==="ariel"?"trailing":""}">${adamW}</div>
+          </div>
+          <div class="compare-stat">
+            <div class="compare-stat-label">📖 Bible</div>
+            <div class="compare-stat-num ${bLead==="adam"?"leading":bLead==="ariel"?"trailing":""}">${adamB}</div>
+          </div>
         </div>
-        <div class="compare-stat">
-          <div class="compare-stat-label">📖 Bible</div>
-          <div class="compare-stat-num ${bLead==="adam"?"leading":bLead==="ariel"?"trailing":""}">${adamB}</div>
+      </div>
+      <div class="compare-col">
+        <div class="compare-col-head muted">Ariel</div>
+        <div class="compare-col-body">
+          <div class="compare-stat">
+            <div class="compare-stat-label">🏋️ Workouts</div>
+            <div class="compare-stat-num ${wLead==="ariel"?"leading":wLead==="adam"?"trailing":""}">${arielW}</div>
+          </div>
+          <div class="compare-stat">
+            <div class="compare-stat-label">📖 Bible</div>
+            <div class="compare-stat-num ${bLead==="ariel"?"leading":bLead==="adam"?"trailing":""}">${arielB}</div>
+          </div>
         </div>
       </div>
     </div>
-    <div class="compare-col">
-      <div class="compare-col-head">Ariel</div>
-      <div class="compare-col-body">
-        <div class="compare-stat">
-          <div class="compare-stat-label">🏋️ Workouts</div>
-          <div class="compare-stat-num ${wLead==="ariel"?"leading":wLead==="adam"?"trailing":""}">${arielW}</div>
+
+    <div class="ytd-strip">
+      <div class="ytd-card">
+        <div><div class="ytd-icon">🏋️</div><div class="ytd-label">Workouts · Year to date</div></div>
+        <div class="ytd-nums">
+          <div class="ytd-num"><div class="ytd-num-val" style="color:var(--olive)">${adamWY}</div><div class="ytd-num-name">Adam</div></div>
+          <div class="ytd-divider"></div>
+          <div class="ytd-num"><div class="ytd-num-val">${arielWY}</div><div class="ytd-num-name">Ariel</div></div>
         </div>
-        <div class="compare-stat">
-          <div class="compare-stat-label">📖 Bible</div>
-          <div class="compare-stat-num ${bLead==="ariel"?"leading":bLead==="adam"?"trailing":""}">${arielB}</div>
+      </div>
+      <div class="ytd-card">
+        <div><div class="ytd-icon">📖</div><div class="ytd-label">Bible · Year to date</div></div>
+        <div class="ytd-nums">
+          <div class="ytd-num"><div class="ytd-num-val" style="color:var(--olive)">${adamBY}</div><div class="ytd-num-name">Adam</div></div>
+          <div class="ytd-divider"></div>
+          <div class="ytd-num"><div class="ytd-num-val">${arielBY}</div><div class="ytd-num-name">Ariel</div></div>
         </div>
       </div>
     </div>
-  `;
 
-  // YTD strip
-  document.getElementById("ytd-strip").innerHTML = `
-    <div class="ytd-card">
-      <div class="ytd-left">
-        <div class="ytd-icon">🏋️</div>
-        <div class="ytd-label">Workouts · Year to date</div>
-      </div>
-      <div class="ytd-nums">
-        <div class="ytd-num">
-          <div class="ytd-num-val" style="color:var(--olive)">${adamWY}</div>
-          <div class="ytd-num-name">Adam</div>
-        </div>
-        <div class="ytd-divider"></div>
-        <div class="ytd-num">
-          <div class="ytd-num-val">${arielWY}</div>
-          <div class="ytd-num-name">Ariel</div>
-        </div>
-      </div>
+    <div class="section-label">My Private Habits · ${lbl}</div>
+    <div class="private-strip">
+      <div class="private-card"><span class="private-icon">🧊</span><div class="private-num">${colds}</div><div class="private-label">Cold Sessions</div></div>
+      <div class="private-card"><span class="private-icon">🔥</span><div class="private-num">${saunas}</div><div class="private-label">Sauna Sessions</div></div>
     </div>
-    <div class="ytd-card">
-      <div class="ytd-left">
-        <div class="ytd-icon">📖</div>
-        <div class="ytd-label">Bible · Year to date</div>
-      </div>
-      <div class="ytd-nums">
-        <div class="ytd-num">
-          <div class="ytd-num-val" style="color:var(--olive)">${adamBY}</div>
-          <div class="ytd-num-name">Adam</div>
-        </div>
-        <div class="ytd-divider"></div>
-        <div class="ytd-num">
-          <div class="ytd-num-val">${arielBY}</div>
-          <div class="ytd-num-name">Ariel</div>
-        </div>
-      </div>
-    </div>
-  `;
 
-  // private strip (adam only)
-  const privateEl = document.getElementById("private-strip");
-  if (isAdam) {
-    privateEl.style.display = "block";
-    const filtPrivate = filterByPeriod(adamPrivate, currentPeriod);
-    const colds = filtPrivate.filter(r => r.type === "cold").length;
-    const saunas = filtPrivate.filter(r => r.type === "sauna").length;
-    privateEl.innerHTML = `
-      <div class="section-label">My Private Habits</div>
-      <div class="private-strip">
-        <div class="private-card">
-          <span class="private-icon">🧊</span>
-          <div class="private-num">${colds}</div>
-          <div class="private-label">Cold Sessions · ${lbl}</div>
-        </div>
-        <div class="private-card">
-          <span class="private-icon">🔥</span>
-          <div class="private-num">${saunas}</div>
-          <div class="private-label">Sauna Sessions · ${lbl}</div>
-        </div>
-      </div>`;
-  }
+    <div class="section-label">Recent Activity</div>
+    <div class="card"><div id="recent-list"></div></div>`;
 
-  // recent — show both, sorted
-  const sharedRecent = allData
-    .filter(r => r.type !== "cold" && r.type !== "sauna" || r.owner === "adam" && isAdam)
-    .sort((a,b) => new Date(b.created_at)-new Date(a.created_at))
-    .slice(0, 6);
-
-  document.getElementById("recent-list").innerHTML = sharedRecent.length
-    ? sharedRecent.map(r => itemHTML(r, false)).join("")
+  const recent = [...allData].filter(r => r.type !== "cold" && r.type !== "sauna")
+    .sort((a,b) => new Date(b.created_at)-new Date(a.created_at)).slice(0,6);
+  document.getElementById("recent-list").innerHTML = recent.length
+    ? recent.map(r => itemHTML(r, false)).join("")
     : `<div class="empty"><div class="empty-text">No activity yet</div></div>`;
 }
 
@@ -853,7 +784,6 @@ window.setHistoryPeriod = (p, btn) => {
   document.querySelectorAll("#hist-period-picker .period-btn").forEach(b => b.classList.remove("active"));
   btn.classList.add("active"); loadHistory();
 };
-
 window.setHistTab = (tab, btn) => {
   histTab = tab;
   document.querySelectorAll(".hist-tab").forEach(b => b.classList.remove("active"));
@@ -862,7 +792,10 @@ window.setHistTab = (tab, btn) => {
 
 async function loadHistory() {
   const isAdam = currentUserName === "adam";
-  const owners = isAdam ? ["adam","ariel"] : ["ariel"];
+  const showPrivate = isAdam && previewAs === "adam";
+
+  // if previewing as Ariel, only show Ariel's data
+  const owners = previewAs === "ariel" ? ["ariel"] : (isAdam ? ["adam","ariel"] : ["ariel"]);
 
   const { data: all } = await supabase.from("logs").select("*")
     .eq("deleted", false).in("owner", owners)
@@ -874,10 +807,14 @@ async function loadHistory() {
   if (histTab === "workout") filtered = filtered.filter(r => r.type === "workout");
   else if (histTab === "bible") filtered = filtered.filter(r => r.type === "bible");
   else if (histTab === "private") filtered = filtered.filter(r => r.type === "cold" || r.type === "sauna");
-  else filtered = filtered.filter(r => isAdam || (r.type !== "cold" && r.type !== "sauna"));
+  else {
+    // "all" tab — hide private unless adam viewing as adam
+    if (!showPrivate) filtered = filtered.filter(r => r.type !== "cold" && r.type !== "sauna");
+  }
 
+  // in Ariel preview mode, hide delete buttons and private types
   document.getElementById("hist-list").innerHTML = filtered.length
-    ? filtered.map(r => itemHTML(r, true)).join("")
+    ? filtered.map(r => itemHTML(r, previewAs === "adam")).join("")
     : `<div class="empty" style="padding:24px 0"><div class="empty-text">Nothing here yet</div></div>`;
 }
 
@@ -886,15 +823,15 @@ function itemHTML(row, showDelete) {
   const date = d.toLocaleDateString("en-GB", {day:"numeric", month:"short"});
   const time = d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
   const icons = { workout:"🏋️", bible:"📖", cold:"🧊", sauna:"🔥" };
+  let title="", meta="", notes="";
 
-  let title = "", meta = "", notes = "";
   if (row.type === "workout") {
     title = row.data?.workout_type || "Workout";
     meta = [row.data?.focus, row.data?.duration&&row.data.duration+" min", row.data?.intensity&&"Intensity "+row.data.intensity+"/10", row.data?.time_of_day].filter(Boolean).join(" · ");
     notes = row.data?.notes || "";
   } else if (row.type === "bible") {
     title = row.data?.passage || "Bible Reading";
-    meta = row.data?.duration ? row.data.duration + " min" : "";
+    meta = row.data?.duration ? row.data.duration+" min" : "";
     notes = row.data?.notes || "";
   } else if (row.type === "cold") {
     title = row.data?.method || "Cold Exposure";
@@ -906,7 +843,7 @@ function itemHTML(row, showDelete) {
     notes = row.data?.notes || "";
   }
 
-  const canDelete = row.user_email === currentUser.email || currentUserName === "adam";
+  const canDelete = showDelete && (row.user_email === currentUser.email || currentUserName === "adam");
   const ownerLabel = row.owner === "adam" ? "Adam" : "Ariel";
 
   return `<div class="history-item" id="entry-${row.id}">
@@ -919,7 +856,7 @@ function itemHTML(row, showDelete) {
     </div>
     <div class="history-right">
       <div class="history-time">${date} · ${time}</div>
-      ${showDelete && canDelete ? `<button class="delete-btn" onclick="deleteEntry(${row.id})">✕</button>` : ""}
+      ${canDelete ? `<button class="delete-btn" onclick="deleteEntry(${row.id})">✕</button>` : ""}
     </div>
   </div>`;
 }
@@ -1033,7 +970,8 @@ window.saveEntry = async () => {
   const btn = document.querySelector("#page-log .btn-primary");
   if (btn) { btn.disabled = true; btn.textContent = "Saving…"; }
 
-  const owner = (selectedLogType === "cold" || selectedLogType === "sauna") ? "adam" : viewingAs;
+  const owner = (selectedLogType === "cold" || selectedLogType === "sauna") ? "adam" : logAs;
+
   const { error } = await supabase.from("logs").insert([{
     user_id: currentUser.id, user_email: currentUser.email,
     type: selectedLogType, owner, data: { ...logFormData }, deleted: false
