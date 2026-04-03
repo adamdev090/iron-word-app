@@ -1,8 +1,844 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Iron & Word</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #f5f0e8;
+    --surface: #fdfaf4;
+    --surface2: #f0ead8;
+    --border: #e0d8c8;
+    --text: #2c2416;
+    --text2: #7a6e5a;
+    --text3: #a89e8a;
+    --accent: #8a7355;
+    --accent2: #c4a882;
+    --gold: #b8963e;
+    --green: #5a7a55;
+    --blue: #4a6880;
+    --red: #8a4a45;
+    --tab-h: 72px;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    overflow-x: hidden;
+  }
+
+  /* AUTH SCREEN */
+  #auth-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 40px 24px;
+    background: var(--bg);
+    background-image: 
+      radial-gradient(ellipse at 20% 20%, rgba(184,150,62,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 80%, rgba(138,115,85,0.08) 0%, transparent 60%);
+  }
+
+  .auth-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 48px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -1px;
+    margin-bottom: 8px;
+  }
+
+  .auth-tagline {
+    font-size: 14px;
+    color: var(--text3);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 60px;
+  }
+
+  .auth-ornament {
+    width: 60px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 0 auto 60px;
+  }
+
+  .btn-google {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 28px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+
+  .btn-google:active { transform: scale(0.97); }
+
+  .btn-google svg { width: 20px; height: 20px; }
+
+  /* MAIN APP */
+  #app { display: none; padding-bottom: calc(var(--tab-h) + var(--safe-bottom)); }
+
+  /* TOP BAR */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(245,240,232,0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 52px 20px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .topbar-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+  }
+
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+  .viewing-badge {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(138,115,85,0.1);
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  .icon-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: var(--surface2);
+    color: var(--text2);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s;
+  }
+  .icon-btn:active { transform: scale(0.92); }
+
+  /* PAGES */
+  .page { display: none; padding: 20px; }
+  .page.active { display: block; }
+
+  /* SECTION HEADERS */
+  .section-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 12px;
+    margin-top: 24px;
+  }
+  .section-label:first-child { margin-top: 4px; }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border-radius: 18px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    margin-bottom: 12px;
+  }
+
+  /* DASHBOARD STATS */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border-radius: 18px;
+    padding: 20px 16px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    opacity: 0.06;
+    transform: translate(20px, -20px);
+  }
+
+  .stat-card.workout::before { background: var(--green); }
+  .stat-card.bible::before { background: var(--gold); }
+  .stat-card.cold::before { background: var(--blue); }
+  .stat-card.sauna::before { background: var(--red); }
+
+  .stat-icon { font-size: 20px; margin-bottom: 8px; }
+  .stat-number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 40px;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--text);
+  }
+  .stat-label { font-size: 12px; color: var(--text3); margin-top: 4px; }
+  .stat-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  .stat-card.wide {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .stat-card.wide .stat-left { }
+  .stat-card.wide .stat-ytd {
+    text-align: right;
+  }
+  .stat-card.wide .stat-ytd .stat-number { font-size: 28px; }
+  .stat-card.wide .stat-ytd .stat-label { text-align: right; }
+
+  /* PERIOD PICKER */
+  .period-picker {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+  .period-picker::-webkit-scrollbar { display: none; }
+
+  .period-btn {
+    flex-shrink: 0;
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .period-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+
+  /* HISTORY ITEMS */
+  .history-item {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .history-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .history-item:first-child { padding-top: 0; }
+
+  .history-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .history-icon.workout { background: rgba(90,122,85,0.12); }
+  .history-icon.bible { background: rgba(184,150,62,0.12); }
+  .history-icon.cold { background: rgba(74,104,128,0.12); }
+  .history-icon.sauna { background: rgba(138,74,69,0.12); }
+  .history-icon.habit { background: rgba(138,115,85,0.12); }
+
+  .history-body { flex: 1; min-width: 0; }
+  .history-title { font-size: 15px; font-weight: 500; color: var(--text); }
+  .history-meta { font-size: 12px; color: var(--text3); margin-top: 2px; }
+  .history-notes { font-size: 13px; color: var(--text2); margin-top: 4px; font-style: italic; }
+
+  .history-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+  .history-time { font-size: 12px; color: var(--text3); }
+  .delete-btn {
+    background: none; border: none;
+    color: var(--text3); cursor: pointer;
+    font-size: 14px; padding: 2px;
+    transition: color 0.2s;
+  }
+  .delete-btn:active { color: var(--red); }
+
+  /* LOG FORM */
+  .log-type-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .log-type-btn {
+    padding: 16px 12px;
+    border-radius: 14px;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .log-type-btn .log-icon { font-size: 24px; }
+  .log-type-btn .log-name { font-size: 13px; font-weight: 500; color: var(--text2); }
+
+  .log-type-btn.selected {
+    border-color: var(--accent);
+    background: rgba(138,115,85,0.08);
+  }
+  .log-type-btn.selected .log-name { color: var(--accent); }
+
+  /* PRIVATE — adam only */
+  .log-type-btn.private-type.selected {
+    border-color: var(--blue);
+    background: rgba(74,104,128,0.08);
+  }
+  .log-type-btn.private-type.selected .log-name { color: var(--blue); }
+
+  /* FORM FIELDS */
+  .form-group { margin-bottom: 14px; }
+  .form-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 13px 16px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  .form-input:focus { border-color: var(--accent); }
+
+  select.form-input {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a6e5a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+  }
+
+  .chip-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chip {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .chip.selected {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+
+  .chip.blue.selected { background: var(--blue); border-color: var(--blue); }
+  .chip.gold.selected { background: var(--gold); border-color: var(--gold); }
+
+  /* SLIDER */
+  .slider-wrap { position: relative; padding: 8px 0; }
+  input[type=range] {
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border);
+    outline: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 2px 8px rgba(138,115,85,0.3);
+  }
+  .slider-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 6px;
+  }
+  .slider-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--accent);
+    text-align: center;
+    margin-bottom: 4px;
+  }
+
+  /* SAVE BTN */
+  .btn-primary {
+    width: 100%;
+    padding: 16px;
+    border-radius: 14px;
+    border: none;
+    background: var(--accent);
+    color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+    box-shadow: 0 4px 16px rgba(138,115,85,0.25);
+  }
+  .btn-primary:active { transform: scale(0.98); opacity: 0.9; }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .btn-secondary {
+    width: 100%;
+    padding: 14px;
+    border-radius: 14px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--text2);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+
+  /* HABIT CHECKLIST */
+  .habit-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .habit-row:last-child { border-bottom: none; }
+
+  .habit-info { display: flex; align-items: center; gap: 12px; }
+  .habit-emoji { font-size: 20px; }
+  .habit-name { font-size: 15px; font-weight: 500; }
+  .habit-streak { font-size: 12px; color: var(--text3); }
+
+  .toggle {
+    width: 48px; height: 28px;
+    border-radius: 14px;
+    background: var(--border);
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+    border: none;
+    flex-shrink: 0;
+  }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: white;
+    top: 3px; left: 3px;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  }
+  .toggle.on { background: var(--green); }
+  .toggle.on::after { transform: translateX(20px); }
+
+  /* PROFILE PAGE */
+  .profile-avatar {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent2), var(--gold));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    color: white;
+    margin-bottom: 12px;
+  }
+
+  .profile-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .profile-email { font-size: 13px; color: var(--text3); margin-bottom: 24px; }
+
+  /* BOTTOM NAV */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: calc(var(--tab-h) + var(--safe-bottom));
+    background: rgba(253,250,244,0.95);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    padding-top: 8px;
+    z-index: 200;
+  }
+
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 0;
+    cursor: pointer;
+    border: none;
+    background: none;
+    transition: all 0.2s;
+  }
+
+  .nav-icon { font-size: 22px; transition: transform 0.2s; }
+  .nav-label { font-size: 10px; font-weight: 500; color: var(--text3); letter-spacing: 0.5px; }
+  .nav-item.active .nav-label { color: var(--accent); }
+  .nav-item.active .nav-icon { transform: scale(1.1); }
+
+  /* LOG FAB (center button) */
+  .nav-fab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding-top: 0;
+    margin-top: -20px;
+    cursor: pointer;
+    border: none;
+    background: none;
+  }
+
+  .fab-circle {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    color: white;
+    box-shadow: 0 4px 16px rgba(138,115,85,0.35);
+    transition: transform 0.2s;
+  }
+  .nav-fab:active .fab-circle { transform: scale(0.93); }
+  .nav-fab .nav-label { color: var(--text3); }
+  .nav-fab.active .nav-label { color: var(--accent); }
+
+  /* EMPTY STATE */
+  .empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text3);
+  }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-text { font-size: 15px; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 300;
+    align-items: flex-end;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal-sheet {
+    background: var(--surface);
+    border-radius: 24px 24px 0 0;
+    width: 100%;
+    max-height: 92vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 12px 20px 40px;
+    animation: slideUp 0.3s ease;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  .modal-handle {
+    width: 36px; height: 4px;
+    border-radius: 2px;
+    background: var(--border);
+    margin: 0 auto 20px;
+  }
+
+  .modal-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: calc(var(--tab-h) + var(--safe-bottom) + 12px);
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--text);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 400;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* SWITCH VIEW BANNER */
+  .viewing-banner {
+    display: none;
+    background: var(--blue);
+    color: white;
+    text-align: center;
+    padding: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    position: sticky;
+    top: 0;
+    z-index: 99;
+  }
+  .viewing-banner.show { display: block; }
+  .viewing-banner button {
+    background: rgba(255,255,255,0.25);
+    border: none;
+    color: white;
+    border-radius: 6px;
+    padding: 2px 10px;
+    font-size: 12px;
+    margin-left: 8px;
+    cursor: pointer;
+  }
+
+  /* RESPONSIVE */
+  @media (min-width: 430px) {
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (min-width: 768px) {
+    #app { max-width: 480px; margin: 0 auto; }
+    .bottom-nav { max-width: 480px; left: 50%; transform: translateX(-50%); }
+    .topbar { max-width: 480px; left: 50%; transform: translateX(-50%); width: 100%; }
+    .viewing-banner { max-width: 480px; left: 50%; transform: translateX(-50%); width: 100%; }
+    .toast { bottom: calc(var(--tab-h) + 12px); }
+  }
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth-screen">
+  <div class="auth-logo">Iron & Word</div>
+  <div class="auth-tagline">Forge the body. Feed the soul.</div>
+  <div class="auth-ornament"></div>
+  <button class="btn-google" onclick="login()">
+    <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+    Continue with Google
+  </button>
+</div>
+
+<!-- VIEWING BANNER (admin only) -->
+<div class="viewing-banner" id="viewing-banner">
+  👁 Viewing as Ariel
+  <button onclick="switchBack()">← Back to Adam</button>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">Iron & Word</div>
+    <div class="topbar-right">
+      <button class="icon-btn" id="switch-btn" onclick="toggleView()" style="display:none" title="Switch view">⇄</button>
+      <button class="icon-btn" onclick="goProfile()">👤</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD PAGE -->
+  <div class="page active" id="page-home">
+
+    <div class="period-picker" id="period-picker">
+      <button class="period-btn active" onclick="setPeriod('month',this)">This Month</button>
+      <button class="period-btn" onclick="setPeriod('week',this)">This Week</button>
+      <button class="period-btn" onclick="setPeriod('year',this)">This Year</button>
+      <button class="period-btn" onclick="setPeriod('all',this)">All Time</button>
+    </div>
+
+    <div class="stats-grid" id="stats-grid">
+      <!-- filled by JS -->
+    </div>
+
+    <div class="section-label">Recent Activity</div>
+    <div class="card">
+      <div id="recent-list"><div class="empty"><div class="empty-icon">📋</div><div class="empty-text">No activity yet</div></div></div>
+    </div>
+
+  </div>
+
+  <!-- LOG PAGE -->
+  <div class="page" id="page-log">
+    <div class="section-label">What are you logging?</div>
+    <div class="log-type-grid" id="log-type-grid">
+      <button class="log-type-btn" onclick="selectLogType('workout')" id="lt-workout">
+        <span class="log-icon">🏋️</span><span class="log-name">Workout</span>
+      </button>
+      <button class="log-type-btn" onclick="selectLogType('bible')" id="lt-bible">
+        <span class="log-icon">📖</span><span class="log-name">Bible Reading</span>
+      </button>
+      <button class="log-type-btn private-type" onclick="selectLogType('cold')" id="lt-cold" style="display:none">
+        <span class="log-icon">🧊</span><span class="log-name">Cold Exposure</span>
+      </button>
+      <button class="log-type-btn private-type" onclick="selectLogType('sauna')" id="lt-sauna" style="display:none">
+        <span class="log-icon">🔥</span><span class="log-name">Sauna</span>
+      </button>
+    </div>
+
+    <div id="log-form-area"></div>
+  </div>
+
+  <!-- HISTORY PAGE -->
+  <div class="page" id="page-history">
+    <div class="period-picker">
+      <button class="period-btn active" onclick="setHistoryPeriod('month',this)">This Month</button>
+      <button class="period-btn" onclick="setHistoryPeriod('week',this)">This Week</button>
+      <button class="period-btn" onclick="setHistoryPeriod('year',this)">This Year</button>
+      <button class="period-btn" onclick="setHistoryPeriod('all',this)">All Time</button>
+    </div>
+
+    <div class="section-label">Workouts</div>
+    <div class="card"><div id="hist-workout"></div></div>
+
+    <div class="section-label">Bible Readings</div>
+    <div class="card"><div id="hist-bible"></div></div>
+
+    <div id="private-history-section" style="display:none">
+      <div class="section-label">Cold Exposure</div>
+      <div class="card"><div id="hist-cold"></div></div>
+      <div class="section-label">Sauna</div>
+      <div class="card"><div id="hist-sauna"></div></div>
+    </div>
+  </div>
+
+  <!-- PROFILE PAGE -->
+  <div class="page" id="page-profile">
+    <div class="card" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:32px 20px">
+      <div class="profile-avatar" id="profile-avatar"></div>
+      <div class="profile-name" id="profile-name"></div>
+      <div class="profile-email" id="profile-email"></div>
+      <button class="btn-primary" style="max-width:200px;margin-top:0" onclick="logout()">Sign Out</button>
+    </div>
+
+    <div class="section-label">App Info</div>
+    <div class="card">
+      <div style="font-size:14px;color:var(--text2);line-height:1.6">
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span>App</span><span style="color:var(--text)">Iron & Word</span></div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0"><span>Version</span><span style="color:var(--text)">2.0</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav" id="bottom-nav">
+  <button class="nav-item active" onclick="showPage('home')" id="nav-home">
+    <span class="nav-icon">⬜</span>
+    <span class="nav-label">Dashboard</span>
+  </button>
+  <button class="nav-item" onclick="showPage('history')" id="nav-history">
+    <span class="nav-icon">📋</span>
+    <span class="nav-label">History</span>
+  </button>
+  <button class="nav-fab" onclick="showPage('log')" id="nav-log">
+    <div class="fab-circle">＋</div>
+    <span class="nav-label">Log</span>
+  </button>
+  <button class="nav-item" onclick="showPage('profile')" id="nav-profile">
+    <span class="nav-icon">👤</span>
+    <span class="nav-label">Profile</span>
+  </button>
+  <button class="nav-item" onclick="showPage('home')" id="nav-home2" style="display:none"></button>
+</nav>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
 <script type="module">
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -12,297 +848,564 @@ const supabase = createClient(
   "sb_publishable_c-u4pzu0HaUvKh6Wgwa5iw_0IKCNOKR"
 );
 
-const ALLOWED_USERS = [
-  "adamhlavka@gmail.com",
-  "zmudariel@gmail.com"
-];
+const ALLOWED = ["adamhlavka@gmail.com", "zmudariel@gmail.com"];
+const ADAM = "adamhlavka@gmail.com";
 
 let currentUser = null;
 let currentUserName = "";
-let currentView = "";
+let viewingAs = ""; // who we're viewing
+let currentPeriod = "month";
+let historyPeriod = "month";
+let selectedLogType = null;
+let logFormData = {};
 
-/* LOGIN */
+/* ── AUTH ── */
 window.login = async () => {
   await supabase.auth.signInWithOAuth({
     provider: "google",
-    options: {
-      redirectTo: window.location.href,
-      queryParams: { prompt: "select_account" }
-    }
+    options: { redirectTo: window.location.href, queryParams: { prompt: "select_account" } }
   });
 };
 
-/* LOGOUT */
 window.logout = async () => {
   await supabase.auth.signOut();
   location.reload();
 };
 
-/* INIT */
 async function init() {
   const { data: { session } } = await supabase.auth.getSession();
-
-  if (!session) {
-    document.getElementById("auth").style.display = "block";
-    return;
-  }
+  if (!session) { document.getElementById("auth-screen").style.display = "flex"; return; }
 
   const email = session.user.email.toLowerCase();
-
-  if (!ALLOWED_USERS.includes(email)) {
+  if (!ALLOWED.includes(email)) {
     await supabase.auth.signOut();
-    document.body.innerHTML = "<h2>Private App 🔒</h2>";
+    document.body.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;font-size:18px">🔒 Private App</div>`;
     return;
   }
 
   currentUser = session.user;
-  currentUserName = email.includes("adam") ? "adam" : "ariel";
-  currentView = currentUserName;
+  currentUserName = email === ADAM ? "adam" : "ariel";
+  viewingAs = currentUserName;
 
-  document.getElementById("auth").style.display = "none";
+  document.getElementById("auth-screen").style.display = "none";
   document.getElementById("app").style.display = "block";
 
-  renderForm();
-  updateUI();
+  // admin switch btn
+  if (currentUserName === "adam") {
+    document.getElementById("switch-btn").style.display = "flex";
+    document.getElementById("lt-cold").style.display = "flex";
+    document.getElementById("lt-sauna").style.display = "flex";
+    document.getElementById("private-history-section").style.display = "block";
+  }
+
+  // profile
+  document.getElementById("profile-avatar").textContent = currentUserName === "adam" ? "A" : "Ar";
+  document.getElementById("profile-name").textContent = currentUserName === "adam" ? "Adam Hlávka" : "Ariel";
+  document.getElementById("profile-email").textContent = email;
+
+  updateTopbar();
   loadDashboard();
   loadHistory();
 }
 
-/* UPDATE UI */
-function updateUI() {
-  document.getElementById("welcome").innerText =
-    "Viewing " + (currentView === "adam" ? "Adam" : "Ariel");
-
-  document.getElementById("toggle").style.display =
-    currentUserName === "adam" ? "block" : "none";
-}
-
-/* TOGGLE VIEW */
+/* ── VIEW SWITCHING ── */
 window.toggleView = () => {
   if (currentUserName !== "adam") return;
-  currentView = currentView === "adam" ? "ariel" : "adam";
-  updateUI();
+  viewingAs = viewingAs === "adam" ? "ariel" : "adam";
+  updateTopbar();
   loadDashboard();
   loadHistory();
 };
 
-/* SAVE */
-window.save = async () => {
-  const duration = document.getElementById("duration").value;
-  const intensity = document.getElementById("intensity").value;
+window.switchBack = () => {
+  viewingAs = "adam";
+  updateTopbar();
+  loadDashboard();
+  loadHistory();
+};
 
-  if (!duration || !intensity) {
-    alert("Please fill in both duration and intensity.");
-    return;
+window.goProfile = () => showPage("profile");
+
+function updateTopbar() {
+  const isViewing = viewingAs !== currentUserName;
+  const banner = document.getElementById("viewing-banner");
+  banner.classList.toggle("show", isViewing && currentUserName === "adam");
+  document.getElementById("topbar-title").textContent = viewingAs === "adam" ? "Iron & Word" : "Ariel's View";
+}
+
+/* ── NAVIGATION ── */
+window.showPage = (page) => {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".nav-item, .nav-fab").forEach(n => n.classList.remove("active"));
+  document.getElementById("page-" + page).classList.add("active");
+  const navEl = document.getElementById("nav-" + page);
+  if (navEl) navEl.classList.add("active");
+  if (page === "log") { selectedLogType = null; renderLogTypeGrid(); document.getElementById("log-form-area").innerHTML = ""; }
+  if (page === "home") loadDashboard();
+  if (page === "history") loadHistory();
+};
+
+/* ── DATE UTILS ── */
+function getPeriodRange(period) {
+  const now = new Date();
+  let start, end = new Date();
+  if (period === "week") {
+    start = new Date(now); start.setDate(now.getDate() - now.getDay());
+  } else if (period === "month") {
+    start = new Date(now.getFullYear(), now.getMonth(), 1);
+  } else if (period === "year") {
+    start = new Date(now.getFullYear(), 0, 1);
+  } else {
+    start = new Date(2020, 0, 1);
+  }
+  return { start, end };
+}
+
+function filterByPeriod(data, period) {
+  const { start, end } = getPeriodRange(period);
+  return data.filter(r => {
+    const d = new Date(r.created_at);
+    return d >= start && d <= end;
+  });
+}
+
+/* ── DASHBOARD ── */
+window.setPeriod = (p, btn) => {
+  currentPeriod = p;
+  document.querySelectorAll("#period-picker .period-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  loadDashboard();
+};
+
+async function loadDashboard() {
+  const owner = viewingAs;
+  const isPrivate = viewingAs === "adam" && currentUserName === "adam";
+
+  const { data: all } = await supabase.from("logs").select("*").eq("deleted", false).eq("owner", owner);
+  if (!all) return;
+
+  const filtered = filterByPeriod(all, currentPeriod);
+  const ytd = filterByPeriod(all, "year");
+
+  const workouts = filtered.filter(r => r.type === "workout");
+  const bibles = filtered.filter(r => r.type === "bible");
+  const workoutsYTD = ytd.filter(r => r.type === "workout");
+  const biblesYTD = ytd.filter(r => r.type === "bible");
+
+  const periodLabel = { month: "This Month", week: "This Week", year: "This Year", all: "All Time" }[currentPeriod];
+
+  let html = `
+    <div class="stat-card workout wide">
+      <div class="stat-left">
+        <div class="stat-icon">🏋️</div>
+        <div class="stat-number">${workouts.length}</div>
+        <div class="stat-label">Workouts · ${periodLabel}</div>
+      </div>
+      <div class="stat-ytd">
+        <div class="stat-number">${workoutsYTD.length}</div>
+        <div class="stat-label">YTD</div>
+      </div>
+    </div>
+    <div class="stat-card bible wide">
+      <div class="stat-left">
+        <div class="stat-icon">📖</div>
+        <div class="stat-number">${bibles.length}</div>
+        <div class="stat-label">Bible Readings · ${periodLabel}</div>
+      </div>
+      <div class="stat-ytd">
+        <div class="stat-number">${biblesYTD.length}</div>
+        <div class="stat-label">YTD</div>
+      </div>
+    </div>
+  `;
+
+  if (isPrivate) {
+    const colds = filtered.filter(r => r.type === "cold");
+    const saunas = filtered.filter(r => r.type === "sauna");
+    html += `
+      <div class="stat-card cold">
+        <div class="stat-icon">🧊</div>
+        <div class="stat-number">${colds.length}</div>
+        <div class="stat-label">Cold Sessions</div>
+      </div>
+      <div class="stat-card sauna">
+        <div class="stat-icon">🔥</div>
+        <div class="stat-number">${saunas.length}</div>
+        <div class="stat-label">Sauna Sessions</div>
+      </div>
+    `;
   }
 
-  await supabase.from("logs").insert([{
-    user_id: currentUser.id,
-    user_email: currentUser.email,
-    type: "workout",
-    owner: currentUserName,
-    data: { duration, intensity },
-    created_at: new Date().toISOString(),
-    deleted: false
-  }]);
+  document.getElementById("stats-grid").innerHTML = html;
 
-  document.getElementById("duration").value = "";
-  document.getElementById("intensity").value = "";
+  // recent (last 5)
+  const recent = [...all].sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).slice(0,5);
+  document.getElementById("recent-list").innerHTML = recent.length
+    ? recent.map(r => historyItemHTML(r, false)).join("")
+    : `<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">No activity yet</div></div>`;
+}
 
-  loadDashboard();
+/* ── HISTORY ── */
+window.setHistoryPeriod = (p, btn) => {
+  historyPeriod = p;
+  document.querySelectorAll("#page-history .period-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
   loadHistory();
 };
 
-/* DELETE */
-window.deleteEntry = async (id) => {
-  const confirmed = confirm("Are you sure you want to delete this entry?");
-  if (!confirmed) return;
+async function loadHistory() {
+  const owner = viewingAs;
+  const isPrivate = viewingAs === "adam" && currentUserName === "adam";
+  const { data: all } = await supabase.from("logs").select("*").eq("deleted", false).eq("owner", owner).order("created_at", { ascending: false });
+  if (!all) return;
 
-  const { data: row } = await supabase
-    .from("logs")
-    .select("owner, user_email")
-    .eq("id", id)
-    .single();
+  const filtered = filterByPeriod(all, historyPeriod);
 
-  if (!row) return;
+  const types = ["workout", "bible"];
+  if (isPrivate) { types.push("cold", "sauna"); }
 
-  const isOwner = row.user_email === currentUser.email;
-  const isAdam = currentUserName === "adam";
+  types.forEach(type => {
+    const items = filtered.filter(r => r.type === type);
+    const el = document.getElementById("hist-" + type);
+    if (!el) return;
+    el.innerHTML = items.length
+      ? items.map(r => historyItemHTML(r, true)).join("")
+      : `<div class="empty" style="padding:20px"><div class="empty-text">Nothing here yet</div></div>`;
+  });
+}
 
-  if (!isOwner && !isAdam) {
-    alert("You can't delete this entry.");
-    return;
+function historyItemHTML(row, showDelete) {
+  const d = new Date(row.created_at);
+  const dateStr = d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+  const timeStr = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+  const icons = { workout: "🏋️", bible: "📖", cold: "🧊", sauna: "🔥" };
+  const icon = icons[row.type] || "📝";
+  const iconClass = row.type;
+
+  let title = "", meta = "", notes = "";
+
+  if (row.type === "workout") {
+    title = row.data?.workout_type || "Workout";
+    const parts = [];
+    if (row.data?.focus) parts.push(row.data.focus);
+    if (row.data?.duration) parts.push(row.data.duration + " min");
+    if (row.data?.intensity) parts.push("Intensity " + row.data.intensity + "/10");
+    if (row.data?.time_of_day) parts.push(row.data.time_of_day);
+    meta = parts.join(" · ");
+    notes = row.data?.notes || "";
+  } else if (row.type === "bible") {
+    title = row.data?.passage || "Bible Reading";
+    if (row.data?.duration) meta = row.data.duration + " min";
+    notes = row.data?.notes || "";
+  } else if (row.type === "cold") {
+    title = row.data?.method || "Cold Exposure";
+    const parts = [];
+    if (row.data?.duration) parts.push(row.data.duration + " min");
+    if (row.data?.temp) parts.push(row.data.temp + "°C");
+    if (row.data?.place) parts.push(row.data.place);
+    meta = parts.join(" · ");
+    notes = row.data?.notes || "";
+  } else if (row.type === "sauna") {
+    title = row.data?.sauna_type || "Sauna";
+    const parts = [];
+    if (row.data?.location) parts.push(row.data.location);
+    if (row.data?.duration) parts.push(row.data.duration + " min");
+    if (row.data?.cycles) parts.push(row.data.cycles + " cycles");
+    meta = parts.join(" · ");
+    notes = row.data?.notes || "";
   }
 
-  await supabase.from("logs")
-    .update({ deleted: true })
-    .eq("id", id);
+  const canDelete = row.user_email === currentUser.email || currentUserName === "adam";
 
-  loadDashboard();
-  loadHistory();
-};
-
-/* FORM */
-function renderForm() {
-  document.getElementById("form").innerHTML = `
-    <input id="duration" placeholder="Duration (minutes)" type="number" min="1">
-    <input id="intensity" placeholder="Intensity (1-10)" type="number" min="1" max="10">
+  return `
+    <div class="history-item" id="entry-${row.id}">
+      <div class="history-icon ${iconClass}">${icon}</div>
+      <div class="history-body">
+        <div class="history-title">${title}</div>
+        ${meta ? `<div class="history-meta">${meta}</div>` : ""}
+        ${notes ? `<div class="history-notes">${notes}</div>` : ""}
+      </div>
+      <div class="history-right">
+        <div class="history-time">${dateStr} ${timeStr}</div>
+        ${showDelete && canDelete ? `<button class="delete-btn" onclick="deleteEntry(${row.id})">✕</button>` : ""}
+      </div>
+    </div>
   `;
 }
 
-/* DASHBOARD */
-async function loadDashboard() {
-  const { data } = await supabase
-    .from("logs")
-    .select("*")
-    .eq("deleted", false)
-    .eq("owner", currentView);
+/* ── DELETE ── */
+window.deleteEntry = async (id) => {
+  if (!confirm("Delete this entry?")) return;
+  const { data: row } = await supabase.from("logs").select("owner, user_email").eq("id", id).single();
+  if (!row) return;
+  if (row.user_email !== currentUser.email && currentUserName !== "adam") { showToast("You can't delete this"); return; }
+  await supabase.from("logs").update({ deleted: true }).eq("id", id);
+  document.getElementById("entry-" + id)?.remove();
+  showToast("Entry deleted");
+  loadDashboard();
+};
 
-  let workouts = 0;
-  data.forEach(row => {
-    if (row.type === "workout") workouts++;
+/* ── LOG FORM ── */
+window.selectLogType = (type) => {
+  selectedLogType = type;
+  renderLogTypeGrid();
+  renderLogForm(type);
+};
+
+function renderLogTypeGrid() {
+  const types = ["workout", "bible"];
+  if (currentUserName === "adam") { types.push("cold", "sauna"); }
+  types.forEach(t => {
+    const el = document.getElementById("lt-" + t);
+    if (el) el.classList.toggle("selected", t === selectedLogType);
   });
-
-  document.getElementById("dashboard").innerHTML =
-    `🏋️ ${workouts} workout${workouts === 1 ? "" : "s"}`;
 }
 
-/* HISTORY */
-async function loadHistory() {
-  const { data } = await supabase
-    .from("logs")
-    .select("*")
-    .eq("deleted", false)
-    .eq("owner", currentView)
-    .order("created_at", { ascending: false });
+function renderLogForm(type) {
+  const area = document.getElementById("log-form-area");
+  if (type === "workout") area.innerHTML = workoutFormHTML();
+  else if (type === "bible") area.innerHTML = bibleFormHTML();
+  else if (type === "cold") area.innerHTML = coldFormHTML();
+  else if (type === "sauna") area.innerHTML = saunaFormHTML();
+  initSliders();
+}
 
-  let html = "";
-  data.forEach(row => {
-    const d = new Date(row.created_at);
-    const canDelete = row.user_email === currentUser.email || currentUserName === "adam";
+function workoutFormHTML() {
+  return `
+    <div class="section-label" style="margin-top:20px">Type of Workout</div>
+    <div class="card" style="padding:16px">
+      <div class="chip-group" id="chips-workout-type">
+        ${["Kettlebell","Weightlifting","Running","Swimming","Hiking"].map(v =>
+          `<button class="chip" onclick="toggleChip(this,'workout_type','${v}',true)">${v}</button>`
+        ).join("")}
+      </div>
+    </div>
 
-    html += `
-      <div class="history-item">
-        <div class="row">
-          <strong>${row.owner}</strong>
-          ${canDelete ? `<button class="delete" onclick="deleteEntry(${row.id})">✕</button>` : ""}
-        </div>
-        <div>${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"})}</div>
-        <div class="muted">
-          ${row.data?.duration || "-"} min · intensity ${row.data?.intensity || "-"}
+    <div class="section-label">Focus</div>
+    <div class="card" style="padding:16px">
+      <div class="chip-group" id="chips-focus">
+        ${["Cardio","Strength / Muscle","Both"].map(v =>
+          `<button class="chip" onclick="toggleChip(this,'focus','${v}',true)">${v}</button>`
+        ).join("")}
+      </div>
+    </div>
+
+    <div class="section-label">Time of Day</div>
+    <div class="card" style="padding:16px">
+      <div class="chip-group">
+        ${[["🌅","Morning"],["☀️","Noon"],["🌤","Afternoon"],["🌙","Evening"]].map(([e,v]) =>
+          `<button class="chip" onclick="toggleChip(this,'time_of_day','${v}',true)">${e} ${v}</button>`
+        ).join("")}
+      </div>
+    </div>
+
+    <div class="section-label">Duration & Intensity</div>
+    <div class="card">
+      <div class="form-group">
+        <label class="form-label">Duration (minutes)</label>
+        <input class="form-input" type="number" min="1" max="300" placeholder="45" oninput="setField('duration',this.value)" id="field-duration">
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">Intensity</label>
+        <div class="slider-value" id="slider-val-intensity">5</div>
+        <div class="slider-wrap">
+          <input type="range" min="1" max="10" value="5" id="slider-intensity" oninput="updateSlider('intensity',this.value)">
+          <div class="slider-labels"><span>Easy</span><span>Moderate</span><span>Max</span></div>
         </div>
       </div>
-    `;
-  });
+    </div>
 
-  document.getElementById("history").innerHTML = html || "<p class='muted'>No workouts yet.</p>";
+    <div class="section-label">Notes</div>
+    <div class="card" style="padding:16px">
+      <textarea class="form-input" rows="3" placeholder="How did it go?" style="resize:none" oninput="setField('notes',this.value)"></textarea>
+    </div>
+
+    <button class="btn-primary" onclick="saveEntry()">Save Workout</button>
+    <div style="height:12px"></div>
+  `;
 }
+
+function bibleFormHTML() {
+  return `
+    <div class="section-label" style="margin-top:20px">Passage</div>
+    <div class="card" style="padding:16px">
+      <input class="form-input" placeholder="e.g. Psalm 23, John 3:16-21" oninput="setField('passage',this.value)">
+    </div>
+
+    <div class="section-label">Duration (minutes)</div>
+    <div class="card" style="padding:16px">
+      <input class="form-input" type="number" min="1" placeholder="20" oninput="setField('duration',this.value)">
+    </div>
+
+    <div class="section-label">Notes & Reflections</div>
+    <div class="card" style="padding:16px">
+      <textarea class="form-input" rows="4" placeholder="What stood out to you?" style="resize:none" oninput="setField('notes',this.value)"></textarea>
+    </div>
+
+    <button class="btn-primary" onclick="saveEntry()">Save Reading</button>
+    <div style="height:12px"></div>
+  `;
+}
+
+function coldFormHTML() {
+  return `
+    <div class="section-label" style="margin-top:20px">Method</div>
+    <div class="card" style="padding:16px">
+      <div class="chip-group">
+        ${["Cold Shower","Cold Plunge","Ice Bath"].map(v =>
+          `<button class="chip blue" onclick="toggleChip(this,'method','${v}',true)">${v}</button>`
+        ).join("")}
+      </div>
+    </div>
+
+    <div class="section-label">Place</div>
+    <div class="card" style="padding:16px">
+      <div class="chip-group">
+        ${["Home","Gym","Nature","Spa"].map(v =>
+          `<button class="chip blue" onclick="toggleChip(this,'place','${v}',true)">${v}</button>`
+        ).join("")}
+      </div>
+    </div>
+
+    <div class="section-label">Duration & Temperature</div>
+    <div class="card">
+      <div class="form-group">
+        <label class="form-label">Duration (minutes)</label>
+        <input class="form-input" type="number" min="1" placeholder="5" oninput="setField('duration',this.value)">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Water Temperature (°C)</label>
+        <input class="form-input" type="number" placeholder="12" oninput="setField('temp',this.value)">
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">Intensity</label>
+        <div class="slider-value" id="slider-val-intensity">5</div>
+        <div class="slider-wrap">
+          <input type="range" min="1" max="10" value="5" id="slider-intensity" oninput="updateSlider('intensity',this.value)">
+          <div class="slider-labels"><span>Manageable</span><span>Hard</span><span>Brutal</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">Notes</div>
+    <div class="card" style="padding:16px">
+      <textarea class="form-input" rows="3" placeholder="How did it feel?" style="resize:none" oninput="setField('notes',this.value)"></textarea>
+    </div>
+
+    <button class="btn-primary" onclick="saveEntry()">Save Cold Session</button>
+    <div style="height:12px"></div>
+  `;
+}
+
+function saunaFormHTML() {
+  return `
+    <div class="section-label" style="margin-top:20px">Type</div>
+    <div class="card" style="padding:16px">
+      <div class="chip-group">
+        ${["Finnish","Infrared"].map(v =>
+          `<button class="chip" style="" onclick="toggleChip(this,'sauna_type','${v}',true)">${v}</button>`
+        ).join("")}
+      </div>
+    </div>
+
+    <div class="section-label">Location</div>
+    <div class="card" style="padding:16px">
+      <div class="chip-group">
+        ${["Home","Gym","Spa","Public"].map(v =>
+          `<button class="chip" onclick="toggleChip(this,'location','${v}',true)">${v}</button>`
+        ).join("")}
+      </div>
+    </div>
+
+    <div class="section-label">Duration & Cycles</div>
+    <div class="card">
+      <div class="form-group">
+        <label class="form-label">Total Duration (minutes)</label>
+        <input class="form-input" type="number" min="1" placeholder="60" oninput="setField('duration',this.value)">
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">Number of Cycles</label>
+        <input class="form-input" type="number" min="1" placeholder="3" oninput="setField('cycles',this.value)">
+      </div>
+    </div>
+
+    <div class="section-label">Notes</div>
+    <div class="card" style="padding:16px">
+      <textarea class="form-input" rows="3" placeholder="How was it?" style="resize:none" oninput="setField('notes',this.value)"></textarea>
+    </div>
+
+    <button class="btn-primary" onclick="Save Sauna Session" onclick="saveEntry()">Save Sauna Session</button>
+    <div style="height:12px"></div>
+  `;
+}
+
+/* ── FORM HELPERS ── */
+window.toggleChip = (el, field, value, exclusive) => {
+  if (exclusive) {
+    el.closest(".chip-group").querySelectorAll(".chip").forEach(c => c.classList.remove("selected"));
+  }
+  el.classList.toggle("selected");
+  if (el.classList.contains("selected")) {
+    logFormData[field] = value;
+  } else {
+    delete logFormData[field];
+  }
+};
+
+window.setField = (field, value) => { logFormData[field] = value; };
+
+window.updateSlider = (field, value) => {
+  document.getElementById("slider-val-" + field).textContent = value;
+  logFormData[field] = parseInt(value);
+};
+
+function initSliders() {
+  logFormData = {};
+  const s = document.getElementById("slider-intensity");
+  if (s) { logFormData.intensity = 5; }
+}
+
+/* ── SAVE ── */
+window.saveEntry = async () => {
+  if (!selectedLogType) return;
+
+  // basic validation
+  if (selectedLogType === "workout" && !logFormData.workout_type) { showToast("Select a workout type"); return; }
+  if (selectedLogType === "bible" && !logFormData.passage) { showToast("Enter a Bible passage"); return; }
+  if (selectedLogType === "cold" && !logFormData.method) { showToast("Select a method"); return; }
+  if (selectedLogType === "sauna" && !logFormData.sauna_type) { showToast("Select sauna type"); return; }
+
+  const btn = document.querySelector("#page-log .btn-primary");
+  if (btn) { btn.disabled = true; btn.textContent = "Saving…"; }
+
+  // private types always owner = adam
+  const owner = (selectedLogType === "cold" || selectedLogType === "sauna") ? "adam" : viewingAs;
+
+  const { error } = await supabase.from("logs").insert([{
+    user_id: currentUser.id,
+    user_email: currentUser.email,
+    type: selectedLogType,
+    owner: owner,
+    data: { ...logFormData },
+    deleted: false
+  }]);
+
+  if (error) { showToast("Error saving — try again"); if (btn) { btn.disabled = false; btn.textContent = "Save"; } return; }
+
+  showToast("✓ Saved!");
+  setTimeout(() => showPage("home"), 600);
+};
+
+/* ── TOAST ── */
+window.showToast = (msg) => {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2500);
+};
 
 window.onload = init;
 </script>
-
-<style>
-body {
-  font-family: -apple-system, sans-serif;
-  background: #f4f4ef;
-  margin: 0;
-  padding: 20px;
-}
-
-h1 {
-  text-align: center;
-}
-
-.card {
-  background: white;
-  padding: 20px;
-  margin: 15px auto;
-  max-width: 420px;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-}
-
-button {
-  background: #7a7f5a;
-  color: white;
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
-  width: 100%;
-  margin-top: 10px;
-  cursor: pointer;
-}
-
-input {
-  width: 100%;
-  padding: 10px;
-  margin-top: 8px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  box-sizing: border-box;
-}
-
-.history-item {
-  padding: 12px 0;
-  border-bottom: 1px solid #eee;
-}
-
-.row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.delete {
-  background: none;
-  color: #999;
-  width: auto;
-  padding: 4px 8px;
-  margin: 0;
-}
-
-.muted {
-  color: #666;
-  font-size: 14px;
-}
-</style>
-</head>
-
-<body>
-
-<h1>Iron & Word</h1>
-
-<div id="auth" style="display:none; max-width:420px; margin:auto;">
-  <button onclick="login()">Continue with Google</button>
-</div>
-
-<div id="app" style="display:none">
-
-  <div class="card">
-    <h2 id="welcome"></h2>
-    <button onclick="logout()">Logout</button>
-    <button id="toggle" onclick="toggleView()" style="display:none">
-      Switch View
-    </button>
-  </div>
-
-  <div class="card">
-    <h3>Dashboard</h3>
-    <div id="dashboard"></div>
-  </div>
-
-  <div class="card">
-    <h3>Log Workout</h3>
-    <div id="form"></div>
-    <button onclick="save()">Save Workout</button>
-  </div>
-
-  <div class="card">
-    <h3>History</h3>
-    <div id="history"></div>
-  </div>
-
-</div>
-
 </body>
 </html>
