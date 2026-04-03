@@ -726,7 +726,7 @@ async function loadDashboard() {
       </div>
     </div>
 
-    ${isAdam ? `<div class="section-label">My Private Habits · ${lbl}</div>
+    ${(isAdam && previewAs === "adam") ? `<div class="section-label">My Private Habits · ${lbl}</div>
     <div class="private-strip">
       <div class="private-card"><span class="private-icon">🧊</span><div class="private-num">${colds}</div><div class="private-label">Cold Sessions</div></div>
       <div class="private-card"><span class="private-icon">🔥</span><div class="private-num">${saunas}</div><div class="private-label">Sauna Sessions</div></div>
