@@ -587,6 +587,14 @@ async function init() {
     document.getElementById("lt-cold").style.display = "flex";
     document.getElementById("lt-sauna").style.display = "flex";
     document.getElementById("hist-tab-private").style.display = "block";
+    // re-hide private tab if we switch to Ariel preview
+    document.getElementById("pill-ariel").addEventListener("click", () => {
+      document.getElementById("hist-tab-private").style.display = "none";
+      if (histTab === "private") { histTab = "all"; document.querySelectorAll(".hist-tab").forEach(b => b.classList.remove("active")); document.querySelector(".hist-tab").classList.add("active"); }
+    });
+    document.getElementById("pill-adam").addEventListener("click", () => {
+      document.getElementById("hist-tab-private").style.display = "block";
+    });
   }
 
   document.getElementById("profile-avatar").textContent = currentUserName === "adam" ? "A" : "Ar";
@@ -760,6 +768,7 @@ async function loadHistory() {
 
   // Everyone sees both users' public data
   const owners = ["adam","ariel"];
+  const viewingAsAriel = previewAs === "ariel" || currentUserName === "ariel";
 
   const { data: all } = await supabase.from("logs").select("*")
     .eq("deleted", false).in("owner", owners)
@@ -768,17 +777,20 @@ async function loadHistory() {
 
   let filtered = filterByPeriod(all, historyPeriod);
 
-  if (histTab === "workout") filtered = filtered.filter(r => r.type === "workout");
-  else if (histTab === "bible") filtered = filtered.filter(r => r.type === "bible");
-  else if (histTab === "private") filtered = filtered.filter(r => r.type === "cold" || r.type === "sauna");
-  else {
-    // "all" tab — hide private unless adam viewing as adam
-    if (!showPrivate) filtered = filtered.filter(r => r.type !== "cold" && r.type !== "sauna");
+  // Never show private entries when viewing as Ariel (whether real Ariel or Adam previewing)
+  if (viewingAsAriel) {
+    filtered = filtered.filter(r => r.type !== "cold" && r.type !== "sauna");
   }
 
-  // in Ariel preview mode, hide delete buttons and private types
+  if (histTab === "workout") filtered = filtered.filter(r => r.type === "workout");
+  else if (histTab === "bible") filtered = filtered.filter(r => r.type === "bible");
+  else if (histTab === "private" && !viewingAsAriel) filtered = filtered.filter(r => r.type === "cold" || r.type === "sauna");
+  else if (histTab === "private" && viewingAsAriel) filtered = []; // safety fallback
+
+  // Only show delete buttons when Adam is viewing as himself
+  const canShowDelete = currentUserName === "adam" && previewAs === "adam";
   document.getElementById("hist-list").innerHTML = filtered.length
-    ? filtered.map(r => itemHTML(r, previewAs === "adam")).join("")
+    ? filtered.map(r => itemHTML(r, canShowDelete)).join("")
     : `<div class="empty" style="padding:24px 0"><div class="empty-text">Nothing here yet</div></div>`;
 }
 
