@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Iron & Word</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 
 <style>
   :root {
@@ -17,11 +17,8 @@
     --text2: #6b6650;
     --text3: #a09880;
     --olive: #4a5a38;
-    --olive2: #5a6e46;
-    --olive-light: rgba(74,90,56,0.1);
+    --olive-light: rgba(74,90,56,0.09);
     --gold: #c9a84c;
-    --gold-light: rgba(201,168,76,0.12);
-    --green: #4a7055;
     --blue: #3d5f75;
     --red: #7a4040;
     --tab-h: 68px;
@@ -29,6 +26,7 @@
     --safe-bottom: env(safe-area-inset-bottom, 0px);
     --r: 14px;
     --r-sm: 10px;
+    --max-w: 700px;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -38,15 +36,12 @@
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
-    min-height: -webkit-fill-available;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
   }
 
-  /* ── LOGO SVG ── */
-  .logo-mark {
-    display: block;
-  }
+  /* ── LOGO ── */
+  .logo-mark { display: block; }
 
   /* ── AUTH ── */
   #auth-screen {
@@ -57,44 +52,30 @@
     min-height: 100vh;
     padding: 48px 32px;
     background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 20% 20%, rgba(74,90,56,0.05) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 80%, rgba(201,168,76,0.05) 0%, transparent 60%);
   }
 
-  .auth-logo-wrap { margin-bottom: 16px; }
-
   .auth-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 32px;
-    font-weight: 500;
-    color: var(--olive);
-    letter-spacing: -0.5px;
-    margin-bottom: 6px;
-    text-align: center;
+    font-family: 'Lora', serif;
+    font-size: 38px; font-weight: 500;
+    color: var(--olive); letter-spacing: -0.5px;
+    margin: 16px 0 6px; text-align: center;
   }
 
   .auth-tagline {
-    font-size: 12px;
-    font-weight: 300;
-    color: var(--text3);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 52px;
-    text-align: center;
+    font-size: 12px; font-weight: 300; color: var(--text3);
+    letter-spacing: 2.5px; text-transform: uppercase;
+    margin-bottom: 52px; text-align: center;
   }
 
   .btn-google {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: 50px;
-    padding: 14px 28px;
-    font-family: 'Inter', sans-serif;
-    font-size: 15px;
-    font-weight: 400;
-    color: var(--text);
-    cursor: pointer;
-    transition: all 0.2s;
+    display: flex; align-items: center; gap: 12px;
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 50px; padding: 14px 28px;
+    font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 400;
+    color: var(--text); cursor: pointer; transition: all 0.2s;
     box-shadow: 0 2px 12px rgba(0,0,0,0.07);
   }
   .btn-google:active { transform: scale(0.97); }
@@ -106,128 +87,166 @@
   /* ── TOPBAR ── */
   .topbar {
     position: sticky; top: 0; z-index: 100;
-    background: rgba(240,236,226,0.94);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    padding: calc(var(--safe-top) + 8px) 20px 12px;
-    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(240,236,226,0.95);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    padding: calc(var(--safe-top) + 6px) 20px 12px;
     border-bottom: 1px solid var(--border);
   }
-
+  .topbar-inner {
+    max-width: var(--max-w); margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+  }
   .topbar-logo { display: flex; align-items: center; gap: 10px; }
   .topbar-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 20px; font-weight: 500;
+    font-family: 'Lora', serif; font-size: 20px; font-weight: 500;
     color: var(--olive); letter-spacing: -0.2px;
   }
-
   .topbar-right { display: flex; align-items: center; gap: 8px; }
-
   .icon-btn {
     width: 34px; height: 34px; border-radius: 50%;
-    border: 1.5px solid var(--border);
-    background: var(--surface);
-    color: var(--text2);
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; font-size: 14px;
-    transition: all 0.15s;
+    border: 1.5px solid var(--border); background: var(--surface);
+    color: var(--text2); display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 14px; transition: all 0.15s;
   }
   .icon-btn:active { transform: scale(0.92); background: var(--surface2); }
 
-  /* ── VIEWING BANNER ── */
-  .viewing-banner {
+  /* viewing badge in topbar */
+  .viewing-badge {
+    font-size: 11px; font-weight: 500; color: var(--olive);
+    background: var(--olive-light); padding: 4px 10px;
+    border-radius: 20px; letter-spacing: 0.3px;
     display: none;
-    background: var(--olive);
-    color: white;
-    padding: 8px 16px;
-    font-size: 12px; font-weight: 500;
-    position: sticky; top: 0; z-index: 99;
   }
-  .viewing-banner.show { display: flex; align-items: center; justify-content: center; gap: 10px; }
-  .viewing-banner button {
-    background: rgba(255,255,255,0.2);
-    border: 1px solid rgba(255,255,255,0.3);
-    color: white; border-radius: 6px;
-    padding: 3px 10px; font-size: 11px;
-    font-family: 'Inter', sans-serif; cursor: pointer;
-  }
+  .viewing-badge.show { display: block; }
 
   /* ── PAGES ── */
   .page { display: none; padding: 20px; }
   .page.active { display: block; }
+  .page-inner { max-width: var(--max-w); margin: 0 auto; }
 
   /* ── SECTION LABEL ── */
   .section-label {
-    font-size: 10px; font-weight: 500;
-    letter-spacing: 2px; text-transform: uppercase;
-    color: var(--text3); margin-bottom: 10px; margin-top: 24px;
+    font-size: 10px; font-weight: 500; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--text3);
+    margin-bottom: 10px; margin-top: 24px;
   }
   .section-label:first-child { margin-top: 0; }
 
   /* ── CARDS ── */
   .card {
-    background: var(--surface);
-    border-radius: var(--r);
-    padding: 20px;
+    background: var(--surface); border-radius: var(--r); padding: 20px;
     border: 1px solid var(--border);
     box-shadow: 0 1px 4px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.03);
     margin-bottom: 12px;
   }
 
-  /* ── STAT CARDS ── */
-  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  /* ── COMPARISON DASHBOARD ── */
+  .compare-header {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; margin-bottom: 10px;
+  }
 
-  .stat-card {
-    background: var(--surface);
-    border-radius: var(--r);
-    padding: 18px 16px;
+  .compare-col {
+    background: var(--surface); border-radius: var(--r);
     border: 1px solid var(--border);
     box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-    position: relative; overflow: hidden;
+    overflow: hidden;
   }
-  .stat-card::after {
-    content: ''; position: absolute;
-    bottom: -16px; right: -16px;
-    width: 64px; height: 64px;
-    border-radius: 50%; opacity: 0.06;
-  }
-  .stat-card.workout::after { background: var(--olive); }
-  .stat-card.bible::after { background: var(--gold); }
-  .stat-card.cold::after { background: var(--blue); }
-  .stat-card.sauna::after { background: var(--red); }
 
-  .stat-icon { font-size: 18px; margin-bottom: 8px; display: block; }
-  .stat-number {
-    font-family: 'Playfair Display', serif;
-    font-size: 40px; font-weight: 400;
-    line-height: 1; color: var(--text); letter-spacing: -1px;
+  .compare-col-head {
+    background: var(--olive); color: white;
+    padding: 10px 16px;
+    font-family: 'Lora', serif; font-size: 15px; font-weight: 500;
+    text-align: center; letter-spacing: 0.2px;
   }
-  .stat-label { font-size: 11px; color: var(--text3); margin-top: 4px; font-weight: 300; }
 
-  .stat-card.wide {
-    grid-column: 1 / -1;
+  .compare-col-body { padding: 14px 16px; }
+
+  .compare-stat {
     display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 0; border-bottom: 1px solid var(--border);
   }
-  .stat-divider { width: 1px; height: 36px; background: var(--border); flex-shrink: 0; }
-  .stat-ytd { text-align: right; }
-  .stat-ytd .stat-number { font-size: 26px; color: var(--text2); }
+  .compare-stat:last-child { border-bottom: none; padding-bottom: 0; }
+
+  .compare-stat-label {
+    font-size: 12px; color: var(--text2); font-weight: 400;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .compare-stat-num {
+    font-family: 'Lora', serif; font-size: 22px; font-weight: 500;
+    color: var(--text); letter-spacing: -0.5px;
+  }
+
+  .compare-stat-num.leading { color: var(--olive); }
+  .compare-stat-num.trailing { color: var(--text3); }
+
+  /* period row above comparison */
+  .period-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px; gap: 8px;
+  }
 
   /* ── PERIOD PICKER ── */
   .period-picker {
-    display: flex; gap: 6px; margin-bottom: 16px;
+    display: flex; gap: 6px;
     overflow-x: auto; -webkit-overflow-scrolling: touch;
-    scrollbar-width: none; padding-bottom: 1px;
+    scrollbar-width: none; padding-bottom: 1px; flex: 1;
   }
   .period-picker::-webkit-scrollbar { display: none; }
 
   .period-btn {
-    flex-shrink: 0; padding: 6px 14px;
-    border-radius: 20px; border: 1.5px solid var(--border);
-    background: transparent; font-family: 'Inter', sans-serif;
-    font-size: 12px; font-weight: 400; color: var(--text2);
-    cursor: pointer; transition: all 0.15s;
+    flex-shrink: 0; padding: 6px 14px; border-radius: 20px;
+    border: 1.5px solid var(--border); background: transparent;
+    font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 400;
+    color: var(--text2); cursor: pointer; transition: all 0.15s;
   }
   .period-btn.active { background: var(--olive); border-color: var(--olive); color: white; }
+
+  /* ── YTD STRIP ── */
+  .ytd-strip {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; margin-bottom: 10px;
+  }
+
+  .ytd-card {
+    background: var(--surface); border-radius: var(--r);
+    padding: 14px 16px; border: 1px solid var(--border);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .ytd-left { }
+  .ytd-icon { font-size: 16px; margin-bottom: 4px; }
+  .ytd-label { font-size: 11px; color: var(--text3); font-weight: 300; }
+
+  .ytd-nums { display: flex; align-items: baseline; gap: 12px; }
+  .ytd-num {
+    text-align: center;
+  }
+  .ytd-num-val {
+    font-family: 'Lora', serif; font-size: 28px; font-weight: 500;
+    letter-spacing: -1px; line-height: 1;
+  }
+  .ytd-num-name { font-size: 10px; color: var(--text3); font-weight: 300; margin-top: 2px; }
+  .ytd-divider { width: 1px; height: 28px; background: var(--border); }
+
+  /* private stats row */
+  .private-strip {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; margin-bottom: 10px;
+  }
+  .private-card {
+    background: var(--surface); border-radius: var(--r);
+    padding: 16px; border: 1px solid var(--border);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .private-icon { font-size: 18px; margin-bottom: 6px; display: block; }
+  .private-num {
+    font-family: 'Lora', serif; font-size: 32px; font-weight: 500;
+    letter-spacing: -1px; line-height: 1;
+  }
+  .private-label { font-size: 11px; color: var(--text3); margin-top: 3px; }
 
   /* ── HISTORY ITEMS ── */
   .history-item {
@@ -249,6 +268,7 @@
 
   .history-body { flex: 1; min-width: 0; }
   .history-title { font-size: 14px; font-weight: 500; color: var(--text); }
+  .history-owner { font-size: 11px; color: var(--olive); font-weight: 500; margin-bottom: 1px; text-transform: uppercase; letter-spacing: 0.5px; }
   .history-meta { font-size: 12px; color: var(--text3); margin-top: 2px; font-weight: 300; }
   .history-notes { font-size: 12px; color: var(--text2); margin-top: 4px; font-style: italic; line-height: 1.4; }
 
@@ -257,6 +277,20 @@
   .delete-btn { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 13px; padding: 2px 4px; transition: color 0.15s; }
   .delete-btn:active { color: var(--red); }
 
+  /* ── HISTORY PAGE TABS ── */
+  .hist-tabs {
+    display: flex; gap: 0; margin-bottom: 16px;
+    background: var(--surface2); border-radius: 10px; padding: 3px;
+    border: 1px solid var(--border);
+  }
+  .hist-tab {
+    flex: 1; padding: 7px 12px; border-radius: 8px; border: none;
+    background: transparent; font-family: 'Inter', sans-serif;
+    font-size: 13px; font-weight: 400; color: var(--text2);
+    cursor: pointer; transition: all 0.15s; text-align: center;
+  }
+  .hist-tab.active { background: var(--surface); color: var(--olive); font-weight: 500; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+
   /* ── LOG TYPE GRID ── */
   .log-type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 4px; }
 
@@ -264,16 +298,12 @@
     padding: 18px 12px; border-radius: var(--r);
     border: 1.5px solid var(--border); background: var(--surface);
     display: flex; flex-direction: column; align-items: center; gap: 8px;
-    cursor: pointer; transition: all 0.15s;
-    font-family: 'Inter', sans-serif;
+    cursor: pointer; transition: all 0.15s; font-family: 'Inter', sans-serif;
     box-shadow: 0 1px 4px rgba(0,0,0,0.04);
   }
   .log-type-btn .log-icon { font-size: 22px; }
   .log-type-btn .log-name { font-size: 12px; font-weight: 500; color: var(--text2); }
-  .log-type-btn.selected {
-    border-color: var(--olive); background: var(--olive-light);
-    box-shadow: 0 0 0 1px var(--olive);
-  }
+  .log-type-btn.selected { border-color: var(--olive); background: var(--olive-light); box-shadow: 0 0 0 1px var(--olive); }
   .log-type-btn.selected .log-name { color: var(--olive); }
 
   /* ── FORM ── */
@@ -283,11 +313,10 @@
     text-transform: uppercase; color: var(--text3); margin-bottom: 8px; display: block;
   }
   .form-input {
-    width: 100%; padding: 13px 14px;
-    border-radius: var(--r-sm); border: 1.5px solid var(--border);
-    background: var(--bg); font-family: 'Inter', sans-serif;
-    font-size: 15px; font-weight: 400; color: var(--text);
-    outline: none; transition: border-color 0.15s;
+    width: 100%; padding: 13px 14px; border-radius: var(--r-sm);
+    border: 1.5px solid var(--border); background: var(--bg);
+    font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 400;
+    color: var(--text); outline: none; transition: border-color 0.15s;
     appearance: none; -webkit-appearance: none;
   }
   .form-input:focus { border-color: var(--olive); background: var(--surface); }
@@ -296,72 +325,71 @@
   /* ── CHIPS ── */
   .chip-group { display: flex; flex-wrap: wrap; gap: 7px; }
   .chip {
-    padding: 8px 14px; border-radius: 20px;
-    border: 1.5px solid var(--border); background: var(--bg);
-    font-family: 'Inter', sans-serif; font-size: 13px;
-    font-weight: 400; color: var(--text2);
-    cursor: pointer; transition: all 0.15s;
+    padding: 8px 14px; border-radius: 20px; border: 1.5px solid var(--border);
+    background: var(--bg); font-family: 'Inter', sans-serif; font-size: 13px;
+    font-weight: 400; color: var(--text2); cursor: pointer; transition: all 0.15s;
   }
   .chip.selected { background: var(--olive); border-color: var(--olive); color: white; }
 
   /* ── SLIDER ── */
   .slider-value {
-    font-family: 'Playfair Display', serif;
-    font-size: 36px; font-weight: 400; color: var(--olive);
-    text-align: center; margin-bottom: 8px; letter-spacing: -1px;
+    font-family: 'Lora', serif; font-size: 36px; font-weight: 500;
+    color: var(--olive); text-align: center; margin-bottom: 8px; letter-spacing: -1px;
   }
   input[type=range] {
-    width: 100%; height: 3px; border-radius: 2px;
-    background: var(--border); outline: none;
-    -webkit-appearance: none; cursor: pointer;
+    width: 100%; height: 3px; border-radius: 2px; background: var(--border);
+    outline: none; -webkit-appearance: none; cursor: pointer;
   }
   input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none; width: 22px; height: 22px;
-    border-radius: 50%; background: var(--olive);
-    box-shadow: 0 2px 8px rgba(74,90,56,0.3);
+    -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
+    background: var(--olive); box-shadow: 0 2px 8px rgba(74,90,56,0.3);
   }
   .slider-labels {
-    display: flex; justify-content: space-between;
-    font-size: 10px; color: var(--text3); margin-top: 8px;
-    font-weight: 300; letter-spacing: 0.5px;
+    display: flex; justify-content: space-between; font-size: 10px;
+    color: var(--text3); margin-top: 8px; font-weight: 300; letter-spacing: 0.5px;
   }
 
   /* ── BUTTONS ── */
   .btn-primary {
-    width: 100%; padding: 15px; border-radius: 50px;
-    border: none; background: var(--olive); color: white;
-    font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 500;
-    cursor: pointer; transition: all 0.15s; margin-top: 8px;
-    box-shadow: 0 4px 16px rgba(74,90,56,0.25); letter-spacing: 0.2px;
+    width: 100%; padding: 15px; border-radius: 50px; border: none;
+    background: var(--olive); color: white; font-family: 'Inter', sans-serif;
+    font-size: 15px; font-weight: 500; cursor: pointer; transition: all 0.15s;
+    margin-top: 8px; box-shadow: 0 4px 16px rgba(74,90,56,0.25);
   }
   .btn-primary:active { transform: scale(0.98); opacity: 0.88; }
   .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
 
   /* ── PROFILE ── */
   .profile-avatar {
-    width: 72px; height: 72px; border-radius: 50%;
-    background: var(--olive);
+    width: 72px; height: 72px; border-radius: 50%; background: var(--olive);
     display: flex; align-items: center; justify-content: center;
-    font-family: 'Playfair Display', serif; font-size: 28px; color: white;
+    font-family: 'Lora', serif; font-size: 28px; color: white;
     margin-bottom: 14px; box-shadow: 0 4px 20px rgba(74,90,56,0.2);
   }
-  .profile-name { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 400; margin-bottom: 4px; }
+  .profile-name { font-family: 'Lora', serif; font-size: 26px; font-weight: 500; margin-bottom: 4px; }
   .profile-email { font-size: 13px; color: var(--text3); margin-bottom: 24px; font-weight: 300; }
 
   /* ── BOTTOM NAV ── */
   .bottom-nav {
     position: fixed; bottom: 0; left: 0; right: 0;
     height: calc(var(--tab-h) + var(--safe-bottom));
-    background: rgba(250,248,242,0.96);
+    background: rgba(250,248,242,0.97);
     backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
     border-top: 1px solid var(--border);
     display: flex; align-items: flex-start; padding-top: 8px; z-index: 200;
   }
+
+  /* center nav items within max-width on iPad */
+  .nav-inner {
+    width: 100%; max-width: 480px; margin: 0 auto;
+    display: flex; align-items: flex-start;
+  }
+
   .nav-item {
     flex: 1; display: flex; flex-direction: column; align-items: center;
     gap: 3px; padding: 4px 0; cursor: pointer; border: none; background: none;
   }
-  .nav-icon { font-size: 20px; }
+  .nav-icon { font-size: 20px; line-height: 1; }
   .nav-label { font-size: 9px; font-weight: 500; color: var(--text3); letter-spacing: 0.8px; text-transform: uppercase; }
   .nav-item.active .nav-label { color: var(--olive); }
 
@@ -370,12 +398,11 @@
     gap: 3px; margin-top: -18px; cursor: pointer; border: none; background: none; padding: 0;
   }
   .fab-circle {
-    width: 52px; height: 52px; border-radius: 50%;
-    background: var(--olive);
+    width: 52px; height: 52px; border-radius: 50%; background: var(--olive);
     display: flex; align-items: center; justify-content: center;
-    color: white; font-size: 24px; font-weight: 300;
-    box-shadow: 0 4px 16px rgba(74,90,56,0.35);
-    transition: transform 0.15s; line-height: 1; padding-bottom: 1px;
+    color: white; font-size: 26px; font-weight: 300;
+    box-shadow: 0 4px 16px rgba(74,90,56,0.35); transition: transform 0.15s;
+    line-height: 1; padding-bottom: 2px;
   }
   .nav-fab:active .fab-circle { transform: scale(0.92); }
   .nav-fab .nav-label { color: var(--text3); }
@@ -398,43 +425,25 @@
     box-shadow: 0 4px 20px rgba(0,0,0,0.2);
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-  /* ── RESPONSIVE ── */
-  @media (min-width: 768px) {
-    #app { max-width: 480px; margin: 0 auto; }
-    .bottom-nav, .topbar, .viewing-banner {
-      max-width: 480px; left: 50%; transform: translateX(-50%); width: 100%;
-    }
-  }
 </style>
 </head>
 <body>
 
-<!-- AUTH SCREEN -->
+<!-- AUTH -->
 <div id="auth-screen">
-  <div class="auth-logo-wrap">
-    <!-- Logo: kettlebell sitting on open book -->
-    <svg width="90" height="90" viewBox="0 0 90 90" fill="none" class="logo-mark">
-      <!-- Open book bottom -->
-      <path d="M10 64 Q10 76 45 76 Q80 76 80 64 L80 58 Q80 50 45 50 Q10 50 10 58 Z" fill="#4a5a38"/>
-      <!-- Book spine -->
-      <line x1="45" y1="50" x2="45" y2="76" stroke="#f0ece2" stroke-width="1.8" stroke-linecap="round"/>
-      <!-- Book text lines left page -->
-      <line x1="16" y1="58" x2="41" y2="58" stroke="#f0ece2" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
-      <line x1="16" y1="64" x2="41" y2="64" stroke="#f0ece2" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
-      <line x1="16" y1="70" x2="34" y2="70" stroke="#f0ece2" stroke-width="1.2" stroke-linecap="round" opacity="0.35"/>
-      <!-- Book text lines right page -->
-      <line x1="74" y1="58" x2="49" y2="58" stroke="#f0ece2" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
-      <line x1="74" y1="64" x2="49" y2="64" stroke="#f0ece2" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
-      <line x1="74" y1="70" x2="56" y2="70" stroke="#f0ece2" stroke-width="1.2" stroke-linecap="round" opacity="0.35"/>
-      <!-- Kettlebell body -->
-      <circle cx="45" cy="30" r="17" fill="#4a5a38"/>
-      <!-- Kettlebell handle arc -->
-      <path d="M35 23 Q35 10 45 10 Q55 10 55 23" fill="none" stroke="#4a5a38" stroke-width="4" stroke-linecap="round"/>
-      <!-- Handle flat base -->
-      <rect x="33" y="21" width="24" height="5" rx="2.5" fill="#4a5a38"/>
-    </svg>
-  </div>
+  <svg width="96" height="96" viewBox="0 0 90 90" fill="none" class="logo-mark">
+    <path d="M10 64 Q10 76 45 76 Q80 76 80 64 L80 58 Q80 50 45 50 Q10 50 10 58 Z" fill="#4a5a38"/>
+    <line x1="45" y1="50" x2="45" y2="76" stroke="#f0ece2" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="16" y1="58" x2="41" y2="58" stroke="#f0ece2" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+    <line x1="16" y1="64" x2="41" y2="64" stroke="#f0ece2" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+    <line x1="16" y1="70" x2="34" y2="70" stroke="#f0ece2" stroke-width="1.2" stroke-linecap="round" opacity="0.3"/>
+    <line x1="74" y1="58" x2="49" y2="58" stroke="#f0ece2" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+    <line x1="74" y1="64" x2="49" y2="64" stroke="#f0ece2" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+    <line x1="74" y1="70" x2="56" y2="70" stroke="#f0ece2" stroke-width="1.2" stroke-linecap="round" opacity="0.3"/>
+    <circle cx="45" cy="30" r="17" fill="#4a5a38"/>
+    <path d="M35 23 Q35 10 45 10 Q55 10 55 23" fill="none" stroke="#4a5a38" stroke-width="4" stroke-linecap="round"/>
+    <rect x="33" y="21" width="24" height="5" rx="2.5" fill="#4a5a38"/>
+  </svg>
   <div class="auth-title">Iron & Word</div>
   <div class="auth-tagline">Forge the body · Feed the soul</div>
   <button class="btn-google" onclick="login()">
@@ -448,132 +457,149 @@
   </button>
 </div>
 
-<!-- VIEWING BANNER -->
-<div class="viewing-banner" id="viewing-banner">
-  <span>Viewing as Ariel</span>
-  <button onclick="switchBack()">← Switch back</button>
-</div>
-
 <!-- APP -->
 <div id="app">
+
+  <!-- TOPBAR -->
   <div class="topbar">
-    <div class="topbar-logo">
-      <!-- Small logo in topbar -->
-      <svg width="28" height="28" viewBox="0 0 90 90" fill="none">
-        <path d="M10 64 Q10 76 45 76 Q80 76 80 64 L80 58 Q80 50 45 50 Q10 50 10 58 Z" fill="#4a5a38"/>
-        <line x1="45" y1="50" x2="45" y2="76" stroke="#f0ece2" stroke-width="2" stroke-linecap="round"/>
-        <line x1="16" y1="58" x2="41" y2="58" stroke="#f0ece2" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
-        <line x1="16" y1="64" x2="41" y2="64" stroke="#f0ece2" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
-        <line x1="74" y1="58" x2="49" y2="58" stroke="#f0ece2" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
-        <line x1="74" y1="64" x2="49" y2="64" stroke="#f0ece2" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
-        <circle cx="45" cy="30" r="17" fill="#4a5a38"/>
-        <path d="M35 23 Q35 10 45 10 Q55 10 55 23" fill="none" stroke="#4a5a38" stroke-width="4" stroke-linecap="round"/>
-        <rect x="33" y="21" width="24" height="5" rx="2.5" fill="#4a5a38"/>
-      </svg>
-      <div class="topbar-title" id="topbar-title">Iron & Word</div>
-    </div>
-    <div class="topbar-right">
-      <button class="icon-btn" id="switch-btn" onclick="toggleView()" style="display:none" title="Switch view">⇄</button>
-      <button class="icon-btn" onclick="showPage('profile')">○</button>
+    <div class="topbar-inner">
+      <div class="topbar-logo">
+        <svg width="28" height="28" viewBox="0 0 90 90" fill="none">
+          <path d="M10 64 Q10 76 45 76 Q80 76 80 64 L80 58 Q80 50 45 50 Q10 50 10 58 Z" fill="#4a5a38"/>
+          <line x1="45" y1="50" x2="45" y2="76" stroke="#f0ece2" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="16" y1="58" x2="41" y2="58" stroke="#f0ece2" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>
+          <line x1="16" y1="65" x2="41" y2="65" stroke="#f0ece2" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>
+          <line x1="74" y1="58" x2="49" y2="58" stroke="#f0ece2" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>
+          <line x1="74" y1="65" x2="49" y2="65" stroke="#f0ece2" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>
+          <circle cx="45" cy="30" r="17" fill="#4a5a38"/>
+          <path d="M35 23 Q35 10 45 10 Q55 10 55 23" fill="none" stroke="#4a5a38" stroke-width="5" stroke-linecap="round"/>
+          <rect x="33" y="21" width="24" height="5" rx="2.5" fill="#4a5a38"/>
+        </svg>
+        <div class="topbar-title" id="topbar-title">Iron & Word</div>
+      </div>
+      <div class="topbar-right">
+        <span class="viewing-badge" id="viewing-badge">Logging as Ariel</span>
+        <button class="icon-btn" id="switch-btn" onclick="toggleView()" style="display:none" title="Switch view">⇄</button>
+        <button class="icon-btn" onclick="showPage('profile')">○</button>
+      </div>
     </div>
   </div>
 
   <!-- DASHBOARD -->
   <div class="page active" id="page-home">
-    <div class="period-picker" id="period-picker">
-      <button class="period-btn active" onclick="setPeriod('month',this)">This Month</button>
-      <button class="period-btn" onclick="setPeriod('week',this)">This Week</button>
-      <button class="period-btn" onclick="setPeriod('year',this)">This Year</button>
-      <button class="period-btn" onclick="setPeriod('all',this)">All Time</button>
+    <div class="page-inner">
+
+      <div class="period-picker" id="period-picker" style="margin-bottom:14px">
+        <button class="period-btn active" onclick="setPeriod('month',this)">This Month</button>
+        <button class="period-btn" onclick="setPeriod('week',this)">This Week</button>
+        <button class="period-btn" onclick="setPeriod('year',this)">This Year</button>
+        <button class="period-btn" onclick="setPeriod('all',this)">All Time</button>
+      </div>
+
+      <!-- Side by side comparison -->
+      <div class="compare-header" id="compare-grid"></div>
+
+      <!-- YTD totals -->
+      <div class="ytd-strip" id="ytd-strip"></div>
+
+      <!-- Private stats (adam only) -->
+      <div id="private-strip" style="display:none"></div>
+
+      <div class="section-label">Recent Activity</div>
+      <div class="card"><div id="recent-list"></div></div>
+
     </div>
-    <div class="stats-grid" id="stats-grid"></div>
-    <div class="section-label">Recent Activity</div>
-    <div class="card"><div id="recent-list"></div></div>
   </div>
 
   <!-- LOG -->
   <div class="page" id="page-log">
-    <div class="section-label">What are you logging?</div>
-    <div class="log-type-grid">
-      <button class="log-type-btn" onclick="selectLogType('workout')" id="lt-workout">
-        <span class="log-icon">🏋️</span><span class="log-name">Workout</span>
-      </button>
-      <button class="log-type-btn" onclick="selectLogType('bible')" id="lt-bible">
-        <span class="log-icon">📖</span><span class="log-name">Bible Reading</span>
-      </button>
-      <button class="log-type-btn" onclick="selectLogType('cold')" id="lt-cold" style="display:none">
-        <span class="log-icon">🧊</span><span class="log-name">Cold Exposure</span>
-      </button>
-      <button class="log-type-btn" onclick="selectLogType('sauna')" id="lt-sauna" style="display:none">
-        <span class="log-icon">🔥</span><span class="log-name">Sauna</span>
-      </button>
+    <div class="page-inner">
+      <div class="section-label">What are you logging?</div>
+      <div class="log-type-grid">
+        <button class="log-type-btn" onclick="selectLogType('workout')" id="lt-workout">
+          <span class="log-icon">🏋️</span><span class="log-name">Workout</span>
+        </button>
+        <button class="log-type-btn" onclick="selectLogType('bible')" id="lt-bible">
+          <span class="log-icon">📖</span><span class="log-name">Bible Reading</span>
+        </button>
+        <button class="log-type-btn" onclick="selectLogType('cold')" id="lt-cold" style="display:none">
+          <span class="log-icon">🧊</span><span class="log-name">Cold Exposure</span>
+        </button>
+        <button class="log-type-btn" onclick="selectLogType('sauna')" id="lt-sauna" style="display:none">
+          <span class="log-icon">🔥</span><span class="log-name">Sauna</span>
+        </button>
+      </div>
+      <div id="log-form-area"></div>
     </div>
-    <div id="log-form-area"></div>
   </div>
 
   <!-- HISTORY -->
   <div class="page" id="page-history">
-    <div class="period-picker" id="hist-period-picker">
-      <button class="period-btn active" onclick="setHistoryPeriod('month',this)">This Month</button>
-      <button class="period-btn" onclick="setHistoryPeriod('week',this)">This Week</button>
-      <button class="period-btn" onclick="setHistoryPeriod('year',this)">This Year</button>
-      <button class="period-btn" onclick="setHistoryPeriod('all',this)">All Time</button>
-    </div>
-    <div class="section-label">Workouts</div>
-    <div class="card"><div id="hist-workout"></div></div>
-    <div class="section-label">Bible Readings</div>
-    <div class="card"><div id="hist-bible"></div></div>
-    <div id="private-history-section" style="display:none">
-      <div class="section-label">Cold Exposure</div>
-      <div class="card"><div id="hist-cold"></div></div>
-      <div class="section-label">Sauna</div>
-      <div class="card"><div id="hist-sauna"></div></div>
+    <div class="page-inner">
+      <div class="period-picker" id="hist-period-picker" style="margin-bottom:14px">
+        <button class="period-btn active" onclick="setHistoryPeriod('month',this)">This Month</button>
+        <button class="period-btn" onclick="setHistoryPeriod('week',this)">This Week</button>
+        <button class="period-btn" onclick="setHistoryPeriod('year',this)">This Year</button>
+        <button class="period-btn" onclick="setHistoryPeriod('all',this)">All Time</button>
+      </div>
+
+      <!-- Type tabs -->
+      <div class="hist-tabs" id="hist-tabs">
+        <button class="hist-tab active" onclick="setHistTab('all',this)">All</button>
+        <button class="hist-tab" onclick="setHistTab('workout',this)">Workouts</button>
+        <button class="hist-tab" onclick="setHistTab('bible',this)">Bible</button>
+        <button class="hist-tab" id="hist-tab-private" onclick="setHistTab('private',this)" style="display:none">Private</button>
+      </div>
+
+      <div class="card"><div id="hist-list"></div></div>
     </div>
   </div>
 
   <!-- PROFILE -->
   <div class="page" id="page-profile">
-    <div class="card" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:36px 20px">
-      <div class="profile-avatar" id="profile-avatar"></div>
-      <div class="profile-name" id="profile-name"></div>
-      <div class="profile-email" id="profile-email"></div>
-      <button class="btn-primary" style="max-width:180px;margin-top:0" onclick="logout()">Sign Out</button>
-    </div>
-    <div class="section-label">About</div>
-    <div class="card">
-      <div style="font-size:13px;color:var(--text2);font-weight:300">
-        <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border)">
-          <span>App</span><span style="color:var(--text);font-weight:400">Iron & Word</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:9px 0">
-          <span>Version</span><span style="color:var(--text);font-weight:400">3.1</span>
+    <div class="page-inner">
+      <div class="card" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:36px 20px">
+        <div class="profile-avatar" id="profile-avatar"></div>
+        <div class="profile-name" id="profile-name"></div>
+        <div class="profile-email" id="profile-email"></div>
+        <button class="btn-primary" style="max-width:180px;margin-top:0" onclick="logout()">Sign Out</button>
+      </div>
+      <div class="section-label">About</div>
+      <div class="card">
+        <div style="font-size:13px;color:var(--text2);font-weight:300">
+          <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border)">
+            <span>App</span><span style="color:var(--text);font-weight:400">Iron & Word</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:9px 0">
+            <span>Version</span><span style="color:var(--text);font-weight:400">4.0</span>
+          </div>
         </div>
       </div>
     </div>
   </div>
+
 </div>
 
 <!-- BOTTOM NAV -->
 <nav class="bottom-nav">
-  <button class="nav-item active" onclick="showPage('home')" id="nav-home">
-    <span class="nav-icon">⬜</span>
-    <span class="nav-label">Home</span>
-  </button>
-  <button class="nav-item" onclick="showPage('history')" id="nav-history">
-    <span class="nav-icon">≡</span>
-    <span class="nav-label">History</span>
-  </button>
-  <button class="nav-fab" onclick="showPage('log')" id="nav-log">
-    <div class="fab-circle">+</div>
-    <span class="nav-label">Log</span>
-  </button>
-  <button class="nav-item" onclick="showPage('profile')" id="nav-profile">
-    <span class="nav-icon">○</span>
-    <span class="nav-label">Profile</span>
-  </button>
-  <button class="nav-item" style="visibility:hidden;pointer-events:none">
-    <span class="nav-icon"> </span><span class="nav-label"> </span>
-  </button>
+  <div class="nav-inner">
+    <button class="nav-item active" onclick="showPage('home')" id="nav-home">
+      <span class="nav-icon">⬜</span>
+      <span class="nav-label">Home</span>
+    </button>
+    <button class="nav-item" onclick="showPage('history')" id="nav-history">
+      <span class="nav-icon">≡</span>
+      <span class="nav-label">History</span>
+    </button>
+    <button class="nav-fab" onclick="showPage('log')" id="nav-log">
+      <div class="fab-circle">+</div>
+      <span class="nav-label">Log</span>
+    </button>
+    <button class="nav-item" onclick="showPage('profile')" id="nav-profile">
+      <span class="nav-icon">○</span>
+      <span class="nav-label">Profile</span>
+    </button>
+  </div>
 </nav>
 
 <div class="toast" id="toast"></div>
@@ -591,7 +617,7 @@ const ADAM = "adamhlavka@gmail.com";
 const NETLIFY_URL = "https://ironandword.netlify.app";
 
 let currentUser = null, currentUserName = "", viewingAs = "";
-let currentPeriod = "month", historyPeriod = "month";
+let currentPeriod = "month", historyPeriod = "month", histTab = "all";
 let selectedLogType = null, logFormData = {};
 
 /* ── AUTH ── */
@@ -632,7 +658,7 @@ async function init() {
     document.getElementById("switch-btn").style.display = "flex";
     document.getElementById("lt-cold").style.display = "flex";
     document.getElementById("lt-sauna").style.display = "flex";
-    document.getElementById("private-history-section").style.display = "block";
+    document.getElementById("hist-tab-private").style.display = "block";
   }
 
   document.getElementById("profile-avatar").textContent = currentUserName === "adam" ? "A" : "Ar";
@@ -642,18 +668,18 @@ async function init() {
   updateTopbar(); loadDashboard(); loadHistory();
 }
 
-/* ── VIEW ── */
+/* ── VIEW SWITCHING (for logging as Ariel) ── */
 window.toggleView = () => {
   if (currentUserName !== "adam") return;
   viewingAs = viewingAs === "adam" ? "ariel" : "adam";
-  updateTopbar(); loadDashboard(); loadHistory();
+  updateTopbar();
 };
-window.switchBack = () => { viewingAs = "adam"; updateTopbar(); loadDashboard(); loadHistory(); };
 
 function updateTopbar() {
   const isAriel = viewingAs === "ariel";
-  document.getElementById("viewing-banner").classList.toggle("show", isAriel);
-  document.getElementById("topbar-title").textContent = isAriel ? "Ariel's View" : "Iron & Word";
+  const badge = document.getElementById("viewing-badge");
+  badge.classList.toggle("show", isAriel);
+  document.getElementById("topbar-title").textContent = isAriel ? "Logging as Ariel" : "Iron & Word";
 }
 
 /* ── NAV ── */
@@ -690,100 +716,210 @@ window.setPeriod = (p, btn) => {
 };
 
 async function loadDashboard() {
-  const isPrivate = viewingAs === "adam" && currentUserName === "adam";
-  const { data: all } = await supabase.from("logs").select("*").eq("deleted", false).eq("owner", viewingAs);
-  if (!all) return;
-
-  const filtered = filterByPeriod(all, currentPeriod);
-  const ytd = filterByPeriod(all, "year");
+  const isAdam = currentUserName === "adam";
   const lbl = { month:"This Month", week:"This Week", year:"This Year", all:"All Time" }[currentPeriod];
 
-  const w = filtered.filter(r=>r.type==="workout"), b = filtered.filter(r=>r.type==="bible");
-  const wY = ytd.filter(r=>r.type==="workout"), bY = ytd.filter(r=>r.type==="bible");
+  // fetch both users' data
+  const { data: allData } = await supabase.from("logs").select("*").eq("deleted", false).in("owner", ["adam","ariel"]);
+  if (!allData) return;
 
-  let html = `
-    <div class="stat-card workout wide">
-      <div><span class="stat-icon">🏋️</span><div class="stat-number">${w.length}</div><div class="stat-label">Workouts · ${lbl}</div></div>
-      <div class="stat-divider"></div>
-      <div class="stat-ytd"><div class="stat-number">${wY.length}</div><div class="stat-label">Year to date</div></div>
+  // also fetch private (cold/sauna — adam only)
+  const adamPrivate = allData.filter(r => r.owner === "adam" && (r.type === "cold" || r.type === "sauna"));
+
+  const filtered = filterByPeriod(allData, currentPeriod);
+  const ytd = filterByPeriod(allData, "year");
+
+  const adamF = filtered.filter(r => r.owner === "adam");
+  const arielF = filtered.filter(r => r.owner === "ariel");
+
+  const adamW = adamF.filter(r => r.type === "workout").length;
+  const arielW = arielF.filter(r => r.type === "workout").length;
+  const adamB = adamF.filter(r => r.type === "bible").length;
+  const arielB = arielF.filter(r => r.type === "bible").length;
+
+  const adamWY = ytd.filter(r => r.owner === "adam" && r.type === "workout").length;
+  const arielWY = ytd.filter(r => r.owner === "ariel" && r.type === "workout").length;
+  const adamBY = ytd.filter(r => r.owner === "adam" && r.type === "bible").length;
+  const arielBY = ytd.filter(r => r.owner === "ariel" && r.type === "bible").length;
+
+  const wLead = adamW > arielW ? "adam" : adamW < arielW ? "ariel" : "tie";
+  const bLead = adamB > arielB ? "adam" : adamB < arielB ? "ariel" : "tie";
+
+  // comparison grid
+  document.getElementById("compare-grid").innerHTML = `
+    <div class="compare-col">
+      <div class="compare-col-head">Adam</div>
+      <div class="compare-col-body">
+        <div class="compare-stat">
+          <div class="compare-stat-label">🏋️ Workouts</div>
+          <div class="compare-stat-num ${wLead==="adam"?"leading":wLead==="ariel"?"trailing":""}">${adamW}</div>
+        </div>
+        <div class="compare-stat">
+          <div class="compare-stat-label">📖 Bible</div>
+          <div class="compare-stat-num ${bLead==="adam"?"leading":bLead==="ariel"?"trailing":""}">${adamB}</div>
+        </div>
+      </div>
     </div>
-    <div class="stat-card bible wide">
-      <div><span class="stat-icon">📖</span><div class="stat-number">${b.length}</div><div class="stat-label">Bible Readings · ${lbl}</div></div>
-      <div class="stat-divider"></div>
-      <div class="stat-ytd"><div class="stat-number">${bY.length}</div><div class="stat-label">Year to date</div></div>
-    </div>`;
+    <div class="compare-col">
+      <div class="compare-col-head">Ariel</div>
+      <div class="compare-col-body">
+        <div class="compare-stat">
+          <div class="compare-stat-label">🏋️ Workouts</div>
+          <div class="compare-stat-num ${wLead==="ariel"?"leading":wLead==="adam"?"trailing":""}">${arielW}</div>
+        </div>
+        <div class="compare-stat">
+          <div class="compare-stat-label">📖 Bible</div>
+          <div class="compare-stat-num ${bLead==="ariel"?"leading":bLead==="adam"?"trailing":""}">${arielB}</div>
+        </div>
+      </div>
+    </div>
+  `;
 
-  if (isPrivate) {
-    const c = filtered.filter(r=>r.type==="cold"), s = filtered.filter(r=>r.type==="sauna");
-    html += `
-      <div class="stat-card cold"><span class="stat-icon">🧊</span><div class="stat-number">${c.length}</div><div class="stat-label">Cold Sessions</div></div>
-      <div class="stat-card sauna"><span class="stat-icon">🔥</span><div class="stat-number">${s.length}</div><div class="stat-label">Sauna Sessions</div></div>`;
+  // YTD strip
+  document.getElementById("ytd-strip").innerHTML = `
+    <div class="ytd-card">
+      <div class="ytd-left">
+        <div class="ytd-icon">🏋️</div>
+        <div class="ytd-label">Workouts · Year to date</div>
+      </div>
+      <div class="ytd-nums">
+        <div class="ytd-num">
+          <div class="ytd-num-val" style="color:var(--olive)">${adamWY}</div>
+          <div class="ytd-num-name">Adam</div>
+        </div>
+        <div class="ytd-divider"></div>
+        <div class="ytd-num">
+          <div class="ytd-num-val">${arielWY}</div>
+          <div class="ytd-num-name">Ariel</div>
+        </div>
+      </div>
+    </div>
+    <div class="ytd-card">
+      <div class="ytd-left">
+        <div class="ytd-icon">📖</div>
+        <div class="ytd-label">Bible · Year to date</div>
+      </div>
+      <div class="ytd-nums">
+        <div class="ytd-num">
+          <div class="ytd-num-val" style="color:var(--olive)">${adamBY}</div>
+          <div class="ytd-num-name">Adam</div>
+        </div>
+        <div class="ytd-divider"></div>
+        <div class="ytd-num">
+          <div class="ytd-num-val">${arielBY}</div>
+          <div class="ytd-num-name">Ariel</div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // private strip (adam only)
+  const privateEl = document.getElementById("private-strip");
+  if (isAdam) {
+    privateEl.style.display = "block";
+    const filtPrivate = filterByPeriod(adamPrivate, currentPeriod);
+    const colds = filtPrivate.filter(r => r.type === "cold").length;
+    const saunas = filtPrivate.filter(r => r.type === "sauna").length;
+    privateEl.innerHTML = `
+      <div class="section-label">My Private Habits</div>
+      <div class="private-strip">
+        <div class="private-card">
+          <span class="private-icon">🧊</span>
+          <div class="private-num">${colds}</div>
+          <div class="private-label">Cold Sessions · ${lbl}</div>
+        </div>
+        <div class="private-card">
+          <span class="private-icon">🔥</span>
+          <div class="private-num">${saunas}</div>
+          <div class="private-label">Sauna Sessions · ${lbl}</div>
+        </div>
+      </div>`;
   }
 
-  document.getElementById("stats-grid").innerHTML = html;
-  const recent = [...all].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,5);
-  document.getElementById("recent-list").innerHTML = recent.length
-    ? recent.map(r=>itemHTML(r,false)).join("")
+  // recent — show both, sorted
+  const sharedRecent = allData
+    .filter(r => r.type !== "cold" && r.type !== "sauna" || r.owner === "adam" && isAdam)
+    .sort((a,b) => new Date(b.created_at)-new Date(a.created_at))
+    .slice(0, 6);
+
+  document.getElementById("recent-list").innerHTML = sharedRecent.length
+    ? sharedRecent.map(r => itemHTML(r, false)).join("")
     : `<div class="empty"><div class="empty-text">No activity yet</div></div>`;
 }
 
 /* ── HISTORY ── */
 window.setHistoryPeriod = (p, btn) => {
   historyPeriod = p;
-  document.querySelectorAll("#hist-period-picker .period-btn").forEach(b=>b.classList.remove("active"));
+  document.querySelectorAll("#hist-period-picker .period-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active"); loadHistory();
+};
+
+window.setHistTab = (tab, btn) => {
+  histTab = tab;
+  document.querySelectorAll(".hist-tab").forEach(b => b.classList.remove("active"));
   btn.classList.add("active"); loadHistory();
 };
 
 async function loadHistory() {
-  const isPrivate = viewingAs === "adam" && currentUserName === "adam";
-  const { data: all } = await supabase.from("logs").select("*").eq("deleted",false).eq("owner",viewingAs).order("created_at",{ascending:false});
+  const isAdam = currentUserName === "adam";
+  const owners = isAdam ? ["adam","ariel"] : ["ariel"];
+
+  const { data: all } = await supabase.from("logs").select("*")
+    .eq("deleted", false).in("owner", owners)
+    .order("created_at", { ascending: false });
   if (!all) return;
-  const filtered = filterByPeriod(all, historyPeriod);
-  const types = isPrivate ? ["workout","bible","cold","sauna"] : ["workout","bible"];
-  types.forEach(type => {
-    const el = document.getElementById("hist-"+type);
-    if (!el) return;
-    const items = filtered.filter(r=>r.type===type);
-    el.innerHTML = items.length ? items.map(r=>itemHTML(r,true)).join("") : `<div class="empty" style="padding:20px 0"><div class="empty-text">Nothing logged yet</div></div>`;
-  });
+
+  let filtered = filterByPeriod(all, historyPeriod);
+
+  if (histTab === "workout") filtered = filtered.filter(r => r.type === "workout");
+  else if (histTab === "bible") filtered = filtered.filter(r => r.type === "bible");
+  else if (histTab === "private") filtered = filtered.filter(r => r.type === "cold" || r.type === "sauna");
+  else filtered = filtered.filter(r => isAdam || (r.type !== "cold" && r.type !== "sauna"));
+
+  document.getElementById("hist-list").innerHTML = filtered.length
+    ? filtered.map(r => itemHTML(r, true)).join("")
+    : `<div class="empty" style="padding:24px 0"><div class="empty-text">Nothing here yet</div></div>`;
 }
 
 function itemHTML(row, showDelete) {
   const d = new Date(row.created_at);
-  const date = d.toLocaleDateString("en-GB",{day:"numeric",month:"short"});
-  const time = d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+  const date = d.toLocaleDateString("en-GB", {day:"numeric", month:"short"});
+  const time = d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
   const icons = { workout:"🏋️", bible:"📖", cold:"🧊", sauna:"🔥" };
-  let title="", meta="", notes="";
 
-  if (row.type==="workout") {
+  let title = "", meta = "", notes = "";
+  if (row.type === "workout") {
     title = row.data?.workout_type || "Workout";
     meta = [row.data?.focus, row.data?.duration&&row.data.duration+" min", row.data?.intensity&&"Intensity "+row.data.intensity+"/10", row.data?.time_of_day].filter(Boolean).join(" · ");
-    notes = row.data?.notes||"";
-  } else if (row.type==="bible") {
-    title = row.data?.passage||"Bible Reading";
-    meta = row.data?.duration ? row.data.duration+" min" : "";
-    notes = row.data?.notes||"";
-  } else if (row.type==="cold") {
-    title = row.data?.method||"Cold Exposure";
+    notes = row.data?.notes || "";
+  } else if (row.type === "bible") {
+    title = row.data?.passage || "Bible Reading";
+    meta = row.data?.duration ? row.data.duration + " min" : "";
+    notes = row.data?.notes || "";
+  } else if (row.type === "cold") {
+    title = row.data?.method || "Cold Exposure";
     meta = [row.data?.duration&&row.data.duration+" min", row.data?.temp&&row.data.temp+"°C", row.data?.place].filter(Boolean).join(" · ");
-    notes = row.data?.notes||"";
-  } else if (row.type==="sauna") {
-    title = row.data?.sauna_type||"Sauna";
+    notes = row.data?.notes || "";
+  } else if (row.type === "sauna") {
+    title = row.data?.sauna_type || "Sauna";
     meta = [row.data?.location, row.data?.duration&&row.data.duration+" min", row.data?.cycles&&row.data.cycles+" cycles"].filter(Boolean).join(" · ");
-    notes = row.data?.notes||"";
+    notes = row.data?.notes || "";
   }
 
-  const canDelete = row.user_email===currentUser.email || currentUserName==="adam";
+  const canDelete = row.user_email === currentUser.email || currentUserName === "adam";
+  const ownerLabel = row.owner === "adam" ? "Adam" : "Ariel";
+
   return `<div class="history-item" id="entry-${row.id}">
     <div class="history-icon ${row.type}">${icons[row.type]||"○"}</div>
     <div class="history-body">
+      <div class="history-owner">${ownerLabel}</div>
       <div class="history-title">${title}</div>
-      ${meta?`<div class="history-meta">${meta}</div>`:""}
-      ${notes?`<div class="history-notes">${notes}</div>`:""}
+      ${meta ? `<div class="history-meta">${meta}</div>` : ""}
+      ${notes ? `<div class="history-notes">${notes}</div>` : ""}
     </div>
     <div class="history-right">
       <div class="history-time">${date} · ${time}</div>
-      ${showDelete&&canDelete?`<button class="delete-btn" onclick="deleteEntry(${row.id})">✕</button>`:""}
+      ${showDelete && canDelete ? `<button class="delete-btn" onclick="deleteEntry(${row.id})">✕</button>` : ""}
     </div>
   </div>`;
 }
@@ -791,34 +927,34 @@ function itemHTML(row, showDelete) {
 /* ── DELETE ── */
 window.deleteEntry = async (id) => {
   if (!confirm("Delete this entry?")) return;
-  const { data: row } = await supabase.from("logs").select("owner,user_email").eq("id",id).single();
+  const { data: row } = await supabase.from("logs").select("owner,user_email").eq("id", id).single();
   if (!row) return;
-  if (row.user_email!==currentUser.email && currentUserName!=="adam") { showToast("Can't delete this"); return; }
-  await supabase.from("logs").update({deleted:true}).eq("id",id);
-  document.getElementById("entry-"+id)?.remove();
+  if (row.user_email !== currentUser.email && currentUserName !== "adam") { showToast("Can't delete this"); return; }
+  await supabase.from("logs").update({deleted: true}).eq("id", id);
+  document.getElementById("entry-" + id)?.remove();
   showToast("Deleted"); loadDashboard();
 };
 
 /* ── LOG ── */
-window.selectLogType = (type) => { selectedLogType=type; renderLogTypeGrid(); renderLogForm(type); };
+window.selectLogType = (type) => { selectedLogType = type; renderLogTypeGrid(); renderLogForm(type); };
 
 function renderLogTypeGrid() {
   ["workout","bible","cold","sauna"].forEach(t => {
-    const el = document.getElementById("lt-"+t);
-    if (el) el.classList.toggle("selected", t===selectedLogType);
+    const el = document.getElementById("lt-" + t);
+    if (el) el.classList.toggle("selected", t === selectedLogType);
   });
 }
 
 function renderLogForm(type) {
-  const forms = { workout:workoutForm, bible:bibleForm, cold:coldForm, sauna:saunaForm };
-  document.getElementById("log-form-area").innerHTML = forms[type]?forms[type]():"";
+  const forms = { workout: workoutForm, bible: bibleForm, cold: coldForm, sauna: saunaForm };
+  document.getElementById("log-form-area").innerHTML = forms[type] ? forms[type]() : "";
   logFormData = {};
   if (document.getElementById("slider-intensity")) logFormData.intensity = 5;
 }
 
-const ch = (opts,field) => opts.map(v=>`<button class="chip" onclick="toggleChip(this,'${field}','${v}',true)">${v}</button>`).join("");
-const timeChips = () => [["🌅","Morning"],["☀️","Noon"],["🌤","Afternoon"],["🌙","Evening"]].map(([e,v])=>`<button class="chip" onclick="toggleChip(this,'time_of_day','${v}',true)">${e} ${v}</button>`).join("");
-const slider = (field,lo,mid,hi) => `<div class="slider-value" id="slider-val-${field}">5</div><input type="range" min="1" max="10" value="5" id="slider-${field}" oninput="updateSlider('${field}',this.value)"><div class="slider-labels"><span>${lo}</span><span>${mid}</span><span>${hi}</span></div>`;
+const ch = (opts, field) => opts.map(v => `<button class="chip" onclick="toggleChip(this,'${field}','${v}',true)">${v}</button>`).join("");
+const timeChips = () => [["🌅","Morning"],["☀️","Noon"],["🌤","Afternoon"],["🌙","Evening"]].map(([e,v]) => `<button class="chip" onclick="toggleChip(this,'time_of_day','${v}',true)">${e} ${v}</button>`).join("");
+const slider = (field, lo, mid, hi) => `<div class="slider-value" id="slider-val-${field}">5</div><input type="range" min="1" max="10" value="5" id="slider-${field}" oninput="updateSlider('${field}',this.value)"><div class="slider-labels"><span>${lo}</span><span>${mid}</span><span>${hi}</span></div>`;
 
 function workoutForm() { return `
   <div class="section-label" style="margin-top:20px">Type of Workout</div>
@@ -875,41 +1011,44 @@ function saunaForm() { return `
   <button class="btn-primary" onclick="saveEntry()">Save Sauna Session</button><div style="height:16px"></div>`; }
 
 /* ── HELPERS ── */
-window.toggleChip = (el,field,value,exclusive) => {
-  if (exclusive) el.closest(".chip-group").querySelectorAll(".chip").forEach(c=>c.classList.remove("selected"));
+window.toggleChip = (el, field, value, exclusive) => {
+  if (exclusive) el.closest(".chip-group").querySelectorAll(".chip").forEach(c => c.classList.remove("selected"));
   el.classList.toggle("selected");
-  if (el.classList.contains("selected")) logFormData[field]=value; else delete logFormData[field];
+  if (el.classList.contains("selected")) logFormData[field] = value; else delete logFormData[field];
 };
-window.setField = (field,value) => { logFormData[field]=value; };
-window.updateSlider = (field,value) => { document.getElementById("slider-val-"+field).textContent=value; logFormData[field]=parseInt(value); };
+window.setField = (field, value) => { logFormData[field] = value; };
+window.updateSlider = (field, value) => {
+  document.getElementById("slider-val-" + field).textContent = value;
+  logFormData[field] = parseInt(value);
+};
 
 /* ── SAVE ── */
 window.saveEntry = async () => {
   if (!selectedLogType) return;
-  if (selectedLogType==="workout"&&!logFormData.workout_type) { showToast("Select a workout type"); return; }
-  if (selectedLogType==="bible"&&!logFormData.passage?.trim()) { showToast("Enter a Bible passage"); return; }
-  if (selectedLogType==="cold"&&!logFormData.method) { showToast("Select a method"); return; }
-  if (selectedLogType==="sauna"&&!logFormData.sauna_type) { showToast("Select sauna type"); return; }
+  if (selectedLogType === "workout" && !logFormData.workout_type) { showToast("Select a workout type"); return; }
+  if (selectedLogType === "bible" && !logFormData.passage?.trim()) { showToast("Enter a Bible passage"); return; }
+  if (selectedLogType === "cold" && !logFormData.method) { showToast("Select a method"); return; }
+  if (selectedLogType === "sauna" && !logFormData.sauna_type) { showToast("Select sauna type"); return; }
 
   const btn = document.querySelector("#page-log .btn-primary");
-  if (btn) { btn.disabled=true; btn.textContent="Saving…"; }
+  if (btn) { btn.disabled = true; btn.textContent = "Saving…"; }
 
-  const owner = (selectedLogType==="cold"||selectedLogType==="sauna") ? "adam" : viewingAs;
+  const owner = (selectedLogType === "cold" || selectedLogType === "sauna") ? "adam" : viewingAs;
   const { error } = await supabase.from("logs").insert([{
-    user_id:currentUser.id, user_email:currentUser.email,
-    type:selectedLogType, owner, data:{...logFormData}, deleted:false
+    user_id: currentUser.id, user_email: currentUser.email,
+    type: selectedLogType, owner, data: { ...logFormData }, deleted: false
   }]);
 
-  if (error) { showToast("Error — try again"); if(btn){btn.disabled=false;btn.textContent="Save";} return; }
+  if (error) { showToast("Error — try again"); if (btn) { btn.disabled = false; btn.textContent = "Save"; } return; }
   showToast("✓ Saved");
-  setTimeout(()=>showPage("home"), 500);
+  setTimeout(() => showPage("home"), 500);
 };
 
 /* ── TOAST ── */
 window.showToast = (msg) => {
-  const t=document.getElementById("toast");
-  t.textContent=msg; t.classList.add("show");
-  setTimeout(()=>t.classList.remove("show"),2200);
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2200);
 };
 
 window.onload = init;
