@@ -73,59 +73,41 @@ function updateUI() {
   document.getElementById("welcome").innerText =
     "Viewing " + (currentView === "adam" ? "Adam" : "Ariel");
 
-  // toggle only for Adam
-  if (currentUserName === "adam") {
-    document.getElementById("toggle").style.display = "block";
-  } else {
-    document.getElementById("toggle").style.display = "none";
-  }
-
-  // owner permissions
-  const ownerSelect = document.getElementById("owner");
-
-  if (!ownerSelect) return;
-
-  if (currentUserName === "ariel" || currentView === "ariel") {
-    ownerSelect.value = "ariel";
-    ownerSelect.disabled = true;
-  } else {
-    ownerSelect.disabled = false;
-  }
+  document.getElementById("toggle").style.display =
+    currentUserName === "adam" ? "block" : "none";
 }
 
 /* TOGGLE VIEW */
 window.toggleView = () => {
   if (currentUserName !== "adam") return;
-
   currentView = currentView === "adam" ? "ariel" : "adam";
-
   updateUI();
-  renderForm(); // 🔥 important
   loadDashboard();
   loadHistory();
 };
 
 /* SAVE */
 window.save = async () => {
-  let owner = document.getElementById("owner").value;
-
-  // enforce rule
-  if (currentUserName === "ariel") {
-    owner = "ariel";
-  }
-
   const duration = document.getElementById("duration").value;
   const intensity = document.getElementById("intensity").value;
+
+  if (!duration || !intensity) {
+    alert("Please fill in both duration and intensity.");
+    return;
+  }
 
   await supabase.from("logs").insert([{
     user_id: currentUser.id,
     user_email: currentUser.email,
     type: "workout",
-    owner: owner, // ✅ NEW COLUMN USED
+    owner: currentUserName,
     data: { duration, intensity },
     created_at: new Date().toISOString(),
     deleted: false
   }]);
+
+  document.getElementById("duration").value = "";
+  document.getElementById("intensity").value = "";
 
   loadDashboard();
   loadHistory();
@@ -133,11 +115,9 @@ window.save = async () => {
 
 /* DELETE */
 window.deleteEntry = async (id) => {
-  // confirmation popup
   const confirmed = confirm("Are you sure you want to delete this entry?");
   if (!confirmed) return;
 
-  // fetch row to verify ownership
   const { data: row } = await supabase
     .from("logs")
     .select("owner, user_email")
@@ -162,20 +142,12 @@ window.deleteEntry = async (id) => {
   loadHistory();
 };
 
-
 /* FORM */
 function renderForm() {
   document.getElementById("form").innerHTML = `
-    <select id="owner">
-      <option value="adam">Adam</option>
-      <option value="ariel">Ariel</option>
-    </select>
-
-    <input id="duration" placeholder="Duration (minutes)">
-    <input id="intensity" placeholder="Intensity (1-10)">
+    <input id="duration" placeholder="Duration (minutes)" type="number" min="1">
+    <input id="intensity" placeholder="Intensity (1-10)" type="number" min="1" max="10">
   `;
-
-  updateUI();
 }
 
 /* DASHBOARD */
@@ -184,16 +156,15 @@ async function loadDashboard() {
     .from("logs")
     .select("*")
     .eq("deleted", false)
-    .eq("owner", currentView); // ✅ FIXED
+    .eq("owner", currentView);
 
   let workouts = 0;
-
   data.forEach(row => {
     if (row.type === "workout") workouts++;
   });
 
   document.getElementById("dashboard").innerHTML =
-    `🏋️ ${workouts} workouts`;
+    `🏋️ ${workouts} workout${workouts === 1 ? "" : "s"}`;
 }
 
 /* HISTORY */
@@ -202,22 +173,21 @@ async function loadHistory() {
     .from("logs")
     .select("*")
     .eq("deleted", false)
-    .eq("owner", currentView) // ✅ FIXED
+    .eq("owner", currentView)
     .order("created_at", { ascending: false });
 
   let html = "";
-
   data.forEach(row => {
     const d = new Date(row.created_at);
+    const canDelete = row.user_email === currentUser.email || currentUserName === "adam";
 
     html += `
       <div class="history-item">
         <div class="row">
           <strong>${row.owner}</strong>
-          <button class="delete" onclick="deleteEntry(${row.id})">✕</button>
+          ${canDelete ? `<button class="delete" onclick="deleteEntry(${row.id})">✕</button>` : ""}
         </div>
-
-        <div>${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
+        <div>${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"})}</div>
         <div class="muted">
           ${row.data?.duration || "-"} min · intensity ${row.data?.intensity || "-"}
         </div>
@@ -225,7 +195,7 @@ async function loadHistory() {
     `;
   });
 
-  document.getElementById("history").innerHTML = html;
+  document.getElementById("history").innerHTML = html || "<p class='muted'>No workouts yet.</p>";
 }
 
 window.onload = init;
@@ -233,7 +203,7 @@ window.onload = init;
 
 <style>
 body {
-  font-family: -apple-system;
+  font-family: -apple-system, sans-serif;
   background: #f4f4ef;
   margin: 0;
   padding: 20px;
@@ -260,14 +230,16 @@ button {
   border: none;
   width: 100%;
   margin-top: 10px;
+  cursor: pointer;
 }
 
-select, input {
+input {
   width: 100%;
   padding: 10px;
   margin-top: 8px;
   border-radius: 8px;
   border: 1px solid #ddd;
+  box-sizing: border-box;
 }
 
 .history-item {
@@ -278,12 +250,15 @@ select, input {
 .row {
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
 .delete {
   background: none;
   color: #999;
   width: auto;
+  padding: 4px 8px;
+  margin: 0;
 }
 
 .muted {
@@ -297,7 +272,7 @@ select, input {
 
 <h1>Iron & Word</h1>
 
-<div id="auth">
+<div id="auth" style="display:none; max-width:420px; margin:auto;">
   <button onclick="login()">Continue with Google</button>
 </div>
 
@@ -306,7 +281,6 @@ select, input {
   <div class="card">
     <h2 id="welcome"></h2>
     <button onclick="logout()">Logout</button>
-
     <button id="toggle" onclick="toggleView()" style="display:none">
       Switch View
     </button>
