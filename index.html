@@ -649,43 +649,7 @@ async function loadDashboard() {
   const lbl = { month:"This Month", week:"This Week", year:"This Year", all:"All Time" }[currentPeriod];
   const el = document.getElementById("dashboard-content");
 
-  // Ariel preview — show only Ariel's data, no private, no comparison
-  if (previewAs === "ariel") {
-    const { data: arielData } = await supabase.from("logs").select("*").eq("deleted", false).eq("owner", "ariel");
-    if (!arielData) return;
-    const filtered = filterByPeriod(arielData, currentPeriod);
-    const ytd = filterByPeriod(arielData, "year");
-    const w = filtered.filter(r => r.type === "workout").length;
-    const b = filtered.filter(r => r.type === "bible").length;
-    const wY = ytd.filter(r => r.type === "workout").length;
-    const bY = ytd.filter(r => r.type === "bible").length;
-
-    el.innerHTML = `
-      <div class="solo-strip">
-        <div class="solo-card workout">
-          <span class="solo-icon">🏋️</span>
-          <div class="solo-num">${w}</div>
-          <div class="solo-label">Workouts · ${lbl}</div>
-          <div class="solo-ytd">${wY} this year</div>
-        </div>
-        <div class="solo-card bible">
-          <span class="solo-icon">📖</span>
-          <div class="solo-num">${b}</div>
-          <div class="solo-label">Bible Readings · ${lbl}</div>
-          <div class="solo-ytd">${bY} this year</div>
-        </div>
-      </div>
-      <div class="section-label">Recent Activity</div>
-      <div class="card"><div id="recent-list"></div></div>`;
-
-    const recent = [...arielData].sort((a,b) => new Date(b.created_at)-new Date(a.created_at)).slice(0,5);
-    document.getElementById("recent-list").innerHTML = recent.length
-      ? recent.map(r => itemHTML(r, false)).join("")
-      : `<div class="empty"><div class="empty-text">No activity yet</div></div>`;
-    return;
-  }
-
-  // Adam's default view — full comparison
+  // Both users see full comparison — private section only shown to Adam
   const { data: allData } = await supabase.from("logs").select("*").eq("deleted", false).in("owner", ["adam","ariel"]);
   if (!allData) return;
 
@@ -708,7 +672,7 @@ async function loadDashboard() {
   const wLead = adamW > arielW ? "adam" : adamW < arielW ? "ariel" : "tie";
   const bLead = adamB > arielB ? "adam" : adamB < arielB ? "ariel" : "tie";
 
-  // private
+  // private section — adam only regardless of preview
   const filtPrivate = filterByPeriod(allData.filter(r => r.owner === "adam"), currentPeriod);
   const colds = filtPrivate.filter(r => r.type === "cold").length;
   const saunas = filtPrivate.filter(r => r.type === "sauna").length;
@@ -762,11 +726,11 @@ async function loadDashboard() {
       </div>
     </div>
 
-    <div class="section-label">My Private Habits · ${lbl}</div>
+    ${isAdam ? `<div class="section-label">My Private Habits · ${lbl}</div>
     <div class="private-strip">
       <div class="private-card"><span class="private-icon">🧊</span><div class="private-num">${colds}</div><div class="private-label">Cold Sessions</div></div>
       <div class="private-card"><span class="private-icon">🔥</span><div class="private-num">${saunas}</div><div class="private-label">Sauna Sessions</div></div>
-    </div>
+    </div>` : ""}
 
     <div class="section-label">Recent Activity</div>
     <div class="card"><div id="recent-list"></div></div>`;
@@ -794,8 +758,8 @@ async function loadHistory() {
   const isAdam = currentUserName === "adam";
   const showPrivate = isAdam && previewAs === "adam";
 
-  // if previewing as Ariel, only show Ariel's data
-  const owners = previewAs === "ariel" ? ["ariel"] : (isAdam ? ["adam","ariel"] : ["ariel"]);
+  // Everyone sees both users' public data
+  const owners = ["adam","ariel"];
 
   const { data: all } = await supabase.from("logs").select("*")
     .eq("deleted", false).in("owner", owners)
