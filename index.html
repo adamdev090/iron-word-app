@@ -75,10 +75,11 @@
   }
 
   .auth-title {
-    font-family: 'Lora', serif; font-size: 30px; font-weight: 600;
-    color: #2e2c1e; letter-spacing: -0.3px; text-align: center;
+    font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+    font-size: 32px; font-weight: 700;
+    color: #2a2820; letter-spacing: -0.8px; text-align: center;
     margin-top: 14px;
-    text-shadow: 0 1px 8px rgba(255,255,255,0.6);
+    text-shadow: 0 1px 8px rgba(255,255,255,0.5);
   }
   .auth-tagline {
     font-size: 10px; font-weight: 400; color: #6b6040;
@@ -592,98 +593,132 @@ window.confirmImport = async () => {
 
 <!-- AUTH -->
 <div id="auth-screen">
-  <!-- Mountain fog background -->
+  <!-- Mountain / lake background — matches reference image -->
   <svg class="auth-bg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
     <defs>
+      <!-- Sky: warm grey-beige top, lightening toward horizon -->
       <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#b8b0a0"/>
-        <stop offset="35%" stop-color="#cec8ba"/>
-        <stop offset="70%" stop-color="#ddd6c6"/>
-        <stop offset="100%" stop-color="#e8e2d4"/>
+        <stop offset="0%"   stop-color="#a8a090"/>
+        <stop offset="30%"  stop-color="#beb6a6"/>
+        <stop offset="60%"  stop-color="#d0c8b8"/>
+        <stop offset="85%"  stop-color="#ddd6c4"/>
+        <stop offset="100%" stop-color="#e2dace"/>
       </linearGradient>
+      <!-- Lake: slightly darker reflection of sky -->
+      <linearGradient id="lakeG" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="#c0b8a6" stop-opacity="0.9"/>
+        <stop offset="50%"  stop-color="#cac2b0" stop-opacity="0.75"/>
+        <stop offset="100%" stop-color="#d8d0be" stop-opacity="0.6"/>
+      </linearGradient>
+      <!-- Fog overlay bottom -->
       <linearGradient id="fogG" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#ddd8cc" stop-opacity="0"/>
-        <stop offset="60%" stop-color="#e2ddd0" stop-opacity="0.7"/>
-        <stop offset="100%" stop-color="#e8e2d4" stop-opacity="1"/>
+        <stop offset="0%"   stop-color="#ddd8cc" stop-opacity="0"/>
+        <stop offset="70%"  stop-color="#e0dace" stop-opacity="0.55"/>
+        <stop offset="100%" stop-color="#e4ded2" stop-opacity="0.9"/>
       </linearGradient>
-      <linearGradient id="waterG" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#c0b8a8" stop-opacity="0.5"/>
-        <stop offset="100%" stop-color="#e8e2d4" stop-opacity="0.9"/>
+      <!-- Mountain fill gradients for depth -->
+      <linearGradient id="mtn1G" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#787060"/>
+        <stop offset="100%" stop-color="#686058"/>
       </linearGradient>
-      <filter id="f1" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.5"/></filter>
-      <filter id="f2" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6"/></filter>
-      <filter id="f3" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="14"/></filter>
-      <filter id="f4" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="22"/></filter>
+      <linearGradient id="mtn2G" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#605850"/>
+        <stop offset="100%" stop-color="#504840"/>
+      </linearGradient>
+      <linearGradient id="mtn3G" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#484038"/>
+        <stop offset="100%" stop-color="#3c3430"/>
+      </linearGradient>
+      <filter id="fa" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="18"/></filter>
+      <filter id="fb" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="9"/></filter>
+      <filter id="fc" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="4"/></filter>
+      <filter id="fd" x="-5%"  y="-5%"  width="110%" height="110%"><feGaussianBlur stdDeviation="1.5"/></filter>
     </defs>
 
-    <!-- Sky -->
+    <!-- Sky background -->
     <rect width="390" height="844" fill="url(#skyG)"/>
 
-    <!-- Distant hazy mountains (furthest back) -->
-    <g filter="url(#f4)" opacity="0.28">
-      <path d="M-30 500 L40 310 L90 370 L155 260 L220 340 L280 270 L340 330 L410 290 L430 480 Z" fill="#706860"/>
+    <!-- ── LAYER 1: Farthest ghost mountains ~30% down ── -->
+    <g opacity="0.22" filter="url(#fa)">
+      <path d="M-20 470 L50 280 L110 340 L180 240 L255 310 L315 260 L380 295 L430 270 L430 500 Z" fill="#908880"/>
     </g>
 
-    <!-- Far mountains -->
-    <g filter="url(#f3)" opacity="0.42">
-      <path d="M-30 530 L30 370 L80 420 L140 340 L200 400 L255 350 L310 390 L365 345 L430 400 L430 560 Z" fill="#645c50"/>
+    <!-- ── LAYER 2: Far mountains ~38% ── -->
+    <g opacity="0.38" filter="url(#fb)">
+      <path d="M-20 510 L35 340 L85 385 L148 305 L205 365 L262 318 L318 355 L372 320 L430 345 L430 540 Z" fill="url(#mtn1G)"/>
     </g>
 
-    <!-- Mid mountains with more detail -->
-    <g filter="url(#f2)" opacity="0.55">
-      <path d="M-30 570 L25 430 L60 460 L100 400 L145 445 L185 390 L225 440 L265 400 L305 445 L345 405 L390 440 L430 470 L430 600 Z" fill="#585044"/>
+    <!-- ── LAYER 3: Mid mountains ~50% — tallest peaks ── -->
+    <g opacity="0.58" filter="url(#fc)">
+      <path d="M-20 560 L18 410 L58 455 L95 390 L138 430 L178 375 L218 418 L260 380 L298 415 L338 382 L375 412 L430 395 L430 580 Z" fill="url(#mtn2G)"/>
     </g>
 
-    <!-- Near ridge -->
-    <g filter="url(#f1)" opacity="0.65">
-      <path d="M-30 620 L20 510 L55 540 L95 490 L135 530 L170 500 L210 535 L250 505 L290 540 L330 510 L375 545 L430 525 L430 660 Z" fill="#4a4438"/>
+    <!-- ── LAYER 4: Foreground ridge ~65% ── -->
+    <g opacity="0.75" filter="url(#fd)">
+      <path d="M-20 620 L15 530 L48 555 L80 518 L118 548 L152 520 L190 550 L228 522 L265 552 L300 525 L338 555 L375 530 L430 545 L430 650 Z" fill="url(#mtn3G)"/>
     </g>
 
-    <!-- Fog band across mid -->
-    <ellipse cx="195" cy="490" rx="260" ry="55" fill="#dad4c8" opacity="0.3" filter="url(#f3)"/>
-    <ellipse cx="195" cy="530" rx="280" ry="40" fill="#ddd8cc" opacity="0.35" filter="url(#f2)"/>
+    <!-- ── FOG BAND: soft horizontal mist between mountains ── -->
+    <ellipse cx="195" cy="510" rx="280" ry="38" fill="#d8d2c4" opacity="0.28" filter="url(#fb)"/>
+    <ellipse cx="195" cy="548" rx="300" ry="28" fill="#ddd8cc" opacity="0.32" filter="url(#fc)"/>
 
-    <!-- Water / lake at bottom -->
-    <path d="M-30 640 Q60 630 195 638 Q320 646 430 636 L430 760 Q320 752 195 760 Q60 768 -30 758 Z" fill="url(#waterG)" filter="url(#f1)"/>
+    <!-- ── LAKE / WATER: calm reflection below treeline ── -->
+    <!-- Lake base -->
+    <rect x="-20" y="620" width="450" height="224" fill="url(#lakeG)"/>
+    <!-- Subtle mountain reflection in water (mirrored, very faint) -->
+    <g opacity="0.18" filter="url(#fb)" transform="translate(0,1240) scale(1,-1)">
+      <path d="M-20 560 L18 410 L58 455 L95 390 L138 430 L178 375 L218 418 L260 380 L298 415 L338 382 L375 412 L430 395 L430 580 Z" fill="#484040"/>
+    </g>
+    <!-- Horizontal water shimmer lines -->
+    <line x1="20"  y1="638" x2="120" y2="638" stroke="#b8b0a0" stroke-width="0.8" opacity="0.3"/>
+    <line x1="160" y1="645" x2="280" y2="645" stroke="#b8b0a0" stroke-width="0.8" opacity="0.25"/>
+    <line x1="60"  y1="658" x2="175" y2="658" stroke="#b8b0a0" stroke-width="0.6" opacity="0.2"/>
+    <line x1="220" y1="665" x2="360" y2="665" stroke="#b8b0a0" stroke-width="0.6" opacity="0.18"/>
+    <line x1="30"  y1="678" x2="140" y2="678" stroke="#b8b0a0" stroke-width="0.5" opacity="0.15"/>
+    <line x1="250" y1="685" x2="390" y2="685" stroke="#b8b0a0" stroke-width="0.5" opacity="0.12"/>
 
-    <!-- Subtle water reflections -->
-    <line x1="40" y1="660" x2="130" y2="660" stroke="#c0b8a8" stroke-width="1" opacity="0.25" filter="url(#f1)"/>
-    <line x1="200" y1="668" x2="310" y2="668" stroke="#c0b8a8" stroke-width="1" opacity="0.2" filter="url(#f1)"/>
-    <line x1="80" y1="680" x2="180" y2="680" stroke="#beb6a6" stroke-width="0.8" opacity="0.18" filter="url(#f1)"/>
+    <!-- ── TREELINE: dark silhouette at base of mountains ── -->
+    <g opacity="0.6" filter="url(#fd)">
+      <path d="M-20 628 Q30 618 60 624 Q90 618 120 626 Q150 620 180 627 Q210 621 240 628 Q270 622 300 628 Q330 622 360 628 Q390 623 430 628 L430 640 L-20 640 Z" fill="#2e2820"/>
+    </g>
 
-    <!-- Final fog fade to bottom -->
-    <rect x="0" y="520" width="390" height="324" fill="url(#fogG)"/>
+    <!-- ── HORIZON FOG: gentle mist at treeline ── -->
+    <ellipse cx="195" cy="626" rx="300" ry="20" fill="#ddd8ca" opacity="0.45" filter="url(#fc)"/>
+
+    <!-- ── BOTTOM FOG FADE into card area ── -->
+    <rect x="0" y="560" width="390" height="284" fill="url(#fogG)"/>
   </svg>
 
   <!-- Centered card with logo + login -->
   <div class="auth-card">
     <div class="auth-logo-wrap">
-      <!-- Refined Iron & Word logo matching reference style -->
-      <svg width="120" height="108" viewBox="0 0 120 108" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- Open book body -->
-        <path d="M8 78 Q8 92 60 92 Q112 92 112 78 L112 70 Q112 60 60 60 Q8 60 8 70 Z" fill="#3d4f2c"/>
-        <!-- Spine line -->
-        <line x1="60" y1="60" x2="60" y2="92" stroke="#f5f0e8" stroke-width="2.2" stroke-linecap="round"/>
-        <!-- Left page lines -->
-        <line x1="16" y1="69" x2="54" y2="69" stroke="#f5f0e8" stroke-width="1.4" stroke-linecap="round" opacity="0.65"/>
-        <line x1="16" y1="76" x2="54" y2="76" stroke="#f5f0e8" stroke-width="1.4" stroke-linecap="round" opacity="0.65"/>
-        <line x1="16" y1="83" x2="42" y2="83" stroke="#f5f0e8" stroke-width="1.4" stroke-linecap="round" opacity="0.35"/>
-        <!-- Right page lines -->
-        <line x1="104" y1="69" x2="66" y2="69" stroke="#f5f0e8" stroke-width="1.4" stroke-linecap="round" opacity="0.65"/>
-        <line x1="104" y1="76" x2="66" y2="76" stroke="#f5f0e8" stroke-width="1.4" stroke-linecap="round" opacity="0.65"/>
-        <line x1="104" y1="83" x2="78" y2="83" stroke="#f5f0e8" stroke-width="1.4" stroke-linecap="round" opacity="0.35"/>
-        <!-- Book open-curve at top (subtle pages spreading) -->
-        <path d="M60 60 Q44 54 12 57" fill="none" stroke="#3d4f2c" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-        <path d="M60 60 Q76 54 108 57" fill="none" stroke="#3d4f2c" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+      <!-- Logo: kettlebell sitting on open book — matching reference image style -->
+      <svg width="130" height="116" viewBox="0 0 130 116" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- OPEN BOOK — flat base, pages spread like reference -->
+        <!-- Left page — fans slightly left -->
+        <path d="M65 68 Q40 62 8 64 L8 82 Q8 90 65 88 Z" fill="#4a5a38"/>
+        <!-- Right page — fans slightly right -->
+        <path d="M65 68 Q90 62 122 64 L122 82 Q122 90 65 88 Z" fill="#4a5a38"/>
+        <!-- Spine shadow / center crease -->
+        <line x1="65" y1="68" x2="65" y2="88" stroke="#3a4a2a" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+        <!-- Left page text lines -->
+        <line x1="18" y1="71" x2="58" y2="70" stroke="#d8d0c0" stroke-width="1.3" stroke-linecap="round" opacity="0.7"/>
+        <line x1="18" y1="76" x2="57" y2="75" stroke="#d8d0c0" stroke-width="1.3" stroke-linecap="round" opacity="0.7"/>
+        <line x1="18" y1="81" x2="48" y2="80" stroke="#d8d0c0" stroke-width="1.3" stroke-linecap="round" opacity="0.45"/>
+        <!-- Right page text lines -->
+        <line x1="112" y1="71" x2="72" y2="70" stroke="#d8d0c0" stroke-width="1.3" stroke-linecap="round" opacity="0.7"/>
+        <line x1="112" y1="76" x2="73" y2="75" stroke="#d8d0c0" stroke-width="1.3" stroke-linecap="round" opacity="0.7"/>
+        <line x1="112" y1="81" x2="82" y2="80" stroke="#d8d0c0" stroke-width="1.3" stroke-linecap="round" opacity="0.45"/>
 
-        <!-- Kettlebell handle arc — clean & smooth -->
-        <path d="M42 36 Q42 16 60 16 Q78 16 78 36" fill="none" stroke="#3d4f2c" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-        <!-- Handle flat bar -->
-        <rect x="38" y="32" width="44" height="10" rx="5" fill="#3d4f2c"/>
-        <!-- Bell body — round weight -->
-        <circle cx="60" cy="50" r="18" fill="#3d4f2c"/>
-        <!-- Subtle highlight on bell -->
-        <circle cx="54" cy="45" r="4" fill="#567040" opacity="0.35"/>
+        <!-- KETTLEBELL — sitting centered on top of book spine -->
+        <!-- Handle arc: two parallel strokes like reference (thick rounded U) -->
+        <path d="M48 52 Q48 30 65 30 Q82 30 82 52" fill="none" stroke="#4a5a38" stroke-width="9" stroke-linecap="round"/>
+        <!-- Handle bar (flat bottom of handle) -->
+        <rect x="44" y="47" width="42" height="11" rx="5.5" fill="#4a5a38"/>
+        <!-- Bell — large round body -->
+        <circle cx="65" cy="62" r="19" fill="#4a5a38"/>
+        <!-- Very subtle inner ring on bell for depth -->
+        <circle cx="65" cy="62" r="13" fill="none" stroke="#3a4a2a" stroke-width="1.2" opacity="0.25"/>
       </svg>
     </div>
 
@@ -712,16 +747,17 @@ window.confirmImport = async () => {
   <div class="topbar">
     <div class="topbar-inner">
       <div class="topbar-logo">
-        <svg width="28" height="28" viewBox="0 0 90 90" fill="none" onclick="showPage('home')" style="cursor:pointer">
-          <path d="M10 64 Q10 76 45 76 Q80 76 80 64 L80 58 Q80 50 45 50 Q10 50 10 58 Z" fill="#4a5a38"/>
-          <line x1="45" y1="50" x2="45" y2="76" stroke="#f0ece2" stroke-width="2.2" stroke-linecap="round"/>
-          <line x1="16" y1="58" x2="41" y2="58" stroke="#f0ece2" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>
-          <line x1="16" y1="65" x2="41" y2="65" stroke="#f0ece2" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>
-          <line x1="74" y1="58" x2="49" y2="58" stroke="#f0ece2" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>
-          <line x1="74" y1="65" x2="49" y2="65" stroke="#f0ece2" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>
-          <circle cx="45" cy="30" r="17" fill="#4a5a38"/>
-          <path d="M35 23 Q35 10 45 10 Q55 10 55 23" fill="none" stroke="#4a5a38" stroke-width="5" stroke-linecap="round"/>
-          <rect x="33" y="21" width="24" height="5" rx="2.5" fill="#4a5a38"/>
+        <svg width="28" height="28" viewBox="0 0 130 116" fill="none" onclick="showPage('home')" style="cursor:pointer">
+          <path d="M65 68 Q40 62 8 64 L8 82 Q8 90 65 88 Z" fill="#4a5a38"/>
+          <path d="M65 68 Q90 62 122 64 L122 82 Q122 90 65 88 Z" fill="#4a5a38"/>
+          <line x1="65" y1="68" x2="65" y2="88" stroke="#3a4a2a" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="18" y1="71" x2="58" y2="70" stroke="#d8d0c0" stroke-width="1.3" stroke-linecap="round" opacity="0.7"/>
+          <line x1="18" y1="76" x2="57" y2="75" stroke="#d8d0c0" stroke-width="1.3" stroke-linecap="round" opacity="0.7"/>
+          <line x1="112" y1="71" x2="72" y2="70" stroke="#d8d0c0" stroke-width="1.3" stroke-linecap="round" opacity="0.7"/>
+          <line x1="112" y1="76" x2="73" y2="75" stroke="#d8d0c0" stroke-width="1.3" stroke-linecap="round" opacity="0.7"/>
+          <path d="M48 52 Q48 30 65 30 Q82 30 82 52" fill="none" stroke="#4a5a38" stroke-width="9" stroke-linecap="round"/>
+          <rect x="44" y="47" width="42" height="11" rx="5.5" fill="#4a5a38"/>
+          <circle cx="65" cy="62" r="19" fill="#4a5a38"/>
         </svg>
         <div class="topbar-title" id="topbar-title" onclick="showPage('home')" style="cursor:pointer">Iron & Word</div>
       </div>
@@ -791,10 +827,9 @@ window.confirmImport = async () => {
   <div class="page" id="page-history">
     <div class="page-inner">
       <div class="period-picker" id="hist-period-picker">
-        <button class="period-btn active" onclick="setHistoryPeriod('month',this)">This Month</button>
-        <button class="period-btn" onclick="setHistoryPeriod('week',this)">This Week</button>
+        <button class="period-btn" onclick="setHistoryPeriod('month',this)">This Month</button>
         <button class="period-btn" onclick="setHistoryPeriod('year',this)">This Year</button>
-        <button class="period-btn" onclick="setHistoryPeriod('all',this)">All Time</button>
+        <button class="period-btn active" onclick="setHistoryPeriod('all',this)">All Time</button>
       </div>
       <div class="hist-tabs">
         <button class="hist-tab active" onclick="setHistTab('all',this)">All</button>
@@ -871,7 +906,7 @@ let logAs = "adam";       // who we're logging for (adam can switch to "ariel")
 let dashMode = "month"; // "month", "ytd", "all"
 let dashMonth = new Date().getMonth();
 let dashYear = new Date().getFullYear();
-let historyPeriod = "month", histTab = "all";
+let historyPeriod = "all", histTab = "all";
 let selectedLogType = null, logFormData = {};
 
 /* ── AUTH ── */
@@ -975,18 +1010,18 @@ function initDashPicker() {
   const strip = document.getElementById("month-strip");
   if (!strip) return;
   strip.innerHTML = "";
-  for (let i = 0; i < 24; i++) {
-    let m = now.getMonth() - i;
-    let y = now.getFullYear();
-    if (m < 0) { m += 12; y--; }
-    if (y < 2024) break;
+  // Build chips from current month back to Jan 2024
+  let cm = now.getMonth(), cy = now.getFullYear();
+  for (let i = 0; i < 36; i++) {
+    if (cy < 2024) break;
     const chip = document.createElement("button");
+    const chipM = cm, chipY = cy; // capture for closure
     chip.className = "month-chip" + (i === 0 ? " active" : "");
-    chip.textContent = MONTHS[m] + " " + y;
-    chip.dataset.month = m;
-    chip.dataset.year = y;
-    chip.onclick = () => selectMonthChip(chip, m, y);
+    chip.textContent = MONTHS[chipM] + " " + chipY;
+    chip.onclick = () => selectMonthChip(chip, chipM, chipY);
     strip.appendChild(chip);
+    cm--;
+    if (cm < 0) { cm = 11; cy--; }
   }
 
   // Default custom range to current month
@@ -1190,7 +1225,8 @@ async function loadHistory() {
     .order("created_at", { ascending: false });
   if (!all) return;
 
-  let filtered = filterByPeriod(all, historyPeriod);
+  // Use "all" period so full history is always visible; filter by period if not "all"
+  let filtered = historyPeriod === "all" ? all : filterByPeriod(all, historyPeriod);
 
   // Never show private entries when viewing as Ariel (whether real Ariel or Adam previewing)
   if (viewingAsAriel) {
