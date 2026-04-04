@@ -401,24 +401,9 @@
   }
 
   /* Month scroll strip */
-  .month-strip-wrap {
-    display: none; /* shown when month mode active */
-    margin-bottom: 12px; overflow-x: auto; -webkit-overflow-scrolling: touch;
-    scrollbar-width: none; padding-bottom: 2px;
-  }
-  .month-strip-wrap::-webkit-scrollbar { display: none; }
-  .month-strip {
-    display: flex; gap: 6px; width: max-content; padding: 0 2px;
-  }
-  .month-chip {
-    padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--border);
-    background: var(--surface); font-family: 'Inter', sans-serif;
-    font-size: 12px; font-weight: 400; color: var(--text2);
-    cursor: pointer; white-space: nowrap; transition: all 0.15s; flex-shrink: 0;
-  }
-  .month-chip.active {
-    background: var(--olive); border-color: var(--olive);
-    color: #fff; font-weight: 500;
+  /* Month select row */
+  .month-sel-wrap {
+    display: none; gap: 8px; margin-bottom: 12px; align-items: center;
   }
 
   /* Custom range row */
@@ -767,12 +752,14 @@ window.confirmImport = async () => {
       <!-- Period picker -->
       <div class="dash-period-bar">
         <button id="dp-month" class="active" onclick="setDashMode('month')">Month</button>
-        <button id="dp-custom" onclick="setDashMode('custom')">Custom Range</button>
+        <button id="dp-ytd" onclick="setDashMode('ytd')">Year to Date</button>
+        <button id="dp-custom" onclick="setDashMode('custom')">Custom</button>
       </div>
 
-      <!-- Month scroll strip (visible in month mode) -->
-      <div class="month-strip-wrap" id="month-strip-wrap">
-        <div class="month-strip" id="month-strip"></div>
+      <!-- Month selects (visible in month mode) -->
+      <div class="month-sel-wrap" id="month-sel-wrap">
+        <select class="month-select" id="dash-month-sel" onchange="onMonthSelChange()"></select>
+        <select class="year-select" id="dash-year-sel" onchange="onMonthSelChange()"></select>
       </div>
 
       <!-- Custom date range (visible in custom mode) -->
@@ -944,9 +931,6 @@ async function init() {
   }
 
   initDashPicker();
-  // Show month strip by default
-  const stripWrap = document.getElementById("month-strip-wrap");
-  if (stripWrap) stripWrap.style.display = "block";
   document.getElementById("profile-avatar").textContent = currentUserName === "adam" ? "A" : "Ar";
   document.getElementById("profile-name").textContent = currentUserName === "adam" ? "Adam Hlávka" : "Ariel";
   document.getElementById("profile-email").textContent = email;
@@ -990,22 +974,24 @@ function initDashPicker() {
   dashMonth = now.getMonth();
   dashYear = now.getFullYear();
 
-  // Build month strip: last 24 months, newest first
-  const strip = document.getElementById("month-strip");
-  if (!strip) return;
-  strip.innerHTML = "";
-  // Build chips from current month back to Jan 2024
-  let cm = now.getMonth(), cy = now.getFullYear();
-  for (let i = 0; i < 36; i++) {
-    if (cy < 2024) break;
-    const chip = document.createElement("button");
-    const chipM = cm, chipY = cy; // capture for closure
-    chip.className = "month-chip" + (i === 0 ? " active" : "");
-    chip.textContent = MONTHS[chipM] + " " + chipY;
-    chip.onclick = () => selectMonthChip(chip, chipM, chipY);
-    strip.appendChild(chip);
-    cm--;
-    if (cm < 0) { cm = 11; cy--; }
+  // Populate month select
+  const mSel = document.getElementById("dash-month-sel");
+  const ySel = document.getElementById("dash-year-sel");
+  if (mSel) {
+    MONTHS_FULL.forEach((m, i) => {
+      const o = document.createElement("option");
+      o.value = i; o.textContent = m;
+      if (i === dashMonth) o.selected = true;
+      mSel.appendChild(o);
+    });
+  }
+  if (ySel) {
+    for (let y = now.getFullYear(); y >= 2024; y--) {
+      const o = document.createElement("option");
+      o.value = y; o.textContent = y;
+      if (y === dashYear) o.selected = true;
+      ySel.appendChild(o);
+    }
   }
 
   // Default custom range to current month
@@ -1014,7 +1000,16 @@ function initDashPicker() {
   const lastDay = `${dashYear}-${pad(dashMonth+1)}-${new Date(dashYear, dashMonth+1, 0).getDate()}`;
   document.getElementById("custom-from").value = firstDay;
   document.getElementById("custom-to").value = lastDay;
+  // Show month selects by default
+  const msw = document.getElementById("month-sel-wrap");
+  if (msw) msw.style.display = "flex";
 }
+
+window.onMonthSelChange = () => {
+  dashMonth = parseInt(document.getElementById("dash-month-sel").value);
+  dashYear = parseInt(document.getElementById("dash-year-sel").value);
+  loadDashboard();
+};
 
 function selectMonthChip(el, month, year) {
   document.querySelectorAll(".month-chip").forEach(c => c.classList.remove("active"));
@@ -1025,11 +1020,11 @@ function selectMonthChip(el, month, year) {
 
 window.setDashMode = (mode) => {
   dashMode = mode;
-  ["dp-month","dp-custom"].forEach(id => {
+  ["dp-month","dp-ytd","dp-custom"].forEach(id => {
     document.getElementById(id)?.classList.remove("active");
   });
   document.getElementById("dp-" + mode)?.classList.add("active");
-  document.getElementById("month-strip-wrap").style.display = mode === "month" ? "block" : "none";
+  document.getElementById("month-sel-wrap").style.display = mode === "month" ? "flex" : "none";
   document.getElementById("custom-range-wrap").style.display = mode === "custom" ? "flex" : "none";
   loadDashboard();
 };
@@ -1040,6 +1035,9 @@ function getDashRange() {
       start: new Date(dashYear, dashMonth, 1),
       end: new Date(dashYear, dashMonth + 1, 0, 23, 59, 59)
     };
+  } else if (dashMode === "ytd") {
+    const now = new Date();
+    return { start: new Date(now.getFullYear(), 0, 1), end: now };
   } else if (dashMode === "custom") {
     const from = document.getElementById("custom-from").value;
     const to = document.getElementById("custom-to").value;
@@ -1053,6 +1051,7 @@ function getDashRange() {
 
 function getDashLabel() {
   if (dashMode === "month") return MONTHS_FULL[dashMonth] + " " + dashYear;
+  if (dashMode === "ytd") return "Year to Date " + new Date().getFullYear();
   if (dashMode === "custom") {
     const from = document.getElementById("custom-from")?.value;
     const to = document.getElementById("custom-to")?.value;
