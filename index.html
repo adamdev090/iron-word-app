@@ -401,11 +401,6 @@
   }
 
   /* Month scroll strip */
-  /* Month select row */
-  .month-sel-wrap {
-    display: none; gap: 8px; margin-bottom: 12px; align-items: center;
-  }
-
   /* Custom range row */
   .custom-range-wrap {
     display: none;
@@ -751,18 +746,12 @@ window.confirmImport = async () => {
     <div class="page-inner">
       <!-- Period picker -->
       <div class="dash-period-bar">
-        <button id="dp-month" class="active" onclick="setDashMode('month')">Month</button>
+        <button id="dp-month" class="active" onclick="setDashMode('month')">This Month</button>
         <button id="dp-ytd" onclick="setDashMode('ytd')">Year to Date</button>
         <button id="dp-custom" onclick="setDashMode('custom')">Custom</button>
       </div>
 
-      <!-- Month selects (visible in month mode) -->
-      <div class="month-sel-wrap" id="month-sel-wrap">
-        <select class="month-select" id="dash-month-sel" onchange="onMonthSelChange()"></select>
-        <select class="year-select" id="dash-year-sel" onchange="onMonthSelChange()"></select>
-      </div>
-
-      <!-- Custom date range (visible in custom mode) -->
+      <!-- Custom date range (visible in custom mode only) -->
       <div class="custom-range-wrap" id="custom-range-wrap">
         <input type="date" id="custom-from" onchange="loadDashboard()">
         <span class="custom-range-sep">→</span>
@@ -973,43 +962,12 @@ function initDashPicker() {
   const now = new Date();
   dashMonth = now.getMonth();
   dashYear = now.getFullYear();
-
-  // Populate month select
-  const mSel = document.getElementById("dash-month-sel");
-  const ySel = document.getElementById("dash-year-sel");
-  if (mSel) {
-    MONTHS_FULL.forEach((m, i) => {
-      const o = document.createElement("option");
-      o.value = i; o.textContent = m;
-      if (i === dashMonth) o.selected = true;
-      mSel.appendChild(o);
-    });
-  }
-  if (ySel) {
-    for (let y = now.getFullYear(); y >= 2024; y--) {
-      const o = document.createElement("option");
-      o.value = y; o.textContent = y;
-      if (y === dashYear) o.selected = true;
-      ySel.appendChild(o);
-    }
-  }
-
   // Default custom range to current month
   const pad = n => String(n).padStart(2,"0");
-  const firstDay = `${dashYear}-${pad(dashMonth+1)}-01`;
-  const lastDay = `${dashYear}-${pad(dashMonth+1)}-${new Date(dashYear, dashMonth+1, 0).getDate()}`;
-  document.getElementById("custom-from").value = firstDay;
-  document.getElementById("custom-to").value = lastDay;
-  // Show month selects by default
-  const msw = document.getElementById("month-sel-wrap");
-  if (msw) msw.style.display = "flex";
+  const y = now.getFullYear(), m = now.getMonth();
+  document.getElementById("custom-from").value = `${y}-${pad(m+1)}-01`;
+  document.getElementById("custom-to").value = `${y}-${pad(m+1)}-${new Date(y, m+1, 0).getDate()}`;
 }
-
-window.onMonthSelChange = () => {
-  dashMonth = parseInt(document.getElementById("dash-month-sel").value);
-  dashYear = parseInt(document.getElementById("dash-year-sel").value);
-  loadDashboard();
-};
 
 function selectMonthChip(el, month, year) {
   document.querySelectorAll(".month-chip").forEach(c => c.classList.remove("active"));
@@ -1024,38 +982,39 @@ window.setDashMode = (mode) => {
     document.getElementById(id)?.classList.remove("active");
   });
   document.getElementById("dp-" + mode)?.classList.add("active");
-  document.getElementById("month-sel-wrap").style.display = mode === "month" ? "flex" : "none";
   document.getElementById("custom-range-wrap").style.display = mode === "custom" ? "flex" : "none";
   loadDashboard();
 };
 
 function getDashRange() {
+  const now = new Date();
   if (dashMode === "month") {
     return {
-      start: new Date(dashYear, dashMonth, 1),
-      end: new Date(dashYear, dashMonth + 1, 0, 23, 59, 59)
+      start: new Date(now.getFullYear(), now.getMonth(), 1),
+      end: new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59)
     };
   } else if (dashMode === "ytd") {
-    const now = new Date();
     return { start: new Date(now.getFullYear(), 0, 1), end: now };
   } else if (dashMode === "custom") {
     const from = document.getElementById("custom-from").value;
     const to = document.getElementById("custom-to").value;
     return {
       start: from ? new Date(from) : new Date(2024, 0, 1),
-      end: to ? new Date(to + "T23:59:59") : new Date()
+      end: to ? new Date(to + "T23:59:59") : now
     };
   }
-  return { start: new Date(2024, 0, 1), end: new Date() };
+  return { start: new Date(2024, 0, 1), end: now };
 }
 
 function getDashLabel() {
-  if (dashMode === "month") return MONTHS_FULL[dashMonth] + " " + dashYear;
-  if (dashMode === "ytd") return "Year to Date " + new Date().getFullYear();
+  const now = new Date();
+  if (dashMode === "month") return MONTHS_FULL[now.getMonth()] + " " + now.getFullYear();
+  if (dashMode === "ytd") return "Year to Date " + now.getFullYear();
   if (dashMode === "custom") {
     const from = document.getElementById("custom-from")?.value;
     const to = document.getElementById("custom-to")?.value;
-    return (from || "?") + " → " + (to || "?");
+    if (from && to) return from + " → " + to;
+    return "Custom Range";
   }
   return "";
 }
