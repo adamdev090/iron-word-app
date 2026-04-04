@@ -45,32 +45,67 @@
     display: none;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
     min-height: 100vh;
-    padding: 48px 32px;
-    background: var(--bg);
-    background-image:
-      radial-gradient(ellipse at 20% 20%, rgba(74,90,56,0.05) 0%, transparent 60%),
-      radial-gradient(ellipse at 80% 80%, rgba(201,168,76,0.05) 0%, transparent 60%);
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+    background: #e8e0d0;
   }
+
+  /* Mountain/fog SVG scene */
+  .auth-bg {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    z-index: 0; pointer-events: none;
+  }
+
+  /* Content card at bottom */
+  .auth-card {
+    position: relative; z-index: 2;
+    width: 100%; max-width: 480px;
+    background: rgba(250,248,242,0.92);
+    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    border-radius: 32px 32px 0 0;
+    padding: 40px 36px calc(48px + env(safe-area-inset-bottom, 0px));
+    display: flex; flex-direction: column; align-items: center;
+    box-shadow: 0 -8px 48px rgba(58,56,40,0.12);
+  }
+
+  /* Logo group floating above card */
+  .auth-logo-group {
+    position: absolute; z-index: 3;
+    bottom: calc(100% - 56px);
+    left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    width: 100%;
+  }
+  .auth-logo-group svg { filter: drop-shadow(0 4px 16px rgba(58,56,40,0.18)); }
+
   .auth-title {
-    font-family: 'Lora', serif; font-size: 38px; font-weight: 500;
-    color: var(--olive); letter-spacing: -0.5px; margin: 16px 0 6px; text-align: center;
+    font-family: 'Lora', serif; font-size: 32px; font-weight: 600;
+    color: var(--olive); letter-spacing: -0.5px; text-align: center;
+    margin-top: 64px;
   }
   .auth-tagline {
-    font-size: 12px; font-weight: 300; color: var(--text3);
-    letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 52px; text-align: center;
+    font-size: 11px; font-weight: 300; color: var(--text3);
+    letter-spacing: 3px; text-transform: uppercase;
+    margin: 6px 0 32px; text-align: center;
   }
   .btn-google {
     display: flex; align-items: center; gap: 12px;
-    background: var(--surface); border: 1.5px solid var(--border);
-    border-radius: 50px; padding: 14px 28px;
+    background: var(--olive); border: none;
+    border-radius: 50px; padding: 16px 32px;
     font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 400;
-    color: var(--text); cursor: pointer; transition: all 0.2s;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    color: #fff; cursor: pointer; transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(74,90,56,0.35);
+    width: 100%; justify-content: center; max-width: 320px;
   }
-  .btn-google:active { transform: scale(0.97); }
+  .btn-google:active { transform: scale(0.97); opacity: 0.9; }
   .btn-google svg { width: 18px; height: 18px; flex-shrink: 0; }
+  .auth-footer {
+    margin-top: 20px; font-size: 11px; color: var(--text3);
+    font-weight: 300; letter-spacing: 0.5px; text-align: center;
+  }
 
   /* ── APP ── */
   #app { display: none; padding-bottom: calc(var(--tab-h) + var(--safe-bottom)); }
@@ -355,11 +390,157 @@
   .nav-fab .nav-label { color: var(--text3); }
   .nav-fab.active .nav-label { color: var(--olive); }
 
+
+  /* ── MONTH PICKER ── */
+  .month-year-picker {
+    display: flex; gap: 6px; margin-bottom: 14px; align-items: center; flex-wrap: wrap;
+  }
+  .month-select, .year-select {
+    padding: 6px 12px; border-radius: 20px; border: 1.5px solid var(--border);
+    background: var(--surface); font-family: 'Inter', sans-serif;
+    font-size: 12px; font-weight: 400; color: var(--text2);
+    cursor: pointer; appearance: none; -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23a09880' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 10px center;
+    padding-right: 28px;
+  }
+  .month-select:focus, .year-select:focus { outline: none; border-color: var(--olive); }
+
+  /* ── DATE PICKER IN FORMS ── */
+  .date-picker-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 0; border-bottom: 1px solid var(--border); margin-bottom: 4px;
+  }
+  .date-picker-label { font-size: 13px; color: var(--text2); font-weight: 400; flex: 1; }
+  .date-picker-input {
+    padding: 7px 12px; border-radius: 20px; border: 1.5px solid var(--border);
+    background: var(--bg); font-family: 'Inter', sans-serif;
+    font-size: 13px; color: var(--text); outline: none;
+    transition: border-color 0.15s; cursor: pointer;
+  }
+  .date-picker-input:focus { border-color: var(--olive); }
+
+  /* ── IMPORT TOOL ── */
+  .import-section { margin-top: 8px; }
+  .import-box {
+    background: var(--surface); border-radius: var(--r); padding: 20px;
+    border: 1.5px dashed var(--border); margin-bottom: 12px; text-align: center;
+  }
+  .import-box-title { font-family: 'Lora', serif; font-size: 16px; font-weight: 500; margin-bottom: 6px; }
+  .import-box-sub { font-size: 12px; color: var(--text3); font-weight: 300; margin-bottom: 16px; line-height: 1.6; }
+  .import-input { width: 100%; padding: 11px 14px; border-radius: var(--r-sm); border: 1.5px solid var(--border); background: var(--bg); font-family: 'Inter', sans-serif; font-size: 14px; color: var(--text); outline: none; margin-bottom: 10px; }
+  .import-input:focus { border-color: var(--olive); }
+  .import-log { font-size: 12px; color: var(--text2); margin-top: 12px; line-height: 1.8; text-align: left; background: var(--surface2); border-radius: 8px; padding: 12px; display: none; }
+
   /* ── EMPTY ── */
   .empty { text-align: center; padding: 28px 16px; color: var(--text3); }
   .empty-text { font-size: 13px; font-weight: 300; }
 
-  /* ── TOAST ── */
+  
+/* ── GOOGLE SHEETS IMPORT (Adam only) ── */
+window.runImport = async () => {
+  const url = document.getElementById("import-url").value.trim();
+  const log = document.getElementById("import-log");
+  log.style.display = "block";
+  log.textContent = "Fetching sheet...";
+
+  if (!url.includes("docs.google.com/spreadsheets")) {
+    log.textContent = "❌ Please paste a valid Google Sheets URL."; return;
+  }
+
+  // Extract sheet ID and convert to CSV export URL
+  const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+  if (!match) { log.textContent = "❌ Could not extract sheet ID from URL."; return; }
+  const sheetId = match[1];
+
+  // Get gid if present
+  const gidMatch = url.match(/gid=(\d+)/);
+  const gid = gidMatch ? gidMatch[1] : "0";
+  const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
+
+  let csv;
+  try {
+    const res = await fetch(csvUrl);
+    if (!res.ok) throw new Error("Could not fetch sheet — make sure sharing is set to 'Anyone with the link'");
+    csv = await res.text();
+  } catch(e) {
+    log.textContent = "❌ " + e.message; return;
+  }
+
+  const rows = csv.trim().split("\n").map(r => r.split(",").map(c => c.replace(/^"|"$/g,"").trim()));
+  const headers = rows[0].map(h => h.toLowerCase());
+  log.textContent = `✅ Found ${rows.length - 1} rows. Headers: ${headers.join(", ")}\n\nPreview your columns then confirm below.`;
+
+  // Show column mapping UI
+  log.innerHTML += `<br><br><strong>Column mapping detected:</strong><br>` +
+    headers.map((h,i) => `${i}: ${h}`).join("<br>") +
+    `<br><br>Expected columns (case-insensitive): date, owner/user, type, workout_type, duration, intensity, focus, time_of_day, passage, notes<br><br>` +
+    `<button class="btn-primary" onclick="confirmImport()" style="margin-top:8px;max-width:200px">Confirm & Import</button>`;
+
+  // Store parsed rows for confirmImport
+  window._importRows = rows;
+  window._importHeaders = headers;
+};
+
+window.confirmImport = async () => {
+  const rows = window._importRows;
+  const headers = window._importHeaders;
+  const log = document.getElementById("import-log");
+
+  const idx = (name) => headers.findIndex(h => h.includes(name));
+
+  const dateIdx = idx("date");
+  const ownerIdx = idx("owner") >= 0 ? idx("owner") : idx("user");
+  const typeIdx = idx("type");
+  const workoutTypeIdx = idx("workout");
+  const durationIdx = idx("duration");
+  const intensityIdx = idx("intensity");
+  const focusIdx = idx("focus");
+  const timeIdx = idx("time");
+  const passageIdx = idx("passage");
+  const notesIdx = idx("note");
+
+  let inserted = 0, skipped = 0;
+
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i];
+    if (!r || r.length < 2 || !r[dateIdx]) { skipped++; continue; }
+
+    const dateStr = r[dateIdx];
+    let parsedDate;
+    try {
+      parsedDate = new Date(dateStr);
+      if (isNaN(parsedDate)) { skipped++; continue; }
+    } catch(e) { skipped++; continue; }
+
+    const owner = ownerIdx >= 0 ? (r[ownerIdx].toLowerCase().includes("ariel") ? "ariel" : "adam") : "adam";
+    const type = typeIdx >= 0 ? (r[typeIdx].toLowerCase().includes("bible") ? "bible" : "workout") : "workout";
+
+    const data = {};
+    if (workoutTypeIdx >= 0 && r[workoutTypeIdx]) data.workout_type = r[workoutTypeIdx];
+    if (durationIdx >= 0 && r[durationIdx]) data.duration = r[durationIdx];
+    if (intensityIdx >= 0 && r[intensityIdx]) data.intensity = parseInt(r[intensityIdx]) || null;
+    if (focusIdx >= 0 && r[focusIdx]) data.focus = r[focusIdx];
+    if (timeIdx >= 0 && r[timeIdx]) data.time_of_day = r[timeIdx];
+    if (passageIdx >= 0 && r[passageIdx]) data.passage = r[passageIdx];
+    if (notesIdx >= 0 && r[notesIdx]) data.notes = r[notesIdx];
+
+    const { error } = await supabase.from("logs").insert([{
+      user_id: currentUser.id,
+      user_email: currentUser.email,
+      type, owner, data,
+      created_at: new Date(dateStr + "T12:00:00").toISOString(),
+      deleted: false
+    }]);
+
+    if (error) { skipped++; } else { inserted++; }
+    log.textContent = `Importing... ${inserted} inserted, ${skipped} skipped`;
+  }
+
+  log.textContent = `✅ Import complete! ${inserted} entries imported, ${skipped} skipped.\nRefresh the dashboard to see your data.`;
+};
+
+/* ── TOAST ── */
   .toast { position: fixed; bottom: calc(var(--tab-h) + var(--safe-bottom) + 16px); left: 50%; transform: translateX(-50%) translateY(8px); background: var(--text); color: white; padding: 11px 20px; border-radius: 10px; font-size: 13px; font-weight: 500; opacity: 0; transition: all 0.25s; z-index: 400; white-space: nowrap; pointer-events: none; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
@@ -368,30 +549,101 @@
 
 <!-- AUTH -->
 <div id="auth-screen">
-  <svg width="96" height="96" viewBox="0 0 90 90" fill="none">
-    <path d="M10 64 Q10 76 45 76 Q80 76 80 64 L80 58 Q80 50 45 50 Q10 50 10 58 Z" fill="#4a5a38"/>
-    <line x1="45" y1="50" x2="45" y2="76" stroke="#f0ece2" stroke-width="1.8" stroke-linecap="round"/>
-    <line x1="16" y1="58" x2="41" y2="58" stroke="#f0ece2" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
-    <line x1="16" y1="64" x2="41" y2="64" stroke="#f0ece2" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
-    <line x1="16" y1="70" x2="34" y2="70" stroke="#f0ece2" stroke-width="1.2" stroke-linecap="round" opacity="0.3"/>
-    <line x1="74" y1="58" x2="49" y2="58" stroke="#f0ece2" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
-    <line x1="74" y1="64" x2="49" y2="64" stroke="#f0ece2" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
-    <line x1="74" y1="70" x2="56" y2="70" stroke="#f0ece2" stroke-width="1.2" stroke-linecap="round" opacity="0.3"/>
-    <circle cx="45" cy="30" r="17" fill="#4a5a38"/>
-    <path d="M35 23 Q35 10 45 10 Q55 10 55 23" fill="none" stroke="#4a5a38" stroke-width="4" stroke-linecap="round"/>
-    <rect x="33" y="21" width="24" height="5" rx="2.5" fill="#4a5a38"/>
+  <!-- Mountain/fog background SVG -->
+  <svg class="auth-bg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <!-- Sky gradient -->
+    <defs>
+      <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#c8c0b0"/>
+        <stop offset="40%" stop-color="#ddd6c8"/>
+        <stop offset="100%" stop-color="#e8e0d0"/>
+      </linearGradient>
+      <linearGradient id="fogGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#e8e2d8" stop-opacity="0"/>
+        <stop offset="100%" stop-color="#e8e0d0" stop-opacity="1"/>
+      </linearGradient>
+      <filter id="blur1"><feGaussianBlur stdDeviation="3"/></filter>
+      <filter id="blur2"><feGaussianBlur stdDeviation="6"/></filter>
+      <filter id="blur3"><feGaussianBlur stdDeviation="12"/></filter>
+    </defs>
+
+    <!-- Sky -->
+    <rect width="390" height="844" fill="url(#skyGrad)"/>
+
+    <!-- Far mountains (most blurred, lightest) -->
+    <g filter="url(#blur3)" opacity="0.4">
+      <path d="M-20 480 L60 320 L130 390 L200 280 L270 370 L340 300 L410 400 L410 520 L-20 520 Z" fill="#9a9288"/>
+    </g>
+
+    <!-- Mid mountains -->
+    <g filter="url(#blur2)" opacity="0.55">
+      <path d="M-20 520 L50 380 L110 430 L175 350 L240 420 L300 360 L370 440 L410 480 L410 560 L-20 560 Z" fill="#7a7268"/>
+    </g>
+
+    <!-- Foreground ridge -->
+    <g filter="url(#blur1)" opacity="0.7">
+      <path d="M-20 560 L40 460 L90 500 L150 440 L210 490 L270 445 L330 490 L410 520 L410 620 L-20 620 Z" fill="#5a5448"/>
+    </g>
+
+    <!-- Fog layer over mountains -->
+    <rect x="-20" y="420" width="430" height="120" fill="#ddd8cc" opacity="0.35" filter="url(#blur3)"/>
+    <rect x="-20" y="500" width="430" height="80" fill="#e0dcd4" opacity="0.45" filter="url(#blur2)"/>
+
+    <!-- Water/lake reflection -->
+    <path d="M-20 600 Q100 590 195 598 Q290 606 410 598 L410 680 Q290 672 195 680 Q100 688 -20 680 Z" fill="#c4bdb0" opacity="0.3" filter="url(#blur1)"/>
+    <path d="M-20 620 L410 620 L410 700 L-20 700 Z" fill="#ccc6bc" opacity="0.2"/>
+
+    <!-- Fog fade to bottom (blends into card) -->
+    <rect x="0" y="480" width="390" height="364" fill="url(#fogGrad)"/>
   </svg>
-  <div class="auth-title">Iron & Word</div>
-  <div class="auth-tagline">Forge the body · Feed the soul</div>
-  <button class="btn-google" onclick="login()">
-    <svg viewBox="0 0 24 24">
-      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-    </svg>
-    Continue with Google
-  </button>
+
+  <!-- Bottom card -->
+  <div class="auth-card">
+    <!-- Logo floating above card -->
+    <div class="auth-logo-group">
+      <!-- Refined kettlebell-on-book logo -->
+      <svg width="110" height="110" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Open book -->
+        <path d="M12 72 Q12 82 50 82 Q88 82 88 72 L88 65 Q88 56 50 56 Q12 56 12 65 Z" fill="#4a5a38"/>
+        <!-- Book spine -->
+        <line x1="50" y1="56" x2="50" y2="82" stroke="#f0ece2" stroke-width="2" stroke-linecap="round"/>
+        <!-- Left page lines -->
+        <line x1="19" y1="64" x2="45" y2="64" stroke="#f0ece2" stroke-width="1.3" stroke-linecap="round" opacity="0.6"/>
+        <line x1="19" y1="70" x2="45" y2="70" stroke="#f0ece2" stroke-width="1.3" stroke-linecap="round" opacity="0.6"/>
+        <line x1="19" y1="76" x2="38" y2="76" stroke="#f0ece2" stroke-width="1.3" stroke-linecap="round" opacity="0.35"/>
+        <!-- Right page lines -->
+        <line x1="81" y1="64" x2="55" y2="64" stroke="#f0ece2" stroke-width="1.3" stroke-linecap="round" opacity="0.6"/>
+        <line x1="81" y1="70" x2="55" y2="70" stroke="#f0ece2" stroke-width="1.3" stroke-linecap="round" opacity="0.6"/>
+        <line x1="81" y1="76" x2="62" y2="76" stroke="#f0ece2" stroke-width="1.3" stroke-linecap="round" opacity="0.35"/>
+        <!-- Book page curve (top of open book) -->
+        <path d="M50 56 Q38 50 12 52" fill="none" stroke="#4a5a38" stroke-width="2.5" stroke-linecap="round" opacity="0.4"/>
+        <path d="M50 56 Q62 50 88 52" fill="none" stroke="#4a5a38" stroke-width="2.5" stroke-linecap="round" opacity="0.4"/>
+        <!-- Kettlebell handle arc -->
+        <path d="M37 30 Q37 14 50 14 Q63 14 63 30" fill="none" stroke="#4a5a38" stroke-width="5.5" stroke-linecap="round"/>
+        <!-- Handle bar -->
+        <rect x="34" y="27" width="32" height="7" rx="3.5" fill="#4a5a38"/>
+        <!-- Bell body -->
+        <circle cx="50" cy="44" r="15" fill="#4a5a38"/>
+        <!-- Bell highlight -->
+        <circle cx="45" cy="40" r="3" fill="#6a7a58" opacity="0.4"/>
+      </svg>
+    </div>
+
+    <div class="auth-title">Iron & Word</div>
+    <div class="auth-tagline">Track · Train · Transform</div>
+
+    <button class="btn-google" onclick="login()">
+      <svg viewBox="0 0 24 24" style="background:white;border-radius:50%;padding:2px">
+        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+      </svg>
+      Continue with Google
+    </button>
+
+    <div class="auth-footer">Your data is private and secure</div>
+  </div>
 </div>
 
 <!-- APP -->
@@ -401,7 +653,7 @@
   <div class="topbar">
     <div class="topbar-inner">
       <div class="topbar-logo">
-        <svg width="28" height="28" viewBox="0 0 90 90" fill="none">
+        <svg width="28" height="28" viewBox="0 0 90 90" fill="none" onclick="showPage('home')" style="cursor:pointer">
           <path d="M10 64 Q10 76 45 76 Q80 76 80 64 L80 58 Q80 50 45 50 Q10 50 10 58 Z" fill="#4a5a38"/>
           <line x1="45" y1="50" x2="45" y2="76" stroke="#f0ece2" stroke-width="2.2" stroke-linecap="round"/>
           <line x1="16" y1="58" x2="41" y2="58" stroke="#f0ece2" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>
@@ -412,7 +664,7 @@
           <path d="M35 23 Q35 10 45 10 Q55 10 55 23" fill="none" stroke="#4a5a38" stroke-width="5" stroke-linecap="round"/>
           <rect x="33" y="21" width="24" height="5" rx="2.5" fill="#4a5a38"/>
         </svg>
-        <div class="topbar-title" id="topbar-title">Iron & Word</div>
+        <div class="topbar-title" id="topbar-title" onclick="showPage('home')" style="cursor:pointer">Iron & Word</div>
       </div>
       <div class="topbar-right">
         <!-- Preview toggle — adam only -->
@@ -432,11 +684,19 @@
   <!-- DASHBOARD -->
   <div class="page active" id="page-home">
     <div class="page-inner">
-      <div class="period-picker" id="period-picker">
-        <button class="period-btn active" onclick="setPeriod('month',this)">This Month</button>
-        <button class="period-btn" onclick="setPeriod('week',this)">This Week</button>
-        <button class="period-btn" onclick="setPeriod('year',this)">This Year</button>
-        <button class="period-btn" onclick="setPeriod('all',this)">All Time</button>
+      <!-- Month/Year selector -->
+      <div class="month-year-picker" id="month-year-picker">
+        <select class="month-select" id="dash-month" onchange="onDashDateChange()">
+          <option value="0">January</option><option value="1">February</option>
+          <option value="2">March</option><option value="3">April</option>
+          <option value="4">May</option><option value="5">June</option>
+          <option value="6">July</option><option value="7">August</option>
+          <option value="8">September</option><option value="9">October</option>
+          <option value="10">November</option><option value="11">December</option>
+        </select>
+        <select class="year-select" id="dash-year" onchange="onDashDateChange()"></select>
+        <button class="period-btn active" id="btn-ytd" onclick="setDashMode('ytd',this)">Year to Date</button>
+        <button class="period-btn" id="btn-all" onclick="setDashMode('all',this)">All Time</button>
       </div>
       <div id="dashboard-content"></div>
     </div>
@@ -492,6 +752,7 @@
         <div class="profile-email" id="profile-email"></div>
         <button class="btn-primary" style="max-width:180px;margin-top:0" onclick="logout()">Sign Out</button>
       </div>
+
       <div class="section-label">About</div>
       <div class="card">
         <div style="font-size:13px;color:var(--text2);font-weight:300">
@@ -499,7 +760,7 @@
             <span>App</span><span style="color:var(--text);font-weight:400">Iron & Word</span>
           </div>
           <div style="display:flex;justify-content:space-between;padding:9px 0">
-            <span>Version</span><span style="color:var(--text);font-weight:400">4.1</span>
+            <span>Version</span><span style="color:var(--text);font-weight:400">4.2</span>
           </div>
         </div>
       </div>
@@ -544,7 +805,10 @@ const NETLIFY_URL = "https://ironandword.netlify.app";
 let currentUser = null, currentUserName = "";
 let previewAs = "adam";   // what dashboard/history shows (adam can toggle to "ariel")
 let logAs = "adam";       // who we're logging for (adam can switch to "ariel")
-let currentPeriod = "month", historyPeriod = "month", histTab = "all";
+let dashMode = "month"; // "month", "ytd", "all"
+let dashMonth = new Date().getMonth();
+let dashYear = new Date().getFullYear();
+let historyPeriod = "month", histTab = "all";
 let selectedLogType = null, logFormData = {};
 
 /* ── AUTH ── */
@@ -597,6 +861,7 @@ async function init() {
     });
   }
 
+  initDashPicker();
   document.getElementById("profile-avatar").textContent = currentUserName === "adam" ? "A" : "Ar";
   document.getElementById("profile-name").textContent = currentUserName === "adam" ? "Adam Hlávka" : "Ariel";
   document.getElementById("profile-email").textContent = email;
@@ -632,6 +897,69 @@ window.showPage = (page) => {
 };
 
 /* ── DATES ── */
+function initDashPicker() {
+  const now = new Date();
+  const monthSel = document.getElementById("dash-month");
+  const yearSel = document.getElementById("dash-year");
+  if (!monthSel || !yearSel) return;
+  monthSel.value = now.getMonth();
+  // populate years from 2023 to current
+  for (let y = now.getFullYear(); y >= 2023; y--) {
+    const opt = document.createElement("option");
+    opt.value = y; opt.textContent = y;
+    yearSel.appendChild(opt);
+  }
+  yearSel.value = now.getFullYear();
+  dashMonth = now.getMonth();
+  dashYear = now.getFullYear();
+}
+
+window.onDashDateChange = () => {
+  dashMonth = parseInt(document.getElementById("dash-month").value);
+  dashYear = parseInt(document.getElementById("dash-year").value);
+  dashMode = "month";
+  document.getElementById("btn-ytd").classList.remove("active");
+  document.getElementById("btn-all").classList.remove("active");
+  loadDashboard();
+};
+
+window.setDashMode = (mode, btn) => {
+  dashMode = mode;
+  document.getElementById("btn-ytd").classList.remove("active");
+  document.getElementById("btn-all").classList.remove("active");
+  btn.classList.add("active");
+  loadDashboard();
+};
+
+function getDashRange() {
+  if (dashMode === "month") {
+    return {
+      start: new Date(dashYear, dashMonth, 1),
+      end: new Date(dashYear, dashMonth + 1, 0, 23, 59, 59)
+    };
+  } else if (dashMode === "ytd") {
+    return { start: new Date(dashYear, 0, 1), end: new Date() };
+  } else {
+    return { start: new Date(2020, 0, 1), end: new Date() };
+  }
+}
+
+function getDashLabel() {
+  if (dashMode === "month") {
+    const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    return months[dashMonth] + " " + dashYear;
+  } else if (dashMode === "ytd") {
+    return "Year to Date " + dashYear;
+  } else {
+    return "All Time";
+  }
+}
+
+function filterByRange(data, range) {
+  return data.filter(r => { const d = new Date(r.created_at); return d >= range.start && d <= range.end; });
+}
+
+// Keep for history backward compat
 function getPeriodRange(p) {
   const now = new Date(); let start;
   if (p === "week") { start = new Date(now); start.setDate(now.getDate()-now.getDay()); start.setHours(0,0,0,0); }
@@ -646,23 +974,19 @@ function filterByPeriod(data, p) {
 }
 
 /* ── DASHBOARD ── */
-window.setPeriod = (p, btn) => {
-  currentPeriod = p;
-  document.querySelectorAll("#period-picker .period-btn").forEach(b => b.classList.remove("active"));
-  btn.classList.add("active"); loadDashboard();
-};
-
 async function loadDashboard() {
   const isAdam = currentUserName === "adam";
-  const lbl = { month:"This Month", week:"This Week", year:"This Year", all:"All Time" }[currentPeriod];
+  const lbl = getDashLabel();
   const el = document.getElementById("dashboard-content");
+  const range = getDashRange();
+  const ytdRange = { start: new Date(dashYear, 0, 1), end: new Date() };
 
   // Both users see full comparison — private section only shown to Adam
   const { data: allData } = await supabase.from("logs").select("*").eq("deleted", false).in("owner", ["adam","ariel"]);
   if (!allData) return;
 
-  const filtered = filterByPeriod(allData, currentPeriod);
-  const ytd = filterByPeriod(allData, "year");
+  const filtered = filterByRange(allData, range);
+  const ytd = filterByRange(allData, ytdRange);
 
   const adamF = filtered.filter(r => r.owner === "adam");
   const arielF = filtered.filter(r => r.owner === "ariel");
@@ -681,7 +1005,7 @@ async function loadDashboard() {
   const bLead = adamB > arielB ? "adam" : adamB < arielB ? "ariel" : "tie";
 
   // private section — adam only regardless of preview
-  const filtPrivate = filterByPeriod(allData.filter(r => r.owner === "adam"), currentPeriod);
+  const filtPrivate = filterByRange(allData.filter(r => r.owner === "adam"), range);
   const colds = filtPrivate.filter(r => r.type === "cold").length;
   const saunas = filtPrivate.filter(r => r.type === "sauna").length;
 
@@ -869,8 +1193,20 @@ const ch = (opts, field) => opts.map(v => `<button class="chip" onclick="toggleC
 const timeChips = () => [["🌅","Morning"],["☀️","Noon"],["🌤","Afternoon"],["🌙","Evening"]].map(([e,v]) => `<button class="chip" onclick="toggleChip(this,'time_of_day','${v}',true)">${e} ${v}</button>`).join("");
 const slider = (field, lo, mid, hi) => `<div class="slider-value" id="slider-val-${field}">5</div><input type="range" min="1" max="10" value="5" id="slider-${field}" oninput="updateSlider('${field}',this.value)"><div class="slider-labels"><span>${lo}</span><span>${mid}</span><span>${hi}</span></div>`;
 
+function todayDateStr() {
+  return new Date().toISOString().split("T")[0];
+}
+
+function datePicker() {
+  return `<div class="date-picker-row">
+    <span class="date-picker-label">📅 Date</span>
+    <input type="date" class="date-picker-input" id="entry-date" value="${todayDateStr()}" max="${todayDateStr()}" onchange="setField('_date',this.value)">
+  </div>`;
+}
+
 function workoutForm() { return `
   <div class="section-label" style="margin-top:20px">Type of Workout</div>
+  <div class="card" style="padding:14px 16px;margin-bottom:0">${datePicker()}</div>
   <div class="card" style="padding:16px"><div class="chip-group">${ch(["Kettlebell","Weightlifting","Running","Swimming","Hiking"],"workout_type")}</div></div>
   <div class="section-label">Focus</div>
   <div class="card" style="padding:16px"><div class="chip-group">${ch(["Cardio","Strength","Both"],"focus")}</div></div>
@@ -887,6 +1223,7 @@ function workoutForm() { return `
 
 function bibleForm() { return `
   <div class="section-label" style="margin-top:20px">Passage</div>
+  <div class="card" style="padding:14px 16px;margin-bottom:0">${datePicker()}</div>
   <div class="card" style="padding:16px"><input class="form-input" placeholder="e.g. Psalm 23, John 3:16–21" oninput="setField('passage',this.value)"></div>
   <div class="section-label">Duration (minutes)</div>
   <div class="card" style="padding:16px"><input class="form-input" type="number" min="1" placeholder="20" oninput="setField('duration',this.value)"></div>
@@ -896,6 +1233,7 @@ function bibleForm() { return `
 
 function coldForm() { return `
   <div class="section-label" style="margin-top:20px">Method</div>
+  <div class="card" style="padding:14px 16px;margin-bottom:0">${datePicker()}</div>
   <div class="card" style="padding:16px"><div class="chip-group">${ch(["Cold Shower","Cold Plunge","Ice Bath"],"method")}</div></div>
   <div class="section-label">Place</div>
   <div class="card" style="padding:16px"><div class="chip-group">${ch(["Home","Gym","Nature","Spa"],"place")}</div></div>
@@ -911,6 +1249,7 @@ function coldForm() { return `
 
 function saunaForm() { return `
   <div class="section-label" style="margin-top:20px">Type</div>
+  <div class="card" style="padding:14px 16px;margin-bottom:0">${datePicker()}</div>
   <div class="card" style="padding:16px"><div class="chip-group">${ch(["Finnish","Infrared"],"sauna_type")}</div></div>
   <div class="section-label">Location</div>
   <div class="card" style="padding:16px"><div class="chip-group">${ch(["Home","Gym","Spa","Public"],"location")}</div></div>
@@ -947,15 +1286,122 @@ window.saveEntry = async () => {
   if (btn) { btn.disabled = true; btn.textContent = "Saving…"; }
 
   const owner = (selectedLogType === "cold" || selectedLogType === "sauna") ? "adam" : logAs;
-
+  const entryDate = logFormData._date || todayDateStr();
+  const { _date, ...entryData } = logFormData;
+  const created_at = new Date(entryDate + "T12:00:00").toISOString();
   const { error } = await supabase.from("logs").insert([{
     user_id: currentUser.id, user_email: currentUser.email,
-    type: selectedLogType, owner, data: { ...logFormData }, deleted: false
+    type: selectedLogType, owner, data: entryData,
+    created_at, deleted: false
   }]);
 
   if (error) { showToast("Error — try again"); if (btn) { btn.disabled = false; btn.textContent = "Save"; } return; }
   showToast("✓ Saved");
   setTimeout(() => showPage("home"), 500);
+};
+
+
+/* ── GOOGLE SHEETS IMPORT (Adam only) ── */
+window.runImport = async () => {
+  const url = document.getElementById("import-url").value.trim();
+  const log = document.getElementById("import-log");
+  log.style.display = "block";
+  log.textContent = "Fetching sheet...";
+
+  if (!url.includes("docs.google.com/spreadsheets")) {
+    log.textContent = "❌ Please paste a valid Google Sheets URL."; return;
+  }
+
+  // Extract sheet ID and convert to CSV export URL
+  const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+  if (!match) { log.textContent = "❌ Could not extract sheet ID from URL."; return; }
+  const sheetId = match[1];
+
+  // Get gid if present
+  const gidMatch = url.match(/gid=(\d+)/);
+  const gid = gidMatch ? gidMatch[1] : "0";
+  const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
+
+  let csv;
+  try {
+    const res = await fetch(csvUrl);
+    if (!res.ok) throw new Error("Could not fetch sheet — make sure sharing is set to 'Anyone with the link'");
+    csv = await res.text();
+  } catch(e) {
+    log.textContent = "❌ " + e.message; return;
+  }
+
+  const rows = csv.trim().split("\n").map(r => r.split(",").map(c => c.replace(/^"|"$/g,"").trim()));
+  const headers = rows[0].map(h => h.toLowerCase());
+  log.textContent = `✅ Found ${rows.length - 1} rows. Headers: ${headers.join(", ")}\n\nPreview your columns then confirm below.`;
+
+  // Show column mapping UI
+  log.innerHTML += `<br><br><strong>Column mapping detected:</strong><br>` +
+    headers.map((h,i) => `${i}: ${h}`).join("<br>") +
+    `<br><br>Expected columns (case-insensitive): date, owner/user, type, workout_type, duration, intensity, focus, time_of_day, passage, notes<br><br>` +
+    `<button class="btn-primary" onclick="confirmImport()" style="margin-top:8px;max-width:200px">Confirm & Import</button>`;
+
+  // Store parsed rows for confirmImport
+  window._importRows = rows;
+  window._importHeaders = headers;
+};
+
+window.confirmImport = async () => {
+  const rows = window._importRows;
+  const headers = window._importHeaders;
+  const log = document.getElementById("import-log");
+
+  const idx = (name) => headers.findIndex(h => h.includes(name));
+
+  const dateIdx = idx("date");
+  const ownerIdx = idx("owner") >= 0 ? idx("owner") : idx("user");
+  const typeIdx = idx("type");
+  const workoutTypeIdx = idx("workout");
+  const durationIdx = idx("duration");
+  const intensityIdx = idx("intensity");
+  const focusIdx = idx("focus");
+  const timeIdx = idx("time");
+  const passageIdx = idx("passage");
+  const notesIdx = idx("note");
+
+  let inserted = 0, skipped = 0;
+
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i];
+    if (!r || r.length < 2 || !r[dateIdx]) { skipped++; continue; }
+
+    const dateStr = r[dateIdx];
+    let parsedDate;
+    try {
+      parsedDate = new Date(dateStr);
+      if (isNaN(parsedDate)) { skipped++; continue; }
+    } catch(e) { skipped++; continue; }
+
+    const owner = ownerIdx >= 0 ? (r[ownerIdx].toLowerCase().includes("ariel") ? "ariel" : "adam") : "adam";
+    const type = typeIdx >= 0 ? (r[typeIdx].toLowerCase().includes("bible") ? "bible" : "workout") : "workout";
+
+    const data = {};
+    if (workoutTypeIdx >= 0 && r[workoutTypeIdx]) data.workout_type = r[workoutTypeIdx];
+    if (durationIdx >= 0 && r[durationIdx]) data.duration = r[durationIdx];
+    if (intensityIdx >= 0 && r[intensityIdx]) data.intensity = parseInt(r[intensityIdx]) || null;
+    if (focusIdx >= 0 && r[focusIdx]) data.focus = r[focusIdx];
+    if (timeIdx >= 0 && r[timeIdx]) data.time_of_day = r[timeIdx];
+    if (passageIdx >= 0 && r[passageIdx]) data.passage = r[passageIdx];
+    if (notesIdx >= 0 && r[notesIdx]) data.notes = r[notesIdx];
+
+    const { error } = await supabase.from("logs").insert([{
+      user_id: currentUser.id,
+      user_email: currentUser.email,
+      type, owner, data,
+      created_at: new Date(dateStr + "T12:00:00").toISOString(),
+      deleted: false
+    }]);
+
+    if (error) { skipped++; } else { inserted++; }
+    log.textContent = `Importing... ${inserted} inserted, ${skipped} skipped`;
+  }
+
+  log.textContent = `✅ Import complete! ${inserted} entries imported, ${skipped} skipped.\nRefresh the dashboard to see your data.`;
 };
 
 /* ── TOAST ── */
