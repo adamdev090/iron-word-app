@@ -235,21 +235,6 @@
   .compare-stat-num.leading { color: var(--olive); }
   .compare-stat-num.trailing { color: var(--text3); }
 
-  /* ── YTD STRIP ── */
-  .ytd-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-  .ytd-card {
-    background: var(--surface); border-radius: var(--r); padding: 14px 16px;
-    border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .ytd-icon { font-size: 16px; margin-bottom: 4px; }
-  .ytd-label { font-size: 11px; color: var(--text3); font-weight: 300; }
-  .ytd-nums { display: flex; align-items: baseline; gap: 12px; }
-  .ytd-num { text-align: center; }
-  .ytd-num-val { font-family: 'Lora', serif; font-size: 28px; font-weight: 500; letter-spacing: -1px; line-height: 1; }
-  .ytd-num-name { font-size: 10px; color: var(--text3); font-weight: 300; margin-top: 2px; }
-  .ytd-divider { width: 1px; height: 28px; background: var(--border); }
-
   /* ── PRIVATE STRIP ── */
   .private-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
   .private-card {
@@ -782,8 +767,7 @@ window.confirmImport = async () => {
       <!-- Period picker -->
       <div class="dash-period-bar">
         <button id="dp-month" class="active" onclick="setDashMode('month')">Month</button>
-        <button id="dp-ytd" onclick="setDashMode('ytd')">Year to Date</button>
-        <button id="dp-custom" onclick="setDashMode('custom')">Custom</button>
+        <button id="dp-custom" onclick="setDashMode('custom')">Custom Range</button>
       </div>
 
       <!-- Month scroll strip (visible in month mode) -->
@@ -1041,7 +1025,7 @@ function selectMonthChip(el, month, year) {
 
 window.setDashMode = (mode) => {
   dashMode = mode;
-  ["dp-month","dp-ytd","dp-custom"].forEach(id => {
+  ["dp-month","dp-custom"].forEach(id => {
     document.getElementById(id)?.classList.remove("active");
   });
   document.getElementById("dp-" + mode)?.classList.add("active");
@@ -1056,9 +1040,6 @@ function getDashRange() {
       start: new Date(dashYear, dashMonth, 1),
       end: new Date(dashYear, dashMonth + 1, 0, 23, 59, 59)
     };
-  } else if (dashMode === "ytd") {
-    const now = new Date();
-    return { start: new Date(now.getFullYear(), 0, 1), end: now };
   } else if (dashMode === "custom") {
     const from = document.getElementById("custom-from").value;
     const to = document.getElementById("custom-to").value;
@@ -1072,7 +1053,6 @@ function getDashRange() {
 
 function getDashLabel() {
   if (dashMode === "month") return MONTHS_FULL[dashMonth] + " " + dashYear;
-  if (dashMode === "ytd") return "Year to Date " + new Date().getFullYear();
   if (dashMode === "custom") {
     const from = document.getElementById("custom-from")?.value;
     const to = document.getElementById("custom-to")?.value;
@@ -1105,14 +1085,11 @@ async function loadDashboard() {
   const lbl = getDashLabel();
   const el = document.getElementById("dashboard-content");
   const range = getDashRange();
-  const ytdRange = { start: new Date(dashYear, 0, 1), end: new Date() };
-
   // Both users see full comparison — private section only shown to Adam
   const { data: allData } = await supabase.from("logs").select("*").eq("deleted", false).in("owner", ["adam","ariel"]);
   if (!allData) return;
 
   const filtered = filterByRange(allData, range);
-  const ytd = filterByRange(allData, ytdRange);
 
   const adamF = filtered.filter(r => r.owner === "adam");
   const arielF = filtered.filter(r => r.owner === "ariel");
@@ -1122,10 +1099,7 @@ async function loadDashboard() {
   const adamB = adamF.filter(r => r.type === "bible").length;
   const arielB = arielF.filter(r => r.type === "bible").length;
 
-  const adamWY = ytd.filter(r => r.owner === "adam" && r.type === "workout").length;
-  const arielWY = ytd.filter(r => r.owner === "ariel" && r.type === "workout").length;
-  const adamBY = ytd.filter(r => r.owner === "adam" && r.type === "bible").length;
-  const arielBY = ytd.filter(r => r.owner === "ariel" && r.type === "bible").length;
+
 
   const wLead = adamW > arielW ? "adam" : adamW < arielW ? "ariel" : "tie";
   const bLead = adamB > arielB ? "adam" : adamB < arielB ? "ariel" : "tie";
@@ -1165,24 +1139,6 @@ async function loadDashboard() {
       </div>
     </div>
 
-    <div class="ytd-strip">
-      <div class="ytd-card">
-        <div><div class="ytd-icon">🏋️</div><div class="ytd-label">Workouts · Year to date</div></div>
-        <div class="ytd-nums">
-          <div class="ytd-num"><div class="ytd-num-val" style="color:var(--olive)">${adamWY}</div><div class="ytd-num-name">Adam</div></div>
-          <div class="ytd-divider"></div>
-          <div class="ytd-num"><div class="ytd-num-val">${arielWY}</div><div class="ytd-num-name">Ariel</div></div>
-        </div>
-      </div>
-      <div class="ytd-card">
-        <div><div class="ytd-icon">📖</div><div class="ytd-label">Bible · Year to date</div></div>
-        <div class="ytd-nums">
-          <div class="ytd-num"><div class="ytd-num-val" style="color:var(--olive)">${adamBY}</div><div class="ytd-num-name">Adam</div></div>
-          <div class="ytd-divider"></div>
-          <div class="ytd-num"><div class="ytd-num-val">${arielBY}</div><div class="ytd-num-name">Ariel</div></div>
-        </div>
-      </div>
-    </div>
 
     ${(isAdam && previewAs === "adam") ? `<div class="section-label">My Private Habits · ${lbl}</div>
     <div class="private-strip">
