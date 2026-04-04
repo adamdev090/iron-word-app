@@ -45,7 +45,7 @@
     display: none;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: center;
     min-height: 100vh;
     padding: 0;
     position: relative;
@@ -59,51 +59,58 @@
     z-index: 0; pointer-events: none;
   }
 
-  /* Content card at bottom */
+  /* Auth layout — centered vertically, works on iPhone */
   .auth-card {
     position: relative; z-index: 2;
     width: 100%; max-width: 480px;
-    background: rgba(250,248,242,0.92);
-    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-    border-radius: 32px 32px 0 0;
-    padding: 40px 36px calc(48px + env(safe-area-inset-bottom, 0px));
     display: flex; flex-direction: column; align-items: center;
-    box-shadow: 0 -8px 48px rgba(58,56,40,0.12);
+    padding: 0 36px calc(32px + env(safe-area-inset-bottom, 0px));
+    margin-bottom: 8vh;
   }
 
-  /* Logo group floating above card */
-  .auth-logo-group {
-    position: absolute; z-index: 3;
-    bottom: calc(100% - 56px);
-    left: 50%; transform: translateX(-50%);
-    display: flex; flex-direction: column; align-items: center; gap: 10px;
-    width: 100%;
+  .auth-logo-wrap {
+    display: flex; flex-direction: column; align-items: center; gap: 0;
+    margin-bottom: 24px;
+    filter: drop-shadow(0 6px 20px rgba(58,56,40,0.22));
   }
-  .auth-logo-group svg { filter: drop-shadow(0 4px 16px rgba(58,56,40,0.18)); }
 
   .auth-title {
-    font-family: 'Lora', serif; font-size: 32px; font-weight: 600;
-    color: var(--olive); letter-spacing: -0.5px; text-align: center;
-    margin-top: 64px;
+    font-family: 'Lora', serif; font-size: 30px; font-weight: 600;
+    color: #2e2c1e; letter-spacing: -0.3px; text-align: center;
+    margin-top: 14px;
+    text-shadow: 0 1px 8px rgba(255,255,255,0.6);
   }
   .auth-tagline {
-    font-size: 11px; font-weight: 300; color: var(--text3);
-    letter-spacing: 3px; text-transform: uppercase;
-    margin: 6px 0 32px; text-align: center;
+    font-size: 10px; font-weight: 400; color: #6b6040;
+    letter-spacing: 3.5px; text-transform: uppercase;
+    margin: 5px 0 40px; text-align: center;
+    text-shadow: 0 1px 4px rgba(255,255,255,0.5);
   }
+
+  /* Frosted glass login box */
+  .auth-glass {
+    width: 100%; max-width: 320px;
+    background: rgba(252,249,243,0.82);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 28px 24px;
+    box-shadow: 0 8px 40px rgba(58,56,40,0.18), inset 0 1px 0 rgba(255,255,255,0.6);
+    display: flex; flex-direction: column; align-items: center; gap: 16px;
+  }
+
   .btn-google {
     display: flex; align-items: center; gap: 12px;
     background: var(--olive); border: none;
-    border-radius: 50px; padding: 16px 32px;
-    font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 400;
+    border-radius: 50px; padding: 15px 28px;
+    font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 400;
     color: #fff; cursor: pointer; transition: all 0.2s;
-    box-shadow: 0 4px 20px rgba(74,90,56,0.35);
-    width: 100%; justify-content: center; max-width: 320px;
+    box-shadow: 0 4px 16px rgba(74,90,56,0.4);
+    width: 100%; justify-content: center;
   }
   .btn-google:active { transform: scale(0.97); opacity: 0.9; }
   .btn-google svg { width: 18px; height: 18px; flex-shrink: 0; }
   .auth-footer {
-    margin-top: 20px; font-size: 11px; color: var(--text3);
+    font-size: 10px; color: #8a8060;
     font-weight: 300; letter-spacing: 0.5px; text-align: center;
   }
 
@@ -391,20 +398,56 @@
   .nav-fab.active .nav-label { color: var(--olive); }
 
 
-  /* ── MONTH PICKER ── */
-  .month-year-picker {
-    display: flex; gap: 6px; margin-bottom: 14px; align-items: center; flex-wrap: wrap;
+  /* ── PERIOD PICKER ── */
+  .dash-period-bar {
+    display: flex; gap: 6px; margin-bottom: 16px;
+    background: var(--surface2); border-radius: 12px; padding: 4px;
   }
-  .month-select, .year-select {
-    padding: 6px 12px; border-radius: 20px; border: 1.5px solid var(--border);
+  .dash-period-bar button {
+    flex: 1; padding: 8px 4px; border: none; border-radius: 9px;
+    background: transparent; font-family: 'Inter', sans-serif;
+    font-size: 12px; font-weight: 400; color: var(--text2);
+    cursor: pointer; transition: all 0.18s; white-space: nowrap;
+  }
+  .dash-period-bar button.active {
+    background: var(--surface); color: var(--olive);
+    font-weight: 500; box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  }
+
+  /* Month scroll strip */
+  .month-strip-wrap {
+    display: none; /* shown when month mode active */
+    margin-bottom: 12px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; padding-bottom: 2px;
+  }
+  .month-strip-wrap::-webkit-scrollbar { display: none; }
+  .month-strip {
+    display: flex; gap: 6px; width: max-content; padding: 0 2px;
+  }
+  .month-chip {
+    padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--border);
     background: var(--surface); font-family: 'Inter', sans-serif;
     font-size: 12px; font-weight: 400; color: var(--text2);
-    cursor: pointer; appearance: none; -webkit-appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23a09880' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-position: right 10px center;
-    padding-right: 28px;
+    cursor: pointer; white-space: nowrap; transition: all 0.15s; flex-shrink: 0;
   }
-  .month-select:focus, .year-select:focus { outline: none; border-color: var(--olive); }
+  .month-chip.active {
+    background: var(--olive); border-color: var(--olive);
+    color: #fff; font-weight: 500;
+  }
+
+  /* Custom range row */
+  .custom-range-wrap {
+    display: none;
+    gap: 8px; margin-bottom: 12px; align-items: center;
+  }
+  .custom-range-wrap input[type="date"] {
+    flex: 1; padding: 8px 10px; border-radius: 10px;
+    border: 1.5px solid var(--border); background: var(--surface);
+    font-family: 'Inter', sans-serif; font-size: 13px; color: var(--text);
+    outline: none;
+  }
+  .custom-range-wrap input[type="date"]:focus { border-color: var(--olive); }
+  .custom-range-sep { font-size: 12px; color: var(--text3); flex-shrink: 0; }
 
   /* ── DATE PICKER IN FORMS ── */
   .date-picker-row {
@@ -549,100 +592,116 @@ window.confirmImport = async () => {
 
 <!-- AUTH -->
 <div id="auth-screen">
-  <!-- Mountain/fog background SVG -->
+  <!-- Mountain fog background -->
   <svg class="auth-bg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-    <!-- Sky gradient -->
     <defs>
-      <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#c8c0b0"/>
-        <stop offset="40%" stop-color="#ddd6c8"/>
-        <stop offset="100%" stop-color="#e8e0d0"/>
+      <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#b8b0a0"/>
+        <stop offset="35%" stop-color="#cec8ba"/>
+        <stop offset="70%" stop-color="#ddd6c6"/>
+        <stop offset="100%" stop-color="#e8e2d4"/>
       </linearGradient>
-      <linearGradient id="fogGrad" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#e8e2d8" stop-opacity="0"/>
-        <stop offset="100%" stop-color="#e8e0d0" stop-opacity="1"/>
+      <linearGradient id="fogG" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#ddd8cc" stop-opacity="0"/>
+        <stop offset="60%" stop-color="#e2ddd0" stop-opacity="0.7"/>
+        <stop offset="100%" stop-color="#e8e2d4" stop-opacity="1"/>
       </linearGradient>
-      <filter id="blur1"><feGaussianBlur stdDeviation="3"/></filter>
-      <filter id="blur2"><feGaussianBlur stdDeviation="6"/></filter>
-      <filter id="blur3"><feGaussianBlur stdDeviation="12"/></filter>
+      <linearGradient id="waterG" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#c0b8a8" stop-opacity="0.5"/>
+        <stop offset="100%" stop-color="#e8e2d4" stop-opacity="0.9"/>
+      </linearGradient>
+      <filter id="f1" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.5"/></filter>
+      <filter id="f2" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6"/></filter>
+      <filter id="f3" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="14"/></filter>
+      <filter id="f4" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="22"/></filter>
     </defs>
 
     <!-- Sky -->
-    <rect width="390" height="844" fill="url(#skyGrad)"/>
+    <rect width="390" height="844" fill="url(#skyG)"/>
 
-    <!-- Far mountains (most blurred, lightest) -->
-    <g filter="url(#blur3)" opacity="0.4">
-      <path d="M-20 480 L60 320 L130 390 L200 280 L270 370 L340 300 L410 400 L410 520 L-20 520 Z" fill="#9a9288"/>
+    <!-- Distant hazy mountains (furthest back) -->
+    <g filter="url(#f4)" opacity="0.28">
+      <path d="M-30 500 L40 310 L90 370 L155 260 L220 340 L280 270 L340 330 L410 290 L430 480 Z" fill="#706860"/>
     </g>
 
-    <!-- Mid mountains -->
-    <g filter="url(#blur2)" opacity="0.55">
-      <path d="M-20 520 L50 380 L110 430 L175 350 L240 420 L300 360 L370 440 L410 480 L410 560 L-20 560 Z" fill="#7a7268"/>
+    <!-- Far mountains -->
+    <g filter="url(#f3)" opacity="0.42">
+      <path d="M-30 530 L30 370 L80 420 L140 340 L200 400 L255 350 L310 390 L365 345 L430 400 L430 560 Z" fill="#645c50"/>
     </g>
 
-    <!-- Foreground ridge -->
-    <g filter="url(#blur1)" opacity="0.7">
-      <path d="M-20 560 L40 460 L90 500 L150 440 L210 490 L270 445 L330 490 L410 520 L410 620 L-20 620 Z" fill="#5a5448"/>
+    <!-- Mid mountains with more detail -->
+    <g filter="url(#f2)" opacity="0.55">
+      <path d="M-30 570 L25 430 L60 460 L100 400 L145 445 L185 390 L225 440 L265 400 L305 445 L345 405 L390 440 L430 470 L430 600 Z" fill="#585044"/>
     </g>
 
-    <!-- Fog layer over mountains -->
-    <rect x="-20" y="420" width="430" height="120" fill="#ddd8cc" opacity="0.35" filter="url(#blur3)"/>
-    <rect x="-20" y="500" width="430" height="80" fill="#e0dcd4" opacity="0.45" filter="url(#blur2)"/>
+    <!-- Near ridge -->
+    <g filter="url(#f1)" opacity="0.65">
+      <path d="M-30 620 L20 510 L55 540 L95 490 L135 530 L170 500 L210 535 L250 505 L290 540 L330 510 L375 545 L430 525 L430 660 Z" fill="#4a4438"/>
+    </g>
 
-    <!-- Water/lake reflection -->
-    <path d="M-20 600 Q100 590 195 598 Q290 606 410 598 L410 680 Q290 672 195 680 Q100 688 -20 680 Z" fill="#c4bdb0" opacity="0.3" filter="url(#blur1)"/>
-    <path d="M-20 620 L410 620 L410 700 L-20 700 Z" fill="#ccc6bc" opacity="0.2"/>
+    <!-- Fog band across mid -->
+    <ellipse cx="195" cy="490" rx="260" ry="55" fill="#dad4c8" opacity="0.3" filter="url(#f3)"/>
+    <ellipse cx="195" cy="530" rx="280" ry="40" fill="#ddd8cc" opacity="0.35" filter="url(#f2)"/>
 
-    <!-- Fog fade to bottom (blends into card) -->
-    <rect x="0" y="480" width="390" height="364" fill="url(#fogGrad)"/>
+    <!-- Water / lake at bottom -->
+    <path d="M-30 640 Q60 630 195 638 Q320 646 430 636 L430 760 Q320 752 195 760 Q60 768 -30 758 Z" fill="url(#waterG)" filter="url(#f1)"/>
+
+    <!-- Subtle water reflections -->
+    <line x1="40" y1="660" x2="130" y2="660" stroke="#c0b8a8" stroke-width="1" opacity="0.25" filter="url(#f1)"/>
+    <line x1="200" y1="668" x2="310" y2="668" stroke="#c0b8a8" stroke-width="1" opacity="0.2" filter="url(#f1)"/>
+    <line x1="80" y1="680" x2="180" y2="680" stroke="#beb6a6" stroke-width="0.8" opacity="0.18" filter="url(#f1)"/>
+
+    <!-- Final fog fade to bottom -->
+    <rect x="0" y="520" width="390" height="324" fill="url(#fogG)"/>
   </svg>
 
-  <!-- Bottom card -->
+  <!-- Centered card with logo + login -->
   <div class="auth-card">
-    <!-- Logo floating above card -->
-    <div class="auth-logo-group">
-      <!-- Refined kettlebell-on-book logo -->
-      <svg width="110" height="110" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- Open book -->
-        <path d="M12 72 Q12 82 50 82 Q88 82 88 72 L88 65 Q88 56 50 56 Q12 56 12 65 Z" fill="#4a5a38"/>
-        <!-- Book spine -->
-        <line x1="50" y1="56" x2="50" y2="82" stroke="#f0ece2" stroke-width="2" stroke-linecap="round"/>
+    <div class="auth-logo-wrap">
+      <!-- Refined Iron & Word logo matching reference style -->
+      <svg width="120" height="108" viewBox="0 0 120 108" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Open book body -->
+        <path d="M8 78 Q8 92 60 92 Q112 92 112 78 L112 70 Q112 60 60 60 Q8 60 8 70 Z" fill="#3d4f2c"/>
+        <!-- Spine line -->
+        <line x1="60" y1="60" x2="60" y2="92" stroke="#f5f0e8" stroke-width="2.2" stroke-linecap="round"/>
         <!-- Left page lines -->
-        <line x1="19" y1="64" x2="45" y2="64" stroke="#f0ece2" stroke-width="1.3" stroke-linecap="round" opacity="0.6"/>
-        <line x1="19" y1="70" x2="45" y2="70" stroke="#f0ece2" stroke-width="1.3" stroke-linecap="round" opacity="0.6"/>
-        <line x1="19" y1="76" x2="38" y2="76" stroke="#f0ece2" stroke-width="1.3" stroke-linecap="round" opacity="0.35"/>
+        <line x1="16" y1="69" x2="54" y2="69" stroke="#f5f0e8" stroke-width="1.4" stroke-linecap="round" opacity="0.65"/>
+        <line x1="16" y1="76" x2="54" y2="76" stroke="#f5f0e8" stroke-width="1.4" stroke-linecap="round" opacity="0.65"/>
+        <line x1="16" y1="83" x2="42" y2="83" stroke="#f5f0e8" stroke-width="1.4" stroke-linecap="round" opacity="0.35"/>
         <!-- Right page lines -->
-        <line x1="81" y1="64" x2="55" y2="64" stroke="#f0ece2" stroke-width="1.3" stroke-linecap="round" opacity="0.6"/>
-        <line x1="81" y1="70" x2="55" y2="70" stroke="#f0ece2" stroke-width="1.3" stroke-linecap="round" opacity="0.6"/>
-        <line x1="81" y1="76" x2="62" y2="76" stroke="#f0ece2" stroke-width="1.3" stroke-linecap="round" opacity="0.35"/>
-        <!-- Book page curve (top of open book) -->
-        <path d="M50 56 Q38 50 12 52" fill="none" stroke="#4a5a38" stroke-width="2.5" stroke-linecap="round" opacity="0.4"/>
-        <path d="M50 56 Q62 50 88 52" fill="none" stroke="#4a5a38" stroke-width="2.5" stroke-linecap="round" opacity="0.4"/>
-        <!-- Kettlebell handle arc -->
-        <path d="M37 30 Q37 14 50 14 Q63 14 63 30" fill="none" stroke="#4a5a38" stroke-width="5.5" stroke-linecap="round"/>
-        <!-- Handle bar -->
-        <rect x="34" y="27" width="32" height="7" rx="3.5" fill="#4a5a38"/>
-        <!-- Bell body -->
-        <circle cx="50" cy="44" r="15" fill="#4a5a38"/>
-        <!-- Bell highlight -->
-        <circle cx="45" cy="40" r="3" fill="#6a7a58" opacity="0.4"/>
+        <line x1="104" y1="69" x2="66" y2="69" stroke="#f5f0e8" stroke-width="1.4" stroke-linecap="round" opacity="0.65"/>
+        <line x1="104" y1="76" x2="66" y2="76" stroke="#f5f0e8" stroke-width="1.4" stroke-linecap="round" opacity="0.65"/>
+        <line x1="104" y1="83" x2="78" y2="83" stroke="#f5f0e8" stroke-width="1.4" stroke-linecap="round" opacity="0.35"/>
+        <!-- Book open-curve at top (subtle pages spreading) -->
+        <path d="M60 60 Q44 54 12 57" fill="none" stroke="#3d4f2c" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+        <path d="M60 60 Q76 54 108 57" fill="none" stroke="#3d4f2c" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+
+        <!-- Kettlebell handle arc — clean & smooth -->
+        <path d="M42 36 Q42 16 60 16 Q78 16 78 36" fill="none" stroke="#3d4f2c" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Handle flat bar -->
+        <rect x="38" y="32" width="44" height="10" rx="5" fill="#3d4f2c"/>
+        <!-- Bell body — round weight -->
+        <circle cx="60" cy="50" r="18" fill="#3d4f2c"/>
+        <!-- Subtle highlight on bell -->
+        <circle cx="54" cy="45" r="4" fill="#567040" opacity="0.35"/>
       </svg>
     </div>
 
     <div class="auth-title">Iron & Word</div>
     <div class="auth-tagline">Track · Train · Transform</div>
 
-    <button class="btn-google" onclick="login()">
-      <svg viewBox="0 0 24 24" style="background:white;border-radius:50%;padding:2px">
-        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-      </svg>
-      Continue with Google
-    </button>
-
-    <div class="auth-footer">Your data is private and secure</div>
+    <div class="auth-glass">
+      <button class="btn-google" onclick="login()">
+        <svg viewBox="0 0 24 24" style="background:white;border-radius:50%;padding:2px;flex-shrink:0">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        Continue with Google
+      </button>
+      <div class="auth-footer">Your data is private and secure</div>
+    </div>
   </div>
 </div>
 
@@ -684,19 +743,23 @@ window.confirmImport = async () => {
   <!-- DASHBOARD -->
   <div class="page active" id="page-home">
     <div class="page-inner">
-      <!-- Month/Year selector -->
-      <div class="month-year-picker" id="month-year-picker">
-        <select class="month-select" id="dash-month" onchange="onDashDateChange()">
-          <option value="0">January</option><option value="1">February</option>
-          <option value="2">March</option><option value="3">April</option>
-          <option value="4">May</option><option value="5">June</option>
-          <option value="6">July</option><option value="7">August</option>
-          <option value="8">September</option><option value="9">October</option>
-          <option value="10">November</option><option value="11">December</option>
-        </select>
-        <select class="year-select" id="dash-year" onchange="onDashDateChange()"></select>
-        <button class="period-btn active" id="btn-ytd" onclick="setDashMode('ytd',this)">Year to Date</button>
-        <button class="period-btn" id="btn-all" onclick="setDashMode('all',this)">All Time</button>
+      <!-- Period picker -->
+      <div class="dash-period-bar">
+        <button id="dp-month" class="active" onclick="setDashMode('month')">Month</button>
+        <button id="dp-ytd" onclick="setDashMode('ytd')">Year to Date</button>
+        <button id="dp-custom" onclick="setDashMode('custom')">Custom</button>
+      </div>
+
+      <!-- Month scroll strip (visible in month mode) -->
+      <div class="month-strip-wrap" id="month-strip-wrap">
+        <div class="month-strip" id="month-strip"></div>
+      </div>
+
+      <!-- Custom date range (visible in custom mode) -->
+      <div class="custom-range-wrap" id="custom-range-wrap">
+        <input type="date" id="custom-from" onchange="loadDashboard()">
+        <span class="custom-range-sep">→</span>
+        <input type="date" id="custom-to" onchange="loadDashboard()">
       </div>
       <div id="dashboard-content"></div>
     </div>
@@ -862,6 +925,9 @@ async function init() {
   }
 
   initDashPicker();
+  // Show month strip by default
+  const stripWrap = document.getElementById("month-strip-wrap");
+  if (stripWrap) stripWrap.style.display = "block";
   document.getElementById("profile-avatar").textContent = currentUserName === "adam" ? "A" : "Ar";
   document.getElementById("profile-name").textContent = currentUserName === "adam" ? "Adam Hlávka" : "Ariel";
   document.getElementById("profile-email").textContent = email;
@@ -897,37 +963,55 @@ window.showPage = (page) => {
 };
 
 /* ── DATES ── */
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const MONTHS_FULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
 function initDashPicker() {
   const now = new Date();
-  const monthSel = document.getElementById("dash-month");
-  const yearSel = document.getElementById("dash-year");
-  if (!monthSel || !yearSel) return;
-  monthSel.value = now.getMonth();
-  // populate years from 2023 to current
-  for (let y = now.getFullYear(); y >= 2023; y--) {
-    const opt = document.createElement("option");
-    opt.value = y; opt.textContent = y;
-    yearSel.appendChild(opt);
-  }
-  yearSel.value = now.getFullYear();
   dashMonth = now.getMonth();
   dashYear = now.getFullYear();
+
+  // Build month strip: last 24 months, newest first
+  const strip = document.getElementById("month-strip");
+  if (!strip) return;
+  strip.innerHTML = "";
+  for (let i = 0; i < 24; i++) {
+    let m = now.getMonth() - i;
+    let y = now.getFullYear();
+    if (m < 0) { m += 12; y--; }
+    if (y < 2024) break;
+    const chip = document.createElement("button");
+    chip.className = "month-chip" + (i === 0 ? " active" : "");
+    chip.textContent = MONTHS[m] + " " + y;
+    chip.dataset.month = m;
+    chip.dataset.year = y;
+    chip.onclick = () => selectMonthChip(chip, m, y);
+    strip.appendChild(chip);
+  }
+
+  // Default custom range to current month
+  const pad = n => String(n).padStart(2,"0");
+  const firstDay = `${dashYear}-${pad(dashMonth+1)}-01`;
+  const lastDay = `${dashYear}-${pad(dashMonth+1)}-${new Date(dashYear, dashMonth+1, 0).getDate()}`;
+  document.getElementById("custom-from").value = firstDay;
+  document.getElementById("custom-to").value = lastDay;
 }
 
-window.onDashDateChange = () => {
-  dashMonth = parseInt(document.getElementById("dash-month").value);
-  dashYear = parseInt(document.getElementById("dash-year").value);
-  dashMode = "month";
-  document.getElementById("btn-ytd").classList.remove("active");
-  document.getElementById("btn-all").classList.remove("active");
+function selectMonthChip(el, month, year) {
+  document.querySelectorAll(".month-chip").forEach(c => c.classList.remove("active"));
+  el.classList.add("active");
+  dashMonth = month; dashYear = year;
   loadDashboard();
-};
+}
 
-window.setDashMode = (mode, btn) => {
+window.setDashMode = (mode) => {
   dashMode = mode;
-  document.getElementById("btn-ytd").classList.remove("active");
-  document.getElementById("btn-all").classList.remove("active");
-  btn.classList.add("active");
+  ["dp-month","dp-ytd","dp-custom"].forEach(id => {
+    document.getElementById(id)?.classList.remove("active");
+  });
+  document.getElementById("dp-" + mode)?.classList.add("active");
+  document.getElementById("month-strip-wrap").style.display = mode === "month" ? "block" : "none";
+  document.getElementById("custom-range-wrap").style.display = mode === "custom" ? "flex" : "none";
   loadDashboard();
 };
 
@@ -938,21 +1022,28 @@ function getDashRange() {
       end: new Date(dashYear, dashMonth + 1, 0, 23, 59, 59)
     };
   } else if (dashMode === "ytd") {
-    return { start: new Date(dashYear, 0, 1), end: new Date() };
-  } else {
-    return { start: new Date(2020, 0, 1), end: new Date() };
+    const now = new Date();
+    return { start: new Date(now.getFullYear(), 0, 1), end: now };
+  } else if (dashMode === "custom") {
+    const from = document.getElementById("custom-from").value;
+    const to = document.getElementById("custom-to").value;
+    return {
+      start: from ? new Date(from) : new Date(2024, 0, 1),
+      end: to ? new Date(to + "T23:59:59") : new Date()
+    };
   }
+  return { start: new Date(2024, 0, 1), end: new Date() };
 }
 
 function getDashLabel() {
-  if (dashMode === "month") {
-    const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-    return months[dashMonth] + " " + dashYear;
-  } else if (dashMode === "ytd") {
-    return "Year to Date " + dashYear;
-  } else {
-    return "All Time";
+  if (dashMode === "month") return MONTHS_FULL[dashMonth] + " " + dashYear;
+  if (dashMode === "ytd") return "Year to Date " + new Date().getFullYear();
+  if (dashMode === "custom") {
+    const from = document.getElementById("custom-from")?.value;
+    const to = document.getElementById("custom-to")?.value;
+    return (from || "?") + " → " + (to || "?");
   }
+  return "";
 }
 
 function filterByRange(data, range) {
