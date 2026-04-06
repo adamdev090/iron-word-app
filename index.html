@@ -441,19 +441,17 @@
   .import-log { font-size: 12px; color: var(--text2); margin-top: 12px; line-height: 1.8; text-align: left; background: var(--surface2); border-radius: 8px; padding: 12px; display: none; }
 
   /* ── 6 MONTH CHART ── */
-  .chart-section { margin-bottom: 10px; }
   .chart-card {
     background: var(--surface); border-radius: var(--r);
-    padding: 16px; margin-bottom: 10px;
+    padding: 16px 14px 16px; margin-bottom: 10px;
     box-shadow: 0 1px 4px rgba(0,0,0,0.05);
   }
   .chart-title {
     font-size: 12px; font-weight: 500; color: var(--text2);
-    letter-spacing: 0.3px; margin-bottom: 14px;
-    display: flex; align-items: center; gap: 6px;
+    margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
   }
   .chart-legend {
-    display: flex; gap: 14px; margin-bottom: 12px;
+    display: flex; gap: 14px; margin-bottom: 14px;
   }
   .chart-legend-item {
     display: flex; align-items: center; gap: 5px;
@@ -462,145 +460,53 @@
   .chart-legend-dot {
     width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
   }
-  .chart-bars {
-    display: flex; align-items: flex-end; gap: 6px;
-    height: 80px; padding-bottom: 20px; position: relative;
+  /* Full chart wrapper — column layout: bars on top, labels below */
+  .chart-wrap {
+    display: flex; gap: 4px;
   }
-  .chart-month-group {
-    flex: 1; display: flex; flex-direction: column;
-    align-items: center; gap: 0;
+  .chart-col {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
   }
-  .chart-bar-pair {
-    display: flex; gap: 2px; align-items: flex-end;
-    width: 100%; justify-content: center;
+  /* Bar area — fixed height, bars grow upward from bottom */
+  .chart-bar-zone {
+    width: 100%; height: 80px;
+    display: flex; align-items: flex-end; justify-content: center;
+    gap: 2px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 2px;
   }
   .chart-bar {
-    width: 44%; border-radius: 3px 3px 0 0;
-    min-height: 2px; transition: height 0.4s ease;
-    position: relative;
+    width: 42%; border-radius: 3px 3px 0 0; min-height: 3px;
+    flex-shrink: 0;
   }
-  .chart-bar.adam { background: var(--olive); }
-  .chart-bar.ariel { background: var(--gold); opacity: 0.85; }
-  .chart-bar.adam-dim { background: var(--olive); opacity: 0.35; }
-  .chart-bar.ariel-dim { background: var(--gold); opacity: 0.25; }
+  .chart-bar.adam      { background: var(--olive); }
+  .chart-bar.ariel     { background: var(--gold); }
+  .chart-bar.adam-dim  { background: var(--olive); opacity: 0.28; }
+  .chart-bar.ariel-dim { background: var(--gold);  opacity: 0.22; }
+  /* Numbers directly below bar zone */
+  .chart-nums {
+    display: flex; gap: 2px; justify-content: center;
+    width: 100%; margin-top: 4px;
+  }
+  .chart-num {
+    width: 42%; text-align: center; flex-shrink: 0;
+    font-size: 9px; font-weight: 500; line-height: 1;
+  }
+  .chart-num.adam  { color: var(--olive); }
+  .chart-num.ariel { color: #b8922a; }
+  .chart-num.dim   { opacity: 0.4; }
+  /* Month label below numbers */
   .chart-month-label {
     font-size: 9px; color: var(--text3); font-weight: 300;
-    margin-top: 5px; text-align: center; letter-spacing: 0.2px;
-  }
-  .chart-baseline {
-    position: absolute; bottom: 20px; left: 0; right: 0;
-    height: 1px; background: var(--border);
+    margin-top: 5px; text-align: center; white-space: nowrap;
   }
 
   /* ── EMPTY ── */
   .empty { text-align: center; padding: 28px 16px; color: var(--text3); }
   .empty-text { font-size: 13px; font-weight: 300; }
 
-  
-/* ── GOOGLE SHEETS IMPORT (Adam only) ── */
-window.runImport = async () => {
-  const url = document.getElementById("import-url").value.trim();
-  const log = document.getElementById("import-log");
-  log.style.display = "block";
-  log.textContent = "Fetching sheet...";
 
-  if (!url.includes("docs.google.com/spreadsheets")) {
-    log.textContent = "❌ Please paste a valid Google Sheets URL."; return;
-  }
-
-  // Extract sheet ID and convert to CSV export URL
-  const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
-  if (!match) { log.textContent = "❌ Could not extract sheet ID from URL."; return; }
-  const sheetId = match[1];
-
-  // Get gid if present
-  const gidMatch = url.match(/gid=(\d+)/);
-  const gid = gidMatch ? gidMatch[1] : "0";
-  const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
-
-  let csv;
-  try {
-    const res = await fetch(csvUrl);
-    if (!res.ok) throw new Error("Could not fetch sheet — make sure sharing is set to 'Anyone with the link'");
-    csv = await res.text();
-  } catch(e) {
-    log.textContent = "❌ " + e.message; return;
-  }
-
-  const rows = csv.trim().split("\n").map(r => r.split(",").map(c => c.replace(/^"|"$/g,"").trim()));
-  const headers = rows[0].map(h => h.toLowerCase());
-  log.textContent = `✅ Found ${rows.length - 1} rows. Headers: ${headers.join(", ")}\n\nPreview your columns then confirm below.`;
-
-  // Show column mapping UI
-  log.innerHTML += `<br><br><strong>Column mapping detected:</strong><br>` +
-    headers.map((h,i) => `${i}: ${h}`).join("<br>") +
-    `<br><br>Expected columns (case-insensitive): date, owner/user, type, workout_type, duration, intensity, focus, time_of_day, passage, notes<br><br>` +
-    `<button class="btn-primary" onclick="confirmImport()" style="margin-top:8px;max-width:200px">Confirm & Import</button>`;
-
-  // Store parsed rows for confirmImport
-  window._importRows = rows;
-  window._importHeaders = headers;
-};
-
-window.confirmImport = async () => {
-  const rows = window._importRows;
-  const headers = window._importHeaders;
-  const log = document.getElementById("import-log");
-
-  const idx = (name) => headers.findIndex(h => h.includes(name));
-
-  const dateIdx = idx("date");
-  const ownerIdx = idx("owner") >= 0 ? idx("owner") : idx("user");
-  const typeIdx = idx("type");
-  const workoutTypeIdx = idx("workout");
-  const durationIdx = idx("duration");
-  const intensityIdx = idx("intensity");
-  const focusIdx = idx("focus");
-  const timeIdx = idx("time");
-  const passageIdx = idx("passage");
-  const notesIdx = idx("note");
-
-  let inserted = 0, skipped = 0;
-
-  for (let i = 1; i < rows.length; i++) {
-    const r = rows[i];
-    if (!r || r.length < 2 || !r[dateIdx]) { skipped++; continue; }
-
-    const dateStr = r[dateIdx];
-    let parsedDate;
-    try {
-      parsedDate = new Date(dateStr);
-      if (isNaN(parsedDate)) { skipped++; continue; }
-    } catch(e) { skipped++; continue; }
-
-    const owner = ownerIdx >= 0 ? (r[ownerIdx].toLowerCase().includes("ariel") ? "ariel" : "adam") : "adam";
-    const type = typeIdx >= 0 ? (r[typeIdx].toLowerCase().includes("bible") ? "bible" : "workout") : "workout";
-
-    const data = {};
-    if (workoutTypeIdx >= 0 && r[workoutTypeIdx]) data.workout_type = r[workoutTypeIdx];
-    if (durationIdx >= 0 && r[durationIdx]) data.duration = r[durationIdx];
-    if (intensityIdx >= 0 && r[intensityIdx]) data.intensity = parseInt(r[intensityIdx]) || null;
-    if (focusIdx >= 0 && r[focusIdx]) data.focus = r[focusIdx];
-    if (timeIdx >= 0 && r[timeIdx]) data.time_of_day = r[timeIdx];
-    if (passageIdx >= 0 && r[passageIdx]) data.passage = r[passageIdx];
-    if (notesIdx >= 0 && r[notesIdx]) data.notes = r[notesIdx];
-
-    const { error } = await supabase.from("logs").insert([{
-      user_id: currentUser.id,
-      user_email: currentUser.email,
-      type, owner, data,
-      created_at: new Date(dateStr + "T12:00:00").toISOString(),
-      deleted: false
-    }]);
-
-    if (error) { skipped++; } else { inserted++; }
-    log.textContent = `Importing... ${inserted} inserted, ${skipped} skipped`;
-  }
-
-  log.textContent = `✅ Import complete! ${inserted} entries imported, ${skipped} skipped.\nRefresh the dashboard to see your data.`;
-};
-
-/* ── TOAST ── */
+  /* ── TOAST ── */
   .toast { position: fixed; bottom: calc(var(--tab-h) + var(--safe-bottom) + 16px); left: 50%; transform: translateX(-50%) translateY(8px); background: var(--text); color: white; padding: 11px 20px; border-radius: 10px; font-size: 13px; font-weight: 500; opacity: 0; transition: all 0.25s; z-index: 400; white-space: nowrap; pointer-events: none; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
@@ -1233,29 +1139,40 @@ async function loadDashboard() {
   }));
 
   const buildChart = (data, keyA, keyB, icon, title) => {
+    const MAX_H = 70; // max bar height px
     const maxVal = Math.max(...data.map(d => Math.max(d[keyA], d[keyB])), 1);
-    const barH = (val) => Math.round((val / maxVal) * 60);
-    const bars = months6.map(({label}, i) => {
+    const barH = (val) => val === 0 ? 3 : Math.max(5, Math.round((val / maxVal) * MAX_H));
+
+    const cols = months6.map(({label}, i) => {
       const a = data[i][keyA], b = data[i][keyB];
-      const isCurrent = i === 5;
-      return `<div class="chart-month-group">
-        <div class="chart-bar-pair">
-          <div class="chart-bar ${isCurrent?"adam":"adam-dim"}" style="height:${barH(a)}px" title="Adam: ${a}"></div>
-          <div class="chart-bar ${isCurrent?"ariel":"ariel-dim"}" style="height:${barH(b)}px" title="Ariel: ${b}"></div>
+      const cur = i === 5;
+      const ac = cur ? "adam"  : "adam-dim";
+      const bc = cur ? "ariel" : "ariel-dim";
+      const nd = cur ? "" : " dim";
+      return `<div class="chart-col">
+        <div class="chart-bar-zone">
+          <div class="chart-bar ${ac}" style="height:${barH(a)}px"></div>
+          <div class="chart-bar ${bc}" style="height:${barH(b)}px"></div>
+        </div>
+        <div class="chart-nums">
+          <div class="chart-num adam${nd}">${a}</div>
+          <div class="chart-num ariel${nd}">${b}</div>
         </div>
         <div class="chart-month-label">${label}</div>
       </div>`;
     }).join("");
+
     return `<div class="chart-card">
       <div class="chart-title">${icon} ${title}</div>
       <div class="chart-legend">
-        <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--olive)"></div>Adam</div>
-        <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--gold)"></div>Ariel</div>
+        <div class="chart-legend-item">
+          <div class="chart-legend-dot" style="background:var(--olive)"></div>Adam
+        </div>
+        <div class="chart-legend-item">
+          <div class="chart-legend-dot" style="background:var(--gold)"></div>Ariel
+        </div>
       </div>
-      <div class="chart-bars">
-        <div class="chart-baseline"></div>
-        ${bars}
-      </div>
+      <div class="chart-wrap">${cols}</div>
     </div>`;
   };
 
