@@ -1329,27 +1329,69 @@ window.updateSlider = (field, value) => {
 /* ── SAVE ── */
 window.saveEntry = async () => {
   if (!selectedLogType) return;
-  if (selectedLogType === "workout" && !logFormData.workout_type) { showToast("Select a workout type"); return; }
-  if (selectedLogType === "bible" && !logFormData.passage?.trim()) { showToast("Enter a Bible passage"); return; }
-  if (selectedLogType === "cold" && !logFormData.method) { showToast("Select a method"); return; }
-  if (selectedLogType === "sauna" && !logFormData.sauna_type) { showToast("Select sauna type"); return; }
 
-  const btn = document.querySelector("#page-log .btn-primary");
-  if (btn) { btn.disabled = true; btn.textContent = "Saving…"; }
+  // Validation — show clear feedback and stop
+  if (selectedLogType === "workout" && !logFormData.workout_type) {
+    showToast("Please select a workout type"); return;
+  }
+  if (selectedLogType === "bible" && !logFormData.passage?.trim()) {
+    showToast("Please enter a Bible passage"); return;
+  }
+  if (selectedLogType === "cold" && !logFormData.method) {
+    showToast("Please select a method"); return;
+  }
+  if (selectedLogType === "sauna" && !logFormData.sauna_type) {
+    showToast("Please select sauna type"); return;
+  }
 
-  const owner = (selectedLogType === "cold" || selectedLogType === "sauna") ? "adam" : logAs;
-  const entryDate = logFormData._date || todayDateStr();
-  const { _date, ...entryData } = logFormData;
-  const created_at = new Date(entryDate + "T12:00:00").toISOString();
-  const { error } = await supabase.from("logs").insert([{
-    user_id: currentUser.id, user_email: currentUser.email,
-    type: selectedLogType, owner, data: entryData,
-    created_at, deleted: false
-  }]);
+  // Find the save button and show loading state
+  const btns = document.querySelectorAll("#page-log .btn-primary");
+  const btn = btns[btns.length - 1]; // last button = save button
+  const originalText = btn ? btn.textContent : "Save";
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Saving…";
+    btn.style.opacity = "0.7";
+  }
 
-  if (error) { showToast("Error — try again"); if (btn) { btn.disabled = false; btn.textContent = "Save"; } return; }
-  showToast("✓ Saved");
-  setTimeout(() => showPage("home"), 500);
+  try {
+    const owner = (selectedLogType === "cold" || selectedLogType === "sauna") ? "adam" : logAs;
+    const entryDate = logFormData._date || todayDateStr();
+    const { _date, ...entryData } = logFormData;
+    const created_at = new Date(entryDate + "T12:00:00").toISOString();
+
+    const { error } = await supabase.from("logs").insert([{
+      user_id: currentUser.id,
+      user_email: currentUser.email,
+      type: selectedLogType,
+      owner,
+      data: entryData,
+      created_at,
+      deleted: false
+    }]);
+
+    if (error) throw error;
+
+    // Success — reset form, reload data, navigate home
+    showToast("✓ Saved");
+    selectedLogType = null;
+    logFormData = {};
+    document.getElementById("log-form-area").innerHTML = "";
+    renderLogTypeGrid();
+
+    // Reload dashboard and history before navigating
+    await Promise.all([loadDashboard(), loadHistory()]);
+    showPage("home");
+
+  } catch (err) {
+    console.error("Save error:", err);
+    showToast("Error saving — please try again");
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = originalText;
+      btn.style.opacity = "1";
+    }
+  }
 };
 
 
