@@ -716,9 +716,14 @@ window.confirmImport = async () => {
 
       <!-- Custom date range (visible in custom mode only) -->
       <div class="custom-range-wrap" id="custom-range-wrap">
-        <input type="date" id="custom-from" onchange="loadDashboard()">
+        <input type="date" id="custom-from" onchange="loadDashboard()" oninput="loadDashboard()">
         <span class="custom-range-sep">→</span>
-        <input type="date" id="custom-to" onchange="loadDashboard()">
+        <input type="date" id="custom-to" onchange="loadDashboard()" oninput="loadDashboard()">
+        <button onclick="loadDashboard()" style="
+          padding: 8px 14px; border-radius: 10px; border: none;
+          background: var(--olive); color: white; font-size: 13px;
+          font-family: 'Inter', sans-serif; cursor: pointer; flex-shrink: 0;
+        ">Apply</button>
       </div>
       <div id="dashboard-content"></div>
     </div>
