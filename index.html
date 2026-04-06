@@ -819,14 +819,12 @@ const supabase = createClient(
   "sb_publishable_c-u4pzu0HaUvKh6Wgwa5iw_0IKCNOKR"
 );
 
-const ALLOWED = ["adamhlavka@gmail.com", "zmudariel@gmail.com"];
-const ADAM = "adamhlavka@gmail.com";
 const NETLIFY_URL = "https://ironandword.netlify.app";
 
 let currentUser = null, currentUserName = "";
-let previewAs = "adam";   // what dashboard/history shows (adam can toggle to "ariel")
-let logAs = "adam";       // who we're logging for (adam can switch to "ariel")
-let dashMode = "month"; // "month", "ytd", "all"
+let previewAs = "adam";
+let logAs = "adam";
+let dashMode = "month";
 let dashMonth = new Date().getMonth();
 let dashYear = new Date().getFullYear();
 let historyPeriod = "all", histTab = "all";
@@ -851,15 +849,50 @@ async function init() {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) { document.getElementById("auth-screen").style.display = "flex"; return; }
 
-  const email = session.user.email.toLowerCase();
-  if (!ALLOWED.includes(email)) {
+  // Check if this user has any logs in the database — if not, they're not allowed
+  // Identity (adam vs ariel) is determined by checking the owner field in their logs
+  const { data: profile, error: profileErr } = await supabase
+    .from("logs")
+    .select("owner")
+    .eq("deleted", false)
+    .limit(1);
+
+  // If they have no records at all, check via a direct owner lookup
+  const { data: ownerCheck } = await supabase
+    .from("logs")
+    .select("owner")
+    .limit(1);
+
+  // Determine identity: RLS will only return rows this user is allowed to see
+  // Adam can see all rows; Ariel can only see her own
+  // So we check: can this user see rows owned by "adam"?
+  const { data: adamRows } = await supabase
+    .from("logs")
+    .select("id")
+    .eq("owner", "adam")
+    .eq("deleted", false)
+    .limit(1);
+
+  const { data: arielRows } = await supabase
+    .from("logs")
+    .select("id")
+    .eq("owner", "ariel")
+    .eq("deleted", false)
+    .limit(1);
+
+  // If they can't see any rows at all, they're not an authorised user
+  const canSeeAdam = adamRows && adamRows.length > 0;
+  const canSeeAriel = arielRows && arielRows.length > 0;
+
+  if (!canSeeAdam && !canSeeAriel) {
     await supabase.auth.signOut();
-    document.body.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:'Inter',sans-serif">🔒 Private App</div>`;
+    document.body.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:'Inter',sans-serif;color:#6b6650">🔒 Private App</div>`;
     return;
   }
 
+  // Adam can see both; Ariel can only see ariel rows (RLS blocks adam rows for her)
   currentUser = session.user;
-  currentUserName = email === ADAM ? "adam" : "ariel";
+  currentUserName = canSeeAdam && canSeeAriel ? "adam" : "ariel";
   previewAs = currentUserName;
   logAs = currentUserName;
 
@@ -872,7 +905,6 @@ async function init() {
     document.getElementById("lt-cold").style.display = "flex";
     document.getElementById("lt-sauna").style.display = "flex";
     document.getElementById("hist-tab-private").style.display = "block";
-    // re-hide private tab if we switch to Ariel preview
     document.getElementById("pill-ariel").addEventListener("click", () => {
       document.getElementById("hist-tab-private").style.display = "none";
       if (histTab === "private") { histTab = "all"; document.querySelectorAll(".hist-tab").forEach(b => b.classList.remove("active")); document.querySelector(".hist-tab").classList.add("active"); }
@@ -884,8 +916,8 @@ async function init() {
 
   initDashPicker();
   document.getElementById("profile-avatar").textContent = currentUserName === "adam" ? "A" : "Ar";
-  document.getElementById("profile-name").textContent = currentUserName === "adam" ? "Adam Hlávka" : "Ariel";
-  document.getElementById("profile-email").textContent = email;
+  document.getElementById("profile-name").textContent = currentUserName === "adam" ? "Adam" : "Ariel";
+  document.getElementById("profile-email").textContent = "Signed in with Google";
 
   loadDashboard(); loadHistory();
 }
