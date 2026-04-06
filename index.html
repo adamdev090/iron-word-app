@@ -440,6 +440,58 @@
   .import-input:focus { border-color: var(--olive); }
   .import-log { font-size: 12px; color: var(--text2); margin-top: 12px; line-height: 1.8; text-align: left; background: var(--surface2); border-radius: 8px; padding: 12px; display: none; }
 
+  /* ── 6 MONTH CHART ── */
+  .chart-section { margin-bottom: 10px; }
+  .chart-card {
+    background: var(--surface); border-radius: var(--r);
+    padding: 16px; margin-bottom: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+  .chart-title {
+    font-size: 12px; font-weight: 500; color: var(--text2);
+    letter-spacing: 0.3px; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .chart-legend {
+    display: flex; gap: 14px; margin-bottom: 12px;
+  }
+  .chart-legend-item {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 11px; color: var(--text2); font-weight: 300;
+  }
+  .chart-legend-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  }
+  .chart-bars {
+    display: flex; align-items: flex-end; gap: 6px;
+    height: 80px; padding-bottom: 20px; position: relative;
+  }
+  .chart-month-group {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; gap: 0;
+  }
+  .chart-bar-pair {
+    display: flex; gap: 2px; align-items: flex-end;
+    width: 100%; justify-content: center;
+  }
+  .chart-bar {
+    width: 44%; border-radius: 3px 3px 0 0;
+    min-height: 2px; transition: height 0.4s ease;
+    position: relative;
+  }
+  .chart-bar.adam { background: var(--olive); }
+  .chart-bar.ariel { background: var(--gold); opacity: 0.85; }
+  .chart-bar.adam-dim { background: var(--olive); opacity: 0.35; }
+  .chart-bar.ariel-dim { background: var(--gold); opacity: 0.25; }
+  .chart-month-label {
+    font-size: 9px; color: var(--text3); font-weight: 300;
+    margin-top: 5px; text-align: center; letter-spacing: 0.2px;
+  }
+  .chart-baseline {
+    position: absolute; bottom: 20px; left: 0; right: 0;
+    height: 1px; background: var(--border);
+  }
+
   /* ── EMPTY ── */
   .empty { text-align: center; padding: 28px 16px; color: var(--text3); }
   .empty-text { font-size: 13px; font-weight: 300; }
@@ -1147,8 +1199,69 @@ async function loadDashboard() {
       <div class="private-card"><span class="private-icon">🔥</span><div class="private-num">${saunas}</div><div class="private-label">Sauna Sessions</div></div>
     </div>` : ""}
 
+    <div class="section-label">Last 6 Months</div>
+    <div id="chart-section"></div>
+
     <div class="section-label">Recent Activity</div>
     <div class="card"><div id="recent-list"></div></div>`;
+
+  // ── Build 6-month chart ──
+  const now2 = new Date();
+  const months6 = [];
+  for (let i = 5; i >= 0; i--) {
+    let m = now2.getMonth() - i;
+    let y = now2.getFullYear();
+    if (m < 0) { m += 12; y--; }
+    months6.push({ m, y, label: MONTHS[m] });
+  }
+
+  // Count per month per person per type
+  const countFor = (owner, type, m, y) =>
+    allData.filter(r =>
+      r.owner === owner && r.type === type && !r.deleted &&
+      new Date(r.created_at).getMonth() === m &&
+      new Date(r.created_at).getFullYear() === y
+    ).length;
+
+  const wData = months6.map(({m,y}) => ({
+    adamW: countFor("adam","workout",m,y),
+    arielW: countFor("ariel","workout",m,y)
+  }));
+  const bData = months6.map(({m,y}) => ({
+    adamB: countFor("adam","bible",m,y),
+    arielB: countFor("ariel","bible",m,y)
+  }));
+
+  const buildChart = (data, keyA, keyB, icon, title) => {
+    const maxVal = Math.max(...data.map(d => Math.max(d[keyA], d[keyB])), 1);
+    const barH = (val) => Math.round((val / maxVal) * 60);
+    const bars = months6.map(({label}, i) => {
+      const a = data[i][keyA], b = data[i][keyB];
+      const isCurrent = i === 5;
+      return `<div class="chart-month-group">
+        <div class="chart-bar-pair">
+          <div class="chart-bar ${isCurrent?"adam":"adam-dim"}" style="height:${barH(a)}px" title="Adam: ${a}"></div>
+          <div class="chart-bar ${isCurrent?"ariel":"ariel-dim"}" style="height:${barH(b)}px" title="Ariel: ${b}"></div>
+        </div>
+        <div class="chart-month-label">${label}</div>
+      </div>`;
+    }).join("");
+    return `<div class="chart-card">
+      <div class="chart-title">${icon} ${title}</div>
+      <div class="chart-legend">
+        <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--olive)"></div>Adam</div>
+        <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--gold)"></div>Ariel</div>
+      </div>
+      <div class="chart-bars">
+        <div class="chart-baseline"></div>
+        ${bars}
+      </div>
+    </div>`;
+  };
+
+  document.getElementById("chart-section").innerHTML =
+    buildChart(wData, "adamW", "arielW", "🏋️", "Workouts") +
+    buildChart(bData, "adamB", "arielB", "📖", "Bible Reading");
 
   const recent = [...allData].filter(r => r.type !== "cold" && r.type !== "sauna")
     .sort((a,b) => new Date(b.created_at)-new Date(a.created_at)).slice(0,6);
