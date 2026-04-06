@@ -716,10 +716,10 @@ window.confirmImport = async () => {
 
       <!-- Custom date range (visible in custom mode only) -->
       <div class="custom-range-wrap" id="custom-range-wrap">
-        <input type="date" id="custom-from" onchange="loadDashboard()" oninput="loadDashboard()">
+        <input type="date" id="custom-from" onchange="applyCustomRange()" oninput="applyCustomRange()">
         <span class="custom-range-sep">→</span>
-        <input type="date" id="custom-to" onchange="loadDashboard()" oninput="loadDashboard()">
-        <button onclick="loadDashboard()" style="
+        <input type="date" id="custom-to" onchange="applyCustomRange()" oninput="applyCustomRange()">
+        <button onclick="applyCustomRange()" style="
           padding: 8px 14px; border-radius: 10px; border: none;
           background: var(--olive); color: white; font-size: 13px;
           font-family: 'Inter', sans-serif; cursor: pointer; flex-shrink: 0;
@@ -986,6 +986,20 @@ function selectMonthChip(el, month, year) {
   dashMonth = month; dashYear = year;
   loadDashboard();
 }
+
+window.applyCustomRange = () => {
+  // Ensure we're in custom mode, then reload
+  dashMode = "custom";
+  ["dp-month","dp-ytd","dp-custom"].forEach(id => {
+    document.getElementById(id)?.classList.remove("active");
+  });
+  document.getElementById("dp-custom")?.classList.add("active");
+  document.getElementById("custom-range-wrap").style.display = "flex";
+  const from = document.getElementById("custom-from").value;
+  const to = document.getElementById("custom-to").value;
+  if (from && to) loadDashboard();
+  else if (from || to) loadDashboard(); // load even with just one date
+};
 
 window.setDashMode = (mode) => {
   dashMode = mode;
