@@ -988,17 +988,28 @@ function selectMonthChip(el, month, year) {
 }
 
 window.applyCustomRange = () => {
-  // Ensure we're in custom mode, then reload
   dashMode = "custom";
   ["dp-month","dp-ytd","dp-custom"].forEach(id => {
     document.getElementById(id)?.classList.remove("active");
   });
   document.getElementById("dp-custom")?.classList.add("active");
   document.getElementById("custom-range-wrap").style.display = "flex";
+
   const from = document.getElementById("custom-from").value;
   const to = document.getElementById("custom-to").value;
-  if (from && to) loadDashboard();
-  else if (from || to) loadDashboard(); // load even with just one date
+
+  // Visual confirmation on the Apply button
+  const applyBtn = document.querySelector("#custom-range-wrap button");
+  if (applyBtn) {
+    applyBtn.textContent = "✓ Applied";
+    applyBtn.style.background = "#2d7a3a";
+    setTimeout(() => {
+      applyBtn.textContent = "Apply";
+      applyBtn.style.background = "";
+    }, 1800);
+  }
+
+  loadDashboard();
 };
 
 window.setDashMode = (mode) => {
