@@ -1271,7 +1271,7 @@ function workoutForm() { return `
   </div>
   <div class="section-label">Notes</div>
   <div class="card" style="padding:16px"><textarea class="form-input" rows="3" placeholder="How did it go?" style="resize:none" oninput="setField('notes',this.value)"></textarea></div>
-  <button class="btn-primary" onclick="saveEntry()">Save Workout</button><div style="height:16px"></div>`; }
+  <button class="btn-primary" id="save-btn" onclick="saveEntry()">Save Workout</button><div style="height:16px"></div>`; }
 
 function bibleForm() { return `
   <div class="section-label" style="margin-top:20px">Passage</div>
@@ -1281,7 +1281,7 @@ function bibleForm() { return `
   <div class="card" style="padding:16px"><input class="form-input" type="number" min="1" placeholder="20" oninput="setField('duration',this.value)"></div>
   <div class="section-label">Notes & Reflections</div>
   <div class="card" style="padding:16px"><textarea class="form-input" rows="4" placeholder="What stood out to you?" style="resize:none" oninput="setField('notes',this.value)"></textarea></div>
-  <button class="btn-primary" onclick="saveEntry()">Save Reading</button><div style="height:16px"></div>`; }
+  <button class="btn-primary" id="save-btn" onclick="saveEntry()">Save Reading</button><div style="height:16px"></div>`; }
 
 function coldForm() { return `
   <div class="section-label" style="margin-top:20px">Method</div>
@@ -1297,7 +1297,7 @@ function coldForm() { return `
   </div>
   <div class="section-label">Notes</div>
   <div class="card" style="padding:16px"><textarea class="form-input" rows="3" placeholder="How did it feel?" style="resize:none" oninput="setField('notes',this.value)"></textarea></div>
-  <button class="btn-primary" onclick="saveEntry()">Save Cold Session</button><div style="height:16px"></div>`; }
+  <button class="btn-primary" id="save-btn" onclick="saveEntry()">Save Cold Session</button><div style="height:16px"></div>`; }
 
 function saunaForm() { return `
   <div class="section-label" style="margin-top:20px">Type</div>
@@ -1312,7 +1312,7 @@ function saunaForm() { return `
   </div>
   <div class="section-label">Notes</div>
   <div class="card" style="padding:16px"><textarea class="form-input" rows="3" placeholder="How was it?" style="resize:none" oninput="setField('notes',this.value)"></textarea></div>
-  <button class="btn-primary" onclick="saveEntry()">Save Sauna Session</button><div style="height:16px"></div>`; }
+  <button class="btn-primary" id="save-btn" onclick="saveEntry()">Save Sauna Session</button><div style="height:16px"></div>`; }
 
 /* ── HELPERS ── */
 window.toggleChip = (el, field, value, exclusive) => {
@@ -1345,8 +1345,7 @@ window.saveEntry = async () => {
   }
 
   // Find the save button and show loading state
-  const btns = document.querySelectorAll("#page-log .btn-primary");
-  const btn = btns[btns.length - 1]; // last button = save button
+  const btn = document.getElementById("save-btn");
   const originalText = btn ? btn.textContent : "Save";
   if (btn) {
     btn.disabled = true;
