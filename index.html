@@ -719,11 +719,7 @@ window.confirmImport = async () => {
         <input type="date" id="custom-from" onchange="applyCustomRange()" oninput="applyCustomRange()">
         <span class="custom-range-sep">→</span>
         <input type="date" id="custom-to" onchange="applyCustomRange()" oninput="applyCustomRange()">
-        <button onclick="applyCustomRange()" style="
-          padding: 8px 14px; border-radius: 10px; border: none;
-          background: var(--olive); color: white; font-size: 13px;
-          font-family: 'Inter', sans-serif; cursor: pointer; flex-shrink: 0;
-        ">Apply</button>
+
       </div>
       <div id="dashboard-content"></div>
     </div>
@@ -941,6 +937,17 @@ window.setPreview = (who) => {
   document.getElementById("pill-adam").classList.toggle("active", who === "adam");
   document.getElementById("pill-ariel").classList.toggle("active", who === "ariel");
   document.getElementById("topbar-title").textContent = who === "ariel" ? "Ariel's View" : "Iron & Word";
+  // Hide/show private log types based on whose view we're in
+  const showPrivate = who === "adam";
+  document.getElementById("lt-cold").style.display = showPrivate ? "flex" : "none";
+  document.getElementById("lt-sauna").style.display = showPrivate ? "flex" : "none";
+  // If currently selected type is private, reset the form
+  if (!showPrivate && (selectedLogType === "cold" || selectedLogType === "sauna")) {
+    selectedLogType = null;
+    logFormData = {};
+    document.getElementById("log-form-area").innerHTML = "";
+    renderLogTypeGrid();
+  }
   loadDashboard(); loadHistory();
 };
 
@@ -970,9 +977,9 @@ function initDashPicker() {
   const now = new Date();
   dashMonth = now.getMonth();
   dashYear = now.getFullYear();
-  // Set month button label to current month name
+  // Set month button label to "This Month (April)" style
   const monthBtn = document.getElementById("dp-month");
-  if (monthBtn) monthBtn.textContent = MONTHS_FULL[now.getMonth()];
+  if (monthBtn) monthBtn.textContent = "This Month (" + MONTHS_FULL[now.getMonth()] + ")";
   // Default custom range to current month
   const pad = n => String(n).padStart(2,"0");
   const y = now.getFullYear(), m = now.getMonth();
