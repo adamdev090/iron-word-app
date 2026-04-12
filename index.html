@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Iron & Word</title>
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Iron & Word">
+<meta name="theme-color" content="#4a5a38">
+<link rel="apple-touch-icon" href="icon-192.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 
@@ -937,7 +945,7 @@ function initDashPicker() {
   dashYear = now.getFullYear();
   // Set month button label to "This Month (April)" style
   const monthBtn = document.getElementById("dp-month");
-  if (monthBtn) monthBtn.textContent = "This Month (" + MONTHS_FULL[now.getMonth()] + ")";
+  if (monthBtn) monthBtn.textContent = MONTHS_FULL[now.getMonth()] + " " + now.getFullYear();
   // Default custom range to current month
   const pad = n => String(n).padStart(2,"0");
   const y = now.getFullYear(), m = now.getMonth();
@@ -1565,6 +1573,13 @@ window.showToast = (msg) => {
   t.textContent = msg; t.classList.add("show");
   setTimeout(() => t.classList.remove("show"), 2200);
 };
+
+// Register service worker for PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
 
 window.onload = init;
 </script>
