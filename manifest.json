@@ -2,7 +2,7 @@
   "name": "Iron & Word",
   "short_name": "Iron & Word",
   "description": "Track workouts and Bible reading. Strength is built in the quiet hours.",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#f0ece2",
   "theme_color": "#4a5a38",
