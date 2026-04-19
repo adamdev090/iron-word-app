@@ -826,10 +826,17 @@ let selectedLogType = null, logFormData = {};
 
 /* ── AUTH ── */
 window.login = async () => {
-  await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: { redirectTo: NETLIFY_URL, queryParams: { prompt: "select_account" } }
-  });
+  try {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: NETLIFY_URL, queryParams: { prompt: "select_account" } }
+    });
+    if (error) {
+      alert("Login error: " + error.message);
+    }
+  } catch(e) {
+    alert("Login failed: " + e.message);
+  }
 };
 window.logout = async () => { await supabase.auth.signOut(); location.reload(); };
 
