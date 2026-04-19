@@ -51,7 +51,7 @@
 
   /* ── AUTH ── */
   #auth-screen {
-    display: none;
+    display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -1612,12 +1612,18 @@ setTimeout(() => t.classList.remove(“show”), 2200);
 
 // Register service worker for PWA
 if (‘serviceWorker’ in navigator) {
-window.addEventListener(‘load’, () => {
 navigator.serviceWorker.register(‘sw.js’).catch(() => {});
-});
 }
 
-window.onload = init;
+// Init app
+document.addEventListener(‘DOMContentLoaded’, () => {
+init().catch(e => {
+console.error(‘Init error:’, e);
+// If init crashes, at least show the login screen
+const a = document.getElementById(‘auth-screen’);
+if (a) a.style.display = ‘flex’;
+});
+});
 </script>
 
 </body>
