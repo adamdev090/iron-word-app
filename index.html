@@ -835,6 +835,14 @@ window.logout = async () => { await supabase.auth.signOut(); location.reload(); 
 
 async function init() {
   const h = window.location.hash, s = window.location.search;
+
+  // If there's an OAuth error in the URL, clean it and show login
+  if (s.includes("error=") || h.includes("error=")) {
+    window.history.replaceState({}, document.title, window.location.pathname);
+    document.getElementById("auth-screen").style.display = "flex";
+    return;
+  }
+
   if (s.includes("code=") || h.includes("access_token")) {
     try { await supabase.auth.exchangeCodeForSession(window.location.href); } catch(e) { console.log("exchange error", e); }
     window.history.replaceState({}, document.title, window.location.pathname);
