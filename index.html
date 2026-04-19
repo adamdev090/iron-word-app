@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Iron & Word</title>
+<!-- PWA -->
+<link rel="manifest" href="./manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Iron & Word">
+<meta name="theme-color" content="#4a5a38">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 
@@ -440,115 +448,73 @@
   .import-input:focus { border-color: var(--olive); }
   .import-log { font-size: 12px; color: var(--text2); margin-top: 12px; line-height: 1.8; text-align: left; background: var(--surface2); border-radius: 8px; padding: 12px; display: none; }
 
+  /* ── 6 MONTH CHART ── */
+  .chart-card {
+    background: var(--surface); border-radius: var(--r);
+    padding: 16px 14px 16px; margin-bottom: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+  .chart-title {
+    font-size: 12px; font-weight: 500; color: var(--text2);
+    margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+  }
+  .chart-legend {
+    display: flex; gap: 14px; margin-bottom: 14px;
+  }
+  .chart-legend-item {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 11px; color: var(--text2); font-weight: 300;
+  }
+  .chart-legend-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  }
+  /* Full chart wrapper — column layout: bars on top, labels below */
+  .chart-wrap {
+    display: flex; gap: 4px;
+  }
+  .chart-col {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+  }
+  /* Bar area — fixed height, bars grow upward from bottom */
+  .chart-bar-zone {
+    width: 100%; height: 80px;
+    display: flex; align-items: flex-end; justify-content: center;
+    gap: 2px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 2px;
+  }
+  .chart-bar {
+    width: 42%; border-radius: 3px 3px 0 0; min-height: 3px;
+    flex-shrink: 0;
+  }
+  .chart-bar.adam      { background: var(--olive); }
+  .chart-bar.ariel     { background: var(--gold); }
+  .chart-bar.adam-dim  { background: var(--olive); opacity: 0.28; }
+  .chart-bar.ariel-dim { background: var(--gold);  opacity: 0.22; }
+  /* Numbers directly below bar zone */
+  .chart-nums {
+    display: flex; gap: 2px; justify-content: center;
+    width: 100%; margin-top: 4px;
+  }
+  .chart-num {
+    width: 42%; text-align: center; flex-shrink: 0;
+    font-size: 9px; font-weight: 500; line-height: 1;
+  }
+  .chart-num.adam  { color: var(--olive); }
+  .chart-num.ariel { color: #b8922a; }
+  .chart-num.dim   { opacity: 0.4; }
+  /* Month label below numbers */
+  .chart-month-label {
+    font-size: 9px; color: var(--text3); font-weight: 300;
+    margin-top: 5px; text-align: center; white-space: nowrap;
+  }
+
   /* ── EMPTY ── */
   .empty { text-align: center; padding: 28px 16px; color: var(--text3); }
   .empty-text { font-size: 13px; font-weight: 300; }
 
-  
-/* ── GOOGLE SHEETS IMPORT (Adam only) ── */
-window.runImport = async () => {
-  const url = document.getElementById("import-url").value.trim();
-  const log = document.getElementById("import-log");
-  log.style.display = "block";
-  log.textContent = "Fetching sheet...";
 
-  if (!url.includes("docs.google.com/spreadsheets")) {
-    log.textContent = "❌ Please paste a valid Google Sheets URL."; return;
-  }
-
-  // Extract sheet ID and convert to CSV export URL
-  const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
-  if (!match) { log.textContent = "❌ Could not extract sheet ID from URL."; return; }
-  const sheetId = match[1];
-
-  // Get gid if present
-  const gidMatch = url.match(/gid=(\d+)/);
-  const gid = gidMatch ? gidMatch[1] : "0";
-  const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
-
-  let csv;
-  try {
-    const res = await fetch(csvUrl);
-    if (!res.ok) throw new Error("Could not fetch sheet — make sure sharing is set to 'Anyone with the link'");
-    csv = await res.text();
-  } catch(e) {
-    log.textContent = "❌ " + e.message; return;
-  }
-
-  const rows = csv.trim().split("\n").map(r => r.split(",").map(c => c.replace(/^"|"$/g,"").trim()));
-  const headers = rows[0].map(h => h.toLowerCase());
-  log.textContent = `✅ Found ${rows.length - 1} rows. Headers: ${headers.join(", ")}\n\nPreview your columns then confirm below.`;
-
-  // Show column mapping UI
-  log.innerHTML += `<br><br><strong>Column mapping detected:</strong><br>` +
-    headers.map((h,i) => `${i}: ${h}`).join("<br>") +
-    `<br><br>Expected columns (case-insensitive): date, owner/user, type, workout_type, duration, intensity, focus, time_of_day, passage, notes<br><br>` +
-    `<button class="btn-primary" onclick="confirmImport()" style="margin-top:8px;max-width:200px">Confirm & Import</button>`;
-
-  // Store parsed rows for confirmImport
-  window._importRows = rows;
-  window._importHeaders = headers;
-};
-
-window.confirmImport = async () => {
-  const rows = window._importRows;
-  const headers = window._importHeaders;
-  const log = document.getElementById("import-log");
-
-  const idx = (name) => headers.findIndex(h => h.includes(name));
-
-  const dateIdx = idx("date");
-  const ownerIdx = idx("owner") >= 0 ? idx("owner") : idx("user");
-  const typeIdx = idx("type");
-  const workoutTypeIdx = idx("workout");
-  const durationIdx = idx("duration");
-  const intensityIdx = idx("intensity");
-  const focusIdx = idx("focus");
-  const timeIdx = idx("time");
-  const passageIdx = idx("passage");
-  const notesIdx = idx("note");
-
-  let inserted = 0, skipped = 0;
-
-  for (let i = 1; i < rows.length; i++) {
-    const r = rows[i];
-    if (!r || r.length < 2 || !r[dateIdx]) { skipped++; continue; }
-
-    const dateStr = r[dateIdx];
-    let parsedDate;
-    try {
-      parsedDate = new Date(dateStr);
-      if (isNaN(parsedDate)) { skipped++; continue; }
-    } catch(e) { skipped++; continue; }
-
-    const owner = ownerIdx >= 0 ? (r[ownerIdx].toLowerCase().includes("ariel") ? "ariel" : "adam") : "adam";
-    const type = typeIdx >= 0 ? (r[typeIdx].toLowerCase().includes("bible") ? "bible" : "workout") : "workout";
-
-    const data = {};
-    if (workoutTypeIdx >= 0 && r[workoutTypeIdx]) data.workout_type = r[workoutTypeIdx];
-    if (durationIdx >= 0 && r[durationIdx]) data.duration = r[durationIdx];
-    if (intensityIdx >= 0 && r[intensityIdx]) data.intensity = parseInt(r[intensityIdx]) || null;
-    if (focusIdx >= 0 && r[focusIdx]) data.focus = r[focusIdx];
-    if (timeIdx >= 0 && r[timeIdx]) data.time_of_day = r[timeIdx];
-    if (passageIdx >= 0 && r[passageIdx]) data.passage = r[passageIdx];
-    if (notesIdx >= 0 && r[notesIdx]) data.notes = r[notesIdx];
-
-    const { error } = await supabase.from("logs").insert([{
-      user_id: currentUser.id,
-      user_email: currentUser.email,
-      type, owner, data,
-      created_at: new Date(dateStr + "T12:00:00").toISOString(),
-      deleted: false
-    }]);
-
-    if (error) { skipped++; } else { inserted++; }
-    log.textContent = `Importing... ${inserted} inserted, ${skipped} skipped`;
-  }
-
-  log.textContent = `✅ Import complete! ${inserted} entries imported, ${skipped} skipped.\nRefresh the dashboard to see your data.`;
-};
-
-/* ── TOAST ── */
+  /* ── TOAST ── */
   .toast { position: fixed; bottom: calc(var(--tab-h) + var(--safe-bottom) + 16px); left: 50%; transform: translateX(-50%) translateY(8px); background: var(--text); color: white; padding: 11px 20px; border-radius: 10px; font-size: 13px; font-weight: 500; opacity: 0; transition: all 0.25s; z-index: 400; white-space: nowrap; pointer-events: none; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
@@ -716,9 +682,10 @@ window.confirmImport = async () => {
 
       <!-- Custom date range (visible in custom mode only) -->
       <div class="custom-range-wrap" id="custom-range-wrap">
-        <input type="date" id="custom-from" onchange="loadDashboard()">
+        <input type="date" id="custom-from" onchange="applyCustomRange()" oninput="applyCustomRange()">
         <span class="custom-range-sep">→</span>
-        <input type="date" id="custom-to" onchange="loadDashboard()">
+        <input type="date" id="custom-to" onchange="applyCustomRange()" oninput="applyCustomRange()">
+
       </div>
       <div id="dashboard-content"></div>
     </div>
@@ -819,14 +786,20 @@ const supabase = createClient(
   "sb_publishable_c-u4pzu0HaUvKh6Wgwa5iw_0IKCNOKR"
 );
 
-const ALLOWED = ["adamhlavka@gmail.com", "zmudariel@gmail.com"];
-const ADAM = "adamhlavka@gmail.com";
-const NETLIFY_URL = "https://ironandword.netlify.app";
+// Dynamically build the redirect URL from wherever the app is currently running
+const NETLIFY_URL = (() => {
+  const origin = window.location.origin;
+  // Get the base path — strip index.html and trailing slash
+  const path = window.location.pathname
+    .replace(/\/index\.html$/, "")
+    .replace(/\/$/, "");
+  return origin + path;
+})();
 
 let currentUser = null, currentUserName = "";
-let previewAs = "adam";   // what dashboard/history shows (adam can toggle to "ariel")
-let logAs = "adam";       // who we're logging for (adam can switch to "ariel")
-let dashMode = "month"; // "month", "ytd", "all"
+let previewAs = "adam";
+let logAs = "adam";
+let dashMode = "month";
 let dashMonth = new Date().getMonth();
 let dashYear = new Date().getFullYear();
 let historyPeriod = "all", histTab = "all";
@@ -851,15 +824,50 @@ async function init() {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) { document.getElementById("auth-screen").style.display = "flex"; return; }
 
-  const email = session.user.email.toLowerCase();
-  if (!ALLOWED.includes(email)) {
+  // Check if this user has any logs in the database — if not, they're not allowed
+  // Identity (adam vs ariel) is determined by checking the owner field in their logs
+  const { data: profile, error: profileErr } = await supabase
+    .from("logs")
+    .select("owner")
+    .eq("deleted", false)
+    .limit(1);
+
+  // If they have no records at all, check via a direct owner lookup
+  const { data: ownerCheck } = await supabase
+    .from("logs")
+    .select("owner")
+    .limit(1);
+
+  // Determine identity: RLS will only return rows this user is allowed to see
+  // Adam can see all rows; Ariel can only see her own
+  // So we check: can this user see rows owned by "adam"?
+  const { data: adamRows } = await supabase
+    .from("logs")
+    .select("id")
+    .eq("owner", "adam")
+    .eq("deleted", false)
+    .limit(1);
+
+  const { data: arielRows } = await supabase
+    .from("logs")
+    .select("id")
+    .eq("owner", "ariel")
+    .eq("deleted", false)
+    .limit(1);
+
+  // If they can't see any rows at all, they're not an authorised user
+  const canSeeAdam = adamRows && adamRows.length > 0;
+  const canSeeAriel = arielRows && arielRows.length > 0;
+
+  if (!canSeeAdam && !canSeeAriel) {
     await supabase.auth.signOut();
-    document.body.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:'Inter',sans-serif">🔒 Private App</div>`;
+    document.body.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:'Inter',sans-serif;color:#6b6650">🔒 Private App</div>`;
     return;
   }
 
+  // Adam can see both; Ariel can only see ariel rows (RLS blocks adam rows for her)
   currentUser = session.user;
-  currentUserName = email === ADAM ? "adam" : "ariel";
+  currentUserName = canSeeAdam && canSeeAriel ? "adam" : "ariel";
   previewAs = currentUserName;
   logAs = currentUserName;
 
@@ -872,7 +880,6 @@ async function init() {
     document.getElementById("lt-cold").style.display = "flex";
     document.getElementById("lt-sauna").style.display = "flex";
     document.getElementById("hist-tab-private").style.display = "block";
-    // re-hide private tab if we switch to Ariel preview
     document.getElementById("pill-ariel").addEventListener("click", () => {
       document.getElementById("hist-tab-private").style.display = "none";
       if (histTab === "private") { histTab = "all"; document.querySelectorAll(".hist-tab").forEach(b => b.classList.remove("active")); document.querySelector(".hist-tab").classList.add("active"); }
@@ -884,8 +891,8 @@ async function init() {
 
   initDashPicker();
   document.getElementById("profile-avatar").textContent = currentUserName === "adam" ? "A" : "Ar";
-  document.getElementById("profile-name").textContent = currentUserName === "adam" ? "Adam Hlávka" : "Ariel";
-  document.getElementById("profile-email").textContent = email;
+  document.getElementById("profile-name").textContent = currentUserName === "adam" ? "Adam" : "Ariel";
+  document.getElementById("profile-email").textContent = "Signed in with Google";
 
   loadDashboard(); loadHistory();
 }
@@ -896,6 +903,17 @@ window.setPreview = (who) => {
   document.getElementById("pill-adam").classList.toggle("active", who === "adam");
   document.getElementById("pill-ariel").classList.toggle("active", who === "ariel");
   document.getElementById("topbar-title").textContent = who === "ariel" ? "Ariel's View" : "Iron & Word";
+  // Hide/show private log types based on whose view we're in
+  const showPrivate = who === "adam";
+  document.getElementById("lt-cold").style.display = showPrivate ? "flex" : "none";
+  document.getElementById("lt-sauna").style.display = showPrivate ? "flex" : "none";
+  // If currently selected type is private, reset the form
+  if (!showPrivate && (selectedLogType === "cold" || selectedLogType === "sauna")) {
+    selectedLogType = null;
+    logFormData = {};
+    document.getElementById("log-form-area").innerHTML = "";
+    renderLogTypeGrid();
+  }
   loadDashboard(); loadHistory();
 };
 
@@ -925,9 +943,9 @@ function initDashPicker() {
   const now = new Date();
   dashMonth = now.getMonth();
   dashYear = now.getFullYear();
-  // Set month button label to current month name
+  // Set month button label to "This Month (April)" style
   const monthBtn = document.getElementById("dp-month");
-  if (monthBtn) monthBtn.textContent = MONTHS_FULL[now.getMonth()];
+  if (monthBtn) monthBtn.textContent = MONTHS_FULL[now.getMonth()] + " " + now.getFullYear();
   // Default custom range to current month
   const pad = n => String(n).padStart(2,"0");
   const y = now.getFullYear(), m = now.getMonth();
@@ -941,6 +959,31 @@ function selectMonthChip(el, month, year) {
   dashMonth = month; dashYear = year;
   loadDashboard();
 }
+
+window.applyCustomRange = () => {
+  dashMode = "custom";
+  ["dp-month","dp-ytd","dp-custom"].forEach(id => {
+    document.getElementById(id)?.classList.remove("active");
+  });
+  document.getElementById("dp-custom")?.classList.add("active");
+  document.getElementById("custom-range-wrap").style.display = "flex";
+
+  const from = document.getElementById("custom-from").value;
+  const to = document.getElementById("custom-to").value;
+
+  // Visual confirmation on the Apply button
+  const applyBtn = document.querySelector("#custom-range-wrap button");
+  if (applyBtn) {
+    applyBtn.textContent = "✓ Applied";
+    applyBtn.style.background = "#2d7a3a";
+    setTimeout(() => {
+      applyBtn.textContent = "Apply";
+      applyBtn.style.background = "";
+    }, 1800);
+  }
+
+  loadDashboard();
+};
 
 window.setDashMode = (mode) => {
   dashMode = mode;
@@ -1070,8 +1113,80 @@ async function loadDashboard() {
       <div class="private-card"><span class="private-icon">🔥</span><div class="private-num">${saunas}</div><div class="private-label">Sauna Sessions</div></div>
     </div>` : ""}
 
+    <div class="section-label">Last 6 Months</div>
+    <div id="chart-section"></div>
+
     <div class="section-label">Recent Activity</div>
     <div class="card"><div id="recent-list"></div></div>`;
+
+  // ── Build 6-month chart ──
+  const now2 = new Date();
+  const months6 = [];
+  for (let i = 5; i >= 0; i--) {
+    let m = now2.getMonth() - i;
+    let y = now2.getFullYear();
+    if (m < 0) { m += 12; y--; }
+    months6.push({ m, y, label: MONTHS[m] });
+  }
+
+  // Count per month per person per type
+  const countFor = (owner, type, m, y) =>
+    allData.filter(r =>
+      r.owner === owner && r.type === type && !r.deleted &&
+      new Date(r.created_at).getMonth() === m &&
+      new Date(r.created_at).getFullYear() === y
+    ).length;
+
+  const wData = months6.map(({m,y}) => ({
+    adamW: countFor("adam","workout",m,y),
+    arielW: countFor("ariel","workout",m,y)
+  }));
+  const bData = months6.map(({m,y}) => ({
+    adamB: countFor("adam","bible",m,y),
+    arielB: countFor("ariel","bible",m,y)
+  }));
+
+  const buildChart = (data, keyA, keyB, icon, title) => {
+    const MAX_H = 70; // max bar height px
+    const maxVal = Math.max(...data.map(d => Math.max(d[keyA], d[keyB])), 1);
+    const barH = (val) => val === 0 ? 3 : Math.max(5, Math.round((val / maxVal) * MAX_H));
+
+    const cols = months6.map(({label}, i) => {
+      const a = data[i][keyA], b = data[i][keyB];
+      const cur = i === 5;
+      const ac = cur ? "adam"  : "adam-dim";
+      const bc = cur ? "ariel" : "ariel-dim";
+      const nd = cur ? "" : " dim";
+      return `<div class="chart-col">
+        <div class="chart-bar-zone">
+          <div class="chart-bar ${ac}" style="height:${barH(a)}px"></div>
+          <div class="chart-bar ${bc}" style="height:${barH(b)}px"></div>
+        </div>
+        <div class="chart-nums">
+          <div class="chart-num adam${nd}">${a}</div>
+          <div class="chart-num ariel${nd}">${b}</div>
+        </div>
+        <div class="chart-month-label">${label}</div>
+      </div>`;
+    }).join("");
+
+    return `<div class="chart-card">
+      <div class="chart-title">${icon} ${title}</div>
+      <div class="chart-legend">
+        <div class="chart-legend-item">
+          <div class="chart-legend-dot" style="background:var(--olive)"></div>Adam
+        </div>
+        <div class="chart-legend-item">
+          <div class="chart-legend-dot" style="background:var(--gold)"></div>Ariel
+        </div>
+      </div>
+      <div class="chart-wrap">${cols}</div>
+    </div>`;
+  };
+
+  document.getElementById("chart-section").innerHTML =
+    buildChart(wData, "adamW", "arielW", "🏋️", "Workouts") +
+    buildChart(bData, "adamB", "arielB", "📖", "Bible Reading");
 
   const recent = [...allData].filter(r => r.type !== "cold" && r.type !== "sauna")
     .sort((a,b) => new Date(b.created_at)-new Date(a.created_at)).slice(0,6);
@@ -1226,7 +1341,7 @@ function workoutForm() { return `
   </div>
   <div class="section-label">Notes</div>
   <div class="card" style="padding:16px"><textarea class="form-input" rows="3" placeholder="How did it go?" style="resize:none" oninput="setField('notes',this.value)"></textarea></div>
-  <button class="btn-primary" onclick="saveEntry()">Save Workout</button><div style="height:16px"></div>`; }
+  <button class="btn-primary" id="save-btn" onclick="saveEntry()">Save Workout</button><div style="height:16px"></div>`; }
 
 function bibleForm() { return `
   <div class="section-label" style="margin-top:20px">Passage</div>
@@ -1236,7 +1351,7 @@ function bibleForm() { return `
   <div class="card" style="padding:16px"><input class="form-input" type="number" min="1" placeholder="20" oninput="setField('duration',this.value)"></div>
   <div class="section-label">Notes & Reflections</div>
   <div class="card" style="padding:16px"><textarea class="form-input" rows="4" placeholder="What stood out to you?" style="resize:none" oninput="setField('notes',this.value)"></textarea></div>
-  <button class="btn-primary" onclick="saveEntry()">Save Reading</button><div style="height:16px"></div>`; }
+  <button class="btn-primary" id="save-btn" onclick="saveEntry()">Save Reading</button><div style="height:16px"></div>`; }
 
 function coldForm() { return `
   <div class="section-label" style="margin-top:20px">Method</div>
@@ -1252,7 +1367,7 @@ function coldForm() { return `
   </div>
   <div class="section-label">Notes</div>
   <div class="card" style="padding:16px"><textarea class="form-input" rows="3" placeholder="How did it feel?" style="resize:none" oninput="setField('notes',this.value)"></textarea></div>
-  <button class="btn-primary" onclick="saveEntry()">Save Cold Session</button><div style="height:16px"></div>`; }
+  <button class="btn-primary" id="save-btn" onclick="saveEntry()">Save Cold Session</button><div style="height:16px"></div>`; }
 
 function saunaForm() { return `
   <div class="section-label" style="margin-top:20px">Type</div>
@@ -1267,7 +1382,7 @@ function saunaForm() { return `
   </div>
   <div class="section-label">Notes</div>
   <div class="card" style="padding:16px"><textarea class="form-input" rows="3" placeholder="How was it?" style="resize:none" oninput="setField('notes',this.value)"></textarea></div>
-  <button class="btn-primary" onclick="saveEntry()">Save Sauna Session</button><div style="height:16px"></div>`; }
+  <button class="btn-primary" id="save-btn" onclick="saveEntry()">Save Sauna Session</button><div style="height:16px"></div>`; }
 
 /* ── HELPERS ── */
 window.toggleChip = (el, field, value, exclusive) => {
@@ -1284,27 +1399,68 @@ window.updateSlider = (field, value) => {
 /* ── SAVE ── */
 window.saveEntry = async () => {
   if (!selectedLogType) return;
-  if (selectedLogType === "workout" && !logFormData.workout_type) { showToast("Select a workout type"); return; }
-  if (selectedLogType === "bible" && !logFormData.passage?.trim()) { showToast("Enter a Bible passage"); return; }
-  if (selectedLogType === "cold" && !logFormData.method) { showToast("Select a method"); return; }
-  if (selectedLogType === "sauna" && !logFormData.sauna_type) { showToast("Select sauna type"); return; }
 
-  const btn = document.querySelector("#page-log .btn-primary");
-  if (btn) { btn.disabled = true; btn.textContent = "Saving…"; }
+  // Validation — show clear feedback and stop
+  if (selectedLogType === "workout" && !logFormData.workout_type) {
+    showToast("Please select a workout type"); return;
+  }
+  if (selectedLogType === "bible" && !logFormData.passage?.trim()) {
+    showToast("Please enter a Bible passage"); return;
+  }
+  if (selectedLogType === "cold" && !logFormData.method) {
+    showToast("Please select a method"); return;
+  }
+  if (selectedLogType === "sauna" && !logFormData.sauna_type) {
+    showToast("Please select sauna type"); return;
+  }
 
-  const owner = (selectedLogType === "cold" || selectedLogType === "sauna") ? "adam" : logAs;
-  const entryDate = logFormData._date || todayDateStr();
-  const { _date, ...entryData } = logFormData;
-  const created_at = new Date(entryDate + "T12:00:00").toISOString();
-  const { error } = await supabase.from("logs").insert([{
-    user_id: currentUser.id, user_email: currentUser.email,
-    type: selectedLogType, owner, data: entryData,
-    created_at, deleted: false
-  }]);
+  // Find the save button and show loading state
+  const btn = document.getElementById("save-btn");
+  const originalText = btn ? btn.textContent : "Save";
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Saving…";
+    btn.style.opacity = "0.7";
+  }
 
-  if (error) { showToast("Error — try again"); if (btn) { btn.disabled = false; btn.textContent = "Save"; } return; }
-  showToast("✓ Saved");
-  setTimeout(() => showPage("home"), 500);
+  try {
+    const owner = (selectedLogType === "cold" || selectedLogType === "sauna") ? "adam" : logAs;
+    const entryDate = logFormData._date || todayDateStr();
+    const { _date, ...entryData } = logFormData;
+    const created_at = new Date(entryDate + "T12:00:00").toISOString();
+
+    const { error } = await supabase.from("logs").insert([{
+      user_id: currentUser.id,
+      user_email: currentUser.email,
+      type: selectedLogType,
+      owner,
+      data: entryData,
+      created_at,
+      deleted: false
+    }]);
+
+    if (error) throw error;
+
+    // Success — reset form, reload data, navigate home
+    showToast("✓ Saved");
+    selectedLogType = null;
+    logFormData = {};
+    document.getElementById("log-form-area").innerHTML = "";
+    renderLogTypeGrid();
+
+    // Reload dashboard and history before navigating
+    await Promise.all([loadDashboard(), loadHistory()]);
+    showPage("home");
+
+  } catch (err) {
+    console.error("Save error:", err);
+    showToast("Error saving — please try again");
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = originalText;
+      btn.style.opacity = "1";
+    }
+  }
 };
 
 
@@ -1417,6 +1573,13 @@ window.showToast = (msg) => {
   t.textContent = msg; t.classList.add("show");
   setTimeout(() => t.classList.remove("show"), 2200);
 };
+
+// Register service worker for PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
 
 window.onload = init;
 </script>
